@@ -26,7 +26,6 @@ createRoot(document.getElementById('root')).render(
         <Route path="/estadisticas" element={<Estadisticas />} />
         <Route path="/crear-incidencia" element={<CrearIncidencia />} />
         <Route path="/personas" element={<Personas />} />
-        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
