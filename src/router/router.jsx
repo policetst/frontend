@@ -16,31 +16,31 @@ const ROUTER = createBrowserRouter([
         element: <PaginaPrincipal />
     },
     {
-        path: "/login",
+        path: "/login/",
         element: <Login />
     },
     {
-        path: "/perfil",
+        path: "/perfil/",
         element: <Perfil />
     },
     {
-        path: "/mapa",
+        path: "/mapa/",
         element: <Mapa />
     },
     {
-        path: "/incidencia/:id",
+        path: "/incidencias/",
         element: <MostrarIncidencia />
     },
     {
-        path: "/estadisticas",
+        path: "/estadisticas/",
         element: <Estadisticas />
     },
     {
-        path: "/crear-incidencia",
+        path: "/crear-incidencia/",
         element: <CrearIncidencia />
     },
     {
-        path: "/personas",
+        path: "/personas/",
         element: <Personas />
     },
     {
