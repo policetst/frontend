@@ -10,8 +10,17 @@ import Estadisticas from "../pages/Estadisticas";
 import CrearIncidencia from "../pages/CrearIncidencia";
 import Personas from "../pages/Personas";
 import PaginaPrincipal from "../pages/PaginaPrincipal";
-
+//! crar hashrouter para poder enrutar las diferentes páginas de la aplicación
 const ROUTER = createHashRouter([
+  /*
+  
+  * con el formato
+  * {
+  * path: "/ruta",
+  * element: <Componente />,
+  },
+  * }
+  */
   {
     path: "/",
     element: <PaginaPrincipal />
