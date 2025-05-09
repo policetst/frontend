@@ -20,7 +20,6 @@ function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (username === user.username && password === user.password) {
-            alert('Login successful');
             navigate('/');
           
         } else {
