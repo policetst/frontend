@@ -10,6 +10,7 @@ import Estadisticas from "../pages/Estadisticas";
 import CrearIncidencia from "../pages/CrearIncidencia";
 import Personas from "../pages/Personas";
 import PaginaPrincipal from "../pages/PaginaPrincipal";
+import Loayaut from "../loayauts/Loayaut";
 //! crar hashrouter para poder enrutar las diferentes páginas de la aplicación
 const ROUTER = createHashRouter([
   /*
@@ -21,7 +22,7 @@ const ROUTER = createHashRouter([
   },
   * }
   */
-  {
+    {
     path: "/",
     element: <PaginaPrincipal />
   },
@@ -29,6 +30,11 @@ const ROUTER = createHashRouter([
     path: "/login",
     element: <Login />
   },
+  {
+  path: "/",
+  element: <Loayaut/>,
+  children:[
+
   {
     path: "/perfil",
     element: <Perfil />
@@ -57,6 +63,8 @@ const ROUTER = createHashRouter([
     path: "*",
     element: <NotFound />
   }
+  ]
+}
 ]);
 
 export default ROUTER;

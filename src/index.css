@@ -2,3 +2,69 @@
 body{
   color: #000;
 }
+
+header {
+    background-color: #222831;
+    color: white;
+    text-align: center; 
+    padding: 1rem;
+}
+body {
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+/*Menu lateral*/
+
+.contenedor-lateral {
+    display: flex;
+}
+.menu-lateral {
+    width: 200px;
+    background-color: #393E46;
+    padding: 20px;
+    height: 100vh;
+}
+.menu-lateral ul {
+    list-style: none;
+    padding: 0;
+}
+.menu-lateral ul li {
+    margin: 15px 0;
+}
+.menu-lateral ul li a {
+    text-decoration: none; 
+    color: white;
+    display: block;
+    padding: 10px;
+    background: #0092CA; 
+    border-radius: 5px;
+}
+.menu-lateral ul li a:hover {
+    background: #bbb;
+}
+main {
+    flex-grow: 1; 
+    padding: 20px;
+}
+
+/*Menu horizontal
+
+.menu-horizontal ul {
+    list-style: none;
+    padding: 0; 
+    display: flex;
+    justify-content: center;
+    background: #444;
+    padding: 10px; 
+}
+.menu-horizontal ul li {
+    margin: 0 15px;
+}
+.menu-horizontal ul li a {
+    text-decoration: none;
+    color: white;
+}
+.menu-horizontal ul li a:hover {
+    background: #666;
+    border-radius: 5px;
+}*/

@@ -1,14 +1,22 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-function Card({textoboton,urlimagen,descripcion, navto, alt}) {
+function Card({textoboton,urlimagen,descripcion, navto, alt, title}) {
   return (
     <div>
-        <div className='flex flex-col items-center gap-6 p-7 rounded-[4px] border-1 w-[240px] py-[1px] shadow-2xl mt-4'>
-            <img src={urlimagen} alt={alt} className='rounded-[3px] mt-2'/>
-            <Link className='bg-blue-500 mt-4 rounded-[6px] p-[4px] hover:bg-blue-700 text-white p-[]' to={navto}>{textoboton}</Link>
-            <p className='mb-[6px]'>{descripcion}</p>
-        </div>
+                           <div className="card p-2 border-1 rounded-[4px]">
+                        <img className="w-full h-auto rounded-t-xl md:rounded-t-md " src={urlimagen}
+                            alt={alt}/>
+                        <div class="card-body">
+                            <h3 class="text-lg font-bold text-default-800">{title}</h3>
+                            <p class="mt-1 text-default-500">
+                                {descripcion}
+                            </p>
+                            <a class="m-[5px] rounded-2xl btn p-1 bg-blue-500 text-white" href={navto}>
+                                {textoboton}
+                            </a>
+                        </div>
+                    </div>
     </div>
   )
 }
