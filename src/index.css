@@ -39,8 +39,13 @@ body {
     background: #0092CA; 
     border-radius: 5px;
 }
+ul li a{
+    animation: 0.3s;
+    transition: background 0.3s;
+    
+}
 .menu-lateral ul li a:hover {
-    background: #bbb;
+    background: #014966;
 }
 main {
     flex-grow: 1; 
