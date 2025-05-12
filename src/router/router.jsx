@@ -10,6 +10,7 @@ import Estadisticas from "../pages/Estadisticas";
 import CrearIncidencia from "../pages/CrearIncidencia";
 import Personas from "../pages/Personas";
 import PaginaPrincipal from "../pages/PaginaPrincipal";
+import ForgotPassword from "../pages/ForgotPassword";
 import Loayaut from "../loayauts/Loayaut";
 //! crar hashrouter para poder enrutar las diferentes páginas de la aplicación
 const ROUTER = createHashRouter([
@@ -22,6 +23,11 @@ const ROUTER = createHashRouter([
   },
   * }
   */
+ {
+
+  path: "/forgot",
+  element: <ForgotPassword />
+ },
     {
     path: "/",
     element: <PaginaPrincipal />
