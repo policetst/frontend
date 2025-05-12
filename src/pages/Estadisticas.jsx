@@ -23,6 +23,14 @@ function Estadisticas() {
           </BarChart>
         </ResponsiveContainer>
       </div>
+      <div>
+        {data.map((item) => (
+          <div key={item.id} className="bg-white shadow-lg rounded-md p-4 mb-4 w-[150px]">
+            <h2 className="text-lg font-semibold">{item.tipo}</h2>
+            <p className="text-gray-600">Total: {item.count}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
