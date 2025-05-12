@@ -1,5 +1,11 @@
 @import "tailwindcss"; /*! import tailwind into our css file*/
-body{
+
+
+:root{
+    --primary: #6366f1
+}
+body, html {
+    font-family: "Montserarat", sans-serif;
   color: #000;
 }
 

@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 function Login() {
     const navigate = useNavigate();
     const user = {
@@ -27,67 +27,78 @@ function Login() {
         }
     }
   
-   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <div className="relative w-full h-full">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.rockefellerfoundation.org%2Fwp-content%2Fuploads%2FNYC-street-scene.jpeg&f=1&nofb=1&ipt=c22ca5a51088bb6bec0a7cbb6756399700812516b2d25562c4947109896cfb47')`,
-            backgroundSize: 'cover',
-          }}
-        />
-      </div>
-      
-      <div className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 md:w-1/2 lg:w-2/5 xl:w-[480px] bg-gray-800 opacity-85 flex flex-col justify-center">
-        <div className="px-8 sm:px-12 md:px-16 w-full">
-          <h1 className="text-6xl font-light text-white mb-16">Login</h1>
-          
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <label htmlFor="username" className="block text-gray-300 text-sm">
-                Nombre de usuario:
-              </label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={handleUsernameChange}
-                className="w-full p-3 rounded bg-white"
-              />
+  return (
+
+<div>
+  <>
+    <section className="bg-white">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+            <div className="flex items-center justify-center px-4 py-7 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
+                <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto sm:relative">
+                    <p
+                        className="text-3xl font-bold text-gray-900 mb-6 bloc">Acceso</p>
+                    <form className="mt-8">
+                        <div className="space-y-5">
+                            <div>
+                                <label htmlFor="" className="text-base font-medium text-gray-900"> Usuario </label>
+                                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+                                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                        <i className="ti ti-user text-xl"></i>
+                                    </div>
+
+                                    <input type="text" name="" id="" placeholder="" onChange={handleUsernameChange}
+                                        className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <div className="flex justify-between items-center">
+                                    <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
+                                    <Link to="/forgot"
+                                        className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
+                                </div>
+                                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+                                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                        <i className="ti ti-fingerprint text-xl"></i>
+                                    </div>
+
+                                    <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
+                                        className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <button type="submit"
+                                    className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-blue-400"
+                                    
+                                    onClick={handleSubmit}>
+                                    Acceder
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div className="mt-3 space-y-3">
+                   
+
+                       
+                    </div>
+                </div>
             </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="password" className="block text-gray-300 text-sm">
-                Contraseña:
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={handlePasswordChange}
-                className="w-full p-3 rounded bg-white"
-              />
+
+            <div
+                className="relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 bg-cover bg-center sm:px-6 lg:h-screen lg:px-8 lg:bg-[url('/loginimg.jpg')] ">
+                <div className="absolute inset-0 bg-gradient-to-t from-sky-900 to-transparent hidden"></div>
+
+         
             </div>
-            
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded transition-colors"
-            >
-              Acceder
-            </button>
-            
-            <div className="text-center mt-4">
-              <a href="#" className="text-gray-300 hover:text-white text-sm">
-                ¿Has olvidado tu contraseña?
-              </a>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  );
-  
+    </section>
+  </>
+</div>
+
+  )
 }
 
 export default Login

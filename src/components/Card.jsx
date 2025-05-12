@@ -1,24 +1,43 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-function Card({textoboton,urlimagen,descripcion, navto, alt, title}) {
+function Card({ textoboton, urlimagen, descripcion, navto, alt, title }) {
   return (
-    <div>
-                           <div className="card p-2 border-1 rounded-[4px]">
-                        <img className="w-full h-auto rounded-t-xl md:rounded-t-md " src={urlimagen}
-                            alt={alt}/>
-                        <div class="card-body">
-                            <h3 class="text-lg font-bold text-default-800">{title}</h3>
-                            <p class="mt-1 text-default-500">
-                                {descripcion}
-                            </p>
-                            <a class="m-[5px] rounded-2xl btn p-1 bg-blue-500 text-white" href={navto}>
-                                {textoboton}
-                            </a>
-                        </div>
-                    </div>
+    <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+      {/* Imagen */}
+      <img
+        className="w-full h-48 object-cover"
+        src={urlimagen}
+        alt={alt}
+      />
+      {/* Contenido de la carta*/}
+      <div className="p-4">
+        <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+        <p className="mt-2 text-gray-600">{descripcion}</p>
+        <Link
+          to={navto}
+          className="inline-block mt-4 px-6 py-2 text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-300"
+        >
+          {textoboton}
+        </Link>
+      </div>
     </div>
-  )
+  );
 }
 
-export default Card
+export default Card;
+/* <div class="card">
+                        <img class="w-full h-auto rounded-t-xl" src="assets/images/small/img-4.jpg"
+                            alt="Image Description">
+                        <div class="card-body">
+                            <h3 class="text-lg font-bold text-default-800">Card title</h3>
+                            <p class="mt-1 text-default-500">
+                                Some quick example text to build on the card title and make up the bulk of the
+                                card's
+                                content.
+                            </p>
+                            <a class="mt-2 btn bg-primary text-white" href="#">
+                                Go somewhere
+                            </a>
+                        </div>
+                    </div>*/
