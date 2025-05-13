@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Menu, User, LogOut, Home, Settings } from 'lucide-react';
-import '../index.css';
 function Layout() {
     const handleLogout = () => {
         window.location.href = '/#/login';
@@ -41,7 +40,7 @@ function Layout() {
 
   return (
     <div 
-      className="flex h-screen bg-gray-50 overflow-hidden font-sans" 
+      className="flex h-screen bg-gray-50 overflow-hidden" 
       onClick={closeSidebar}
     >
       {/* Overlay for mobile sidebar */}

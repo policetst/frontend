@@ -1,14 +1,20 @@
 @import "tailwindcss"; /*! import tailwind into our css file*/
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap');
+@import '@fontsource/oswald'; /* Peso 400 por defecto */
+
+/* O si prefieres pesos específicos: */
+@import '@fontsource/oswald/300.css';
+@import '@fontsource/oswald/400.css';
+@import '@fontsource/oswald/700.css';
+
 
 
 :root{
     --primary: #6366f1
 }
 body {
-  font-family: 'Montserrat', 'Roboto' !important;
-  @apply font-sans font-sans;
+font-family: 'Oswald', sans-serif;
+    
 }
 
 header {

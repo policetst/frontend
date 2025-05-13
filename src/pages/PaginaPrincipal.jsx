@@ -6,7 +6,7 @@ function PaginaPrincipal() {
 
   
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-300 p-2 font-sans">
+    <div className="flex justify-center items-center min-h-screen bg-gray-300 p-2">
       <div className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 p-4'>
         <Card descripcion={"Consulta las personas implicadas en incidencias"} urlimagen="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.DhFT-QL6-WLs2vyf-ArFtgHaE8%26pid%3DApi&f=1&ipt=bf29d4f88cbe3b2fd50059c0da30256201a3ab7c16a1a3092891ac1f871b739f&ipo=images" textoboton="Personas" navto={"/personas"} alt={"Personas"} title={"Personas"}/>
 
