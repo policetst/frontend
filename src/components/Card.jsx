@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; //* link its a react co,mponent that allows us to navigate between pages without reloading the page
 
-function Card({ textoboton, urlimagen, descripcion, navto, alt, title }) {
+function Card({ textoboton, urlimagen, descripcion, navto, alt, title }) { //* desestructuring props to get the values of the props
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
       {/* Imagen */}
