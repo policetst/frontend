@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Menu, User, LogOut, Home, Settings } from 'lucide-react';
-
+import '../index.css';
 function Layout() {
     const handleLogout = () => {
         window.location.href = '/#/login';
@@ -41,7 +41,7 @@ function Layout() {
 
   return (
     <div 
-      className="flex h-screen bg-gray-50 overflow-hidden" 
+      className="flex h-screen bg-gray-50 overflow-hidden font-sans" 
       onClick={closeSidebar}
     >
       {/* Overlay for mobile sidebar */}
@@ -63,8 +63,8 @@ function Layout() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between px-4 py-4 bg-gray-100 border-b">
+          {/* Sidebar Header left section */}
+          <div className="flex items-center justify-between px-4 py-4 bg-gray-00 border-b">
             <Link 
               to="/" 
               className="text-xl font-bold text-gray-800 hover:text-blue-600 transition"
