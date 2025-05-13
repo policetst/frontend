@@ -1,37 +1,42 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react' // * import useState to handle the state of the inputs
 
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // * import Link to handle the navigation between pages
 function Login() {
-    const navigate = useNavigate();
+    const navigate = useNavigate(); // * create a instance of useNavigate to handle the navigation
+
+    //! * create a user object to handle the login
     const user = {
         username: 'admin',
         password: 'admin'
     }
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    //* this function captures the username input and sets the username state
     const handleUsernameChange = (e) => {
         e.preventDefault();
         setUsername(e.target.value);
     }
+    //* this function captures the password input and sets the password state
     const handlePasswordChange = (e) => {
         e.preventDefault();
         setPassword(e.target.value);
     }
+    //* this function handles the submit event of the form and checks if the username and password are correct
     const handleSubmit = (e) => {
         e.preventDefault();
         if (username === user.username && password === user.password) {
-            navigate('/');
+            navigate('/'); // * navigate to the home page
           
         } else {
             alert('Invalid username or password');
         }
     }
-  
+  //!jsx code
   return (
 
 <div>
   <>
-    <section className="bg-white">
+    <section className="bg-white font-sans">
         <div className="grid grid-cols-1 lg:grid-cols-2">
             <div className="flex items-center justify-center px-4 py-7 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
                 <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto sm:relative">
