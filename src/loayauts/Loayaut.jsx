@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Menu, User, LogOut, Home, Settings } from 'lucide-react';
 
+
 function Layout() {
     const handleLogout = () => {
         window.location.href = '/#/login';
@@ -169,28 +170,28 @@ function Layout() {
         <header className="flex items-center justify-between px-4 sm:px-6 py-3 bg-white shadow-md">
           <div className="flex items-center">
             <button
-              className="lg:hidden text-gray-600 hover:text-gray-800 mr-4"
+              className="text-gray-300 hover:text-cyan-500 mr-4"
               onClick={toggleSidebar}
               aria-label="Abrir menú"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <h1 className="text-lg font-bold text-gray-800">Mi App</h1>
+            <h1 className="text-lg font-bold text-gray-400">Sistema de Incidencias Locales Tauste</h1>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             <Link 
               to="/perfil" 
-              className="flex items-center text-gray-600 hover:text-gray-800 transition"
+              className="flex items-center text-gray-100 hover:text-cyan-500 transition"
             >
-              <User className="w-5 h-5" />
-              <span className="ml-2 hidden sm:block text-sm">Perfil</span>
+              <User className="w-7 h-7" />
+              {/* <span className="ml-2 hidden sm:block text-sm">Perfil</span> */}
             </Link>
             <button 
-              className="text-gray-600 hover:text-red-600 transition" 
+              className="text-gray-100 hover:text-red-600 transition" 
               aria-label="Cerrar sesión"
             >
-              <LogOut className="w-5 h-5" onClick={handleLogout} />
+              <LogOut className="w-7 h-7" onClick={handleLogout} />
             </button>
           </div>
         </header>
