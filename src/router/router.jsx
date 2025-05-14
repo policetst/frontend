@@ -23,16 +23,8 @@ const ROUTER = createHashRouter([
   },
   * }
   */
- {
 
-  path: "/forgot",
-  element: <ForgotPassword />
- },
-    {
-    path: "/",
-    element: <PaginaPrincipal />
-  },
-  {
+     {
     path: "/login",
     element: <Login />
   },
@@ -40,7 +32,16 @@ const ROUTER = createHashRouter([
   path: "/",
   element: <Loayaut/>,
   children:[
+     {
+    path: "/",
+    element: <PaginaPrincipal />
+  },
 
+ {
+
+  path: "/forgot",
+  element: <ForgotPassword />
+ },
   {
     path: "/perfil",
     element: <Perfil />
