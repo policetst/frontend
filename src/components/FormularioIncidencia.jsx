@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { DATA, postIncident } from '../funcs/Incidents';
+import {  postIncident, getLocation } from '../funcs/Incidents';
 
 const FormularioIncidencia = () => {
+  const [location, setLocation] = useState('');
+    useEffect(() => {
+    setForm(prev => ({
+      ...prev,
+      location: location
+    }));
+  }, [location]);
 
-      const Location = DATA.latitude + ',' + DATA.longitude; // format: "latitude,longitude"
-  const [location, setLocation] = useState(Location); 
   useEffect(() => {
-  }, [DATA]);
+    getLocation()
+      .then((loc) => {
+        const locString = `${loc.latitude},${loc.longitude}`;
+        setLocation(locString);
+        // console.log("Ubicación obtenida:", locString);
+       
+      })
+      .catch((error) => {
+        console.error("Failed to get location:", error);
+      });
+  }, [location]);
 
   const [form, setForm] = useState({
     status: 'Open',
