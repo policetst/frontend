@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
-<<<<<<< HEAD
 import { Menu, User, LogOut, Home, Settings } from 'lucide-react';
-<<<<<<< HEAD
-
-
-=======
 import '../index.css';
->>>>>>> 2f8c3086e8c97573a5f30de9489d7bd746de1261
-=======
 import { Menu, X, User, LogOut, Home, Settings } from 'lucide-react';
 
->>>>>>> 1e1af01e81ab503a903ad4c6ba08c46574eb7b03
 function Layout() {
   const handleLogout = () => {
     window.location.href = '/#/login';
