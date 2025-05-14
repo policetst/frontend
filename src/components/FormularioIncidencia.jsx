@@ -52,8 +52,7 @@ const FormularioIncidencia = () => {
           status: 'Open',
           location: location,
           type: '',
-          description: '',
-          brigade_field: false,
+          descrifalse,
           creator_user_code: 'AR00001',
         });
       });
@@ -128,9 +127,9 @@ const FormularioIncidencia = () => {
         <div className="flex items-center mb-4">
           <input
             type="checkbox"
-            name="contactoBrigada"
+            name="brigade_field"
             checked={form.brigade_field}
-            onChange={handleChange}
+                    onChange={handleChange}
             className="mr-2"
           />
           <label className="text-sm">Contacto con brigada</label>
