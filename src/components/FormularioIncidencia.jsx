@@ -116,53 +116,69 @@ const FormularioIncidencia = () => {
         </div>
       </div>
 
-      {/* Sección personas */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Personas</h2>
-        <div className="grid grid-cols-3 gap-2 mb-2">
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={nuevaPersona.nombre}
-            onChange={(e) => setNuevaPersona({ ...nuevaPersona, nombre: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Apellidos"
-            value={nuevaPersona.apellidos}
-            onChange={(e) => setNuevaPersona({ ...nuevaPersona, apellidos: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="DNI"
-            value={nuevaPersona.dni}
-            onChange={(e) => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={agregarPersona}
-          className="mb-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          Añadir persona
-        </button>
+{/* Sección personas */}
+<div>
+  <h2 className="text-xl font-bold mb-2">Personas</h2>
+  <div className="grid grid-cols-4 gap-2 mb-2">
+    <input
+      type="text"
+      placeholder="DNI"
+      value={nuevaPersona.dni}
+      onChange={(e) => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
+      className="p-2 border rounded-md"
+    />
+    <input
+      type="text"
+      placeholder="Nombre"
+      value={nuevaPersona.nombre}
+      onChange={(e) => setNuevaPersona({ ...nuevaPersona, nombre: e.target.value })}
+      className="p-2 border rounded-md"
+    />
+    <input
+      type="text"
+      placeholder="Apellidos"
+      value={nuevaPersona.apellidos}
+      onChange={(e) => setNuevaPersona({ ...nuevaPersona, apellidos: e.target.value })}
+      className="p-2 border rounded-md"
+    />
+    <input
+      type="text"
+      placeholder="Contacto"
+      value={nuevaPersona.contacto || ''}
+      onChange={(e) => setNuevaPersona({ ...nuevaPersona, contacto: e.target.value })}
+      className="p-2 border rounded-md"
+    />
+  </div>
+  <button
+    type="button"
+    onClick={agregarPersona}
+    className="mb-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+  >
+    Añadir persona
+  </button>
 
-        {form.personas.length > 0 && (
-          <ul className="list-disc list-inside text-sm">
-            {form.personas.map((p, i) => (
-              <li key={i}>{p.nombre} {p.apellidos} - {p.dni}</li>
-            ))}
-          </ul>
-        )}
-      </div>
+  {form.personas.length > 0 && (
+    <ul className="list-disc list-inside text-sm">
+      {form.personas.map((p, i) => (
+        <li key={i}>
+          {p.nombre} {p.apellidos} - {p.dni} - {p.contacto}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
       {/* Sección vehículos */}
       <div>
         <h2 className="text-xl font-bold mb-2">Vehículos</h2>
         <div className="grid grid-cols-4 gap-2 mb-2">
+                <input
+            type="text"
+            placeholder="Matrícula"
+            value={nuevoVehiculo.matricula}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, matricula: e.target.value })}
+            className="p-2 border rounded-md"
+          />
           <input
             type="text"
             placeholder="Marca"
@@ -184,13 +200,7 @@ const FormularioIncidencia = () => {
             onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
             className="p-2 border rounded-md"
           />
-          <input
-            type="text"
-            placeholder="Matrícula"
-            value={nuevoVehiculo.matricula}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, matricula: e.target.value })}
-            className="p-2 border rounded-md"
-          />
+    
         </div>
         <button
           type="button"
