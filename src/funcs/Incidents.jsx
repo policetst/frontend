@@ -12,7 +12,7 @@ const POST_URL = 'http://localhost:4000/incidents';
 */
 
 
-function getLocation() {
+async function getLocation() {
   return new Promise((resolve, reject) => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
