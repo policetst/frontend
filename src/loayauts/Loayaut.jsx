@@ -4,6 +4,7 @@ import '../index.css';
 import { Menu, X, User, LogOut, Home, Settings } from 'lucide-react';
 
 function Layout() {
+
   const handleLogout = () => {
     window.location.href = '/#/login';
     console.log('User logged out');

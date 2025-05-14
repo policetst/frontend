@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { DATA, postIncident } from '../funcs/Incidents';
 
 const FormularioIncidencia = () => {
+
+      const Location = DATA.latitude + ',' + DATA.longitude;
+  const [location, setLocation] = useState(Location);
+  useEffect(() => {
+    setLocation(Location);
+  }, [DATA]);
+
   const [form, setForm] = useState({
-    coordenadas: '',
-    tipo: '',
-    descripcion: '',
-    contactoBrigada: false,
-    personas: [],
-    vehiculos: [],
+    status: 'Open',
+    location: location,
+    type: '',
+    description: '',
+    brigade_field: false,
+  creator_user_code: 'AR00001',
   });
+  const [personas, setPersonas] = useState([]);
+  const [vehiculos, setVehiculos] = useState([]);
 
   const [nuevaPersona, setNuevaPersona] = useState({ nombre: '', apellidos: '', dni: '' });
   const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
@@ -35,7 +45,11 @@ const FormularioIncidencia = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Formulario completo enviado:', form);
-    // Aquí puedes hacer la petición a tu backend
+    //* post data to server
+    postIncident(form)
+      .then(response => {
+        console.log('Incidencia creada:', response);
+      });
   };
 
   const agregarPersona = () => {
@@ -78,8 +92,8 @@ const FormularioIncidencia = () => {
         <div className="mb-4">
           <label className="block font-medium">Tipo de incidencia</label>
           <select
-            name="tipo"
-            value={form.tipo}
+            name="type"
+            value={form.type}
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md"
           >
@@ -95,8 +109,8 @@ const FormularioIncidencia = () => {
         <div className="mb-4">
           <label className="block font-medium">Descripción</label>
           <textarea
-            name="descripcion"
-            value={form.descripcion}
+            name="description"
+            value={form.description}
             onChange={handleChange}
             rows={4}
             className="w-full mt-1 p-2 border rounded-md"
@@ -108,7 +122,7 @@ const FormularioIncidencia = () => {
           <input
             type="checkbox"
             name="contactoBrigada"
-            checked={form.contactoBrigada}
+            checked={form.brigade_field}
             onChange={handleChange}
             className="mr-2"
           />
@@ -157,9 +171,9 @@ const FormularioIncidencia = () => {
     Añadir persona
   </button>
 
-  {form.personas.length > 0 && (
+  {personas.length > 0 && (
     <ul className="list-disc list-inside text-sm">
-      {form.personas.map((p, i) => (
+      {personas.map((p, i) => (
         <li key={i}>
           {p.nombre} {p.apellidos} - {p.dni} - {p.contacto}
         </li>
@@ -210,9 +224,9 @@ const FormularioIncidencia = () => {
           Añadir vehículo
         </button>
 
-        {form.vehiculos.length > 0 && (
+        {vehiculos.length > 0 && (
           <ul className="list-disc list-inside text-sm">
-            {form.vehiculos.map((v, i) => (
+            {vehiculos.map((v, i) => (
               <li key={i}>{v.marca} {v.modelo}, {v.color}, {v.matricula}</li>
             ))}
           </ul>
