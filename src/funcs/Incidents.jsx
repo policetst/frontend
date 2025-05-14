@@ -49,7 +49,7 @@ function getLocation() {
     }
   });
 }
-const  DATA  = await getLocation();
+const  DATA  = getLocation();
 /*
 * this function posts a new incident to the server with axios
 * @param {Object} incident - The incident object to be posted.
