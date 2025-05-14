@@ -1,7 +1,6 @@
 import React, {useState} from 'react' // * import useState to handle the state of the inputs
 
 import { Link, useNavigate } from 'react-router-dom'; // * import Link to handle the navigation between pages
-import '../index.css'; // * import the css file to style the components
 function Login() {
     const navigate = useNavigate(); // * create a instance of useNavigate to handle the navigation
 
@@ -35,7 +34,8 @@ function Login() {
   //!jsx code
   return (
 
-<div>
+<div
+>
   <>
     <section className="bg-white font-sans">
         <div className="grid grid-cols-1 lg:grid-cols-2">
