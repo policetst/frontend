@@ -4,6 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  esbuild: {
+    target: 'esnext', // Cambia esto a 'esnext' para usar las últimas características de JavaScript
+  },
   plugins: [
     react(),
     tailwindcss() // agregar el plugin de Tailwind CSS
