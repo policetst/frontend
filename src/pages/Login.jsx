@@ -37,7 +37,7 @@ function Login() {
 <div
 >
   <>
-    <section className="bg-white font-sans">
+    <section className="bg-white">
         <div className="grid grid-cols-1 lg:grid-cols-2">
             <div className="flex items-center justify-center px-4 py-7 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
                 <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto sm:relative">
@@ -59,10 +59,10 @@ function Login() {
                             </div>
 
                             <div>
-                                <div className="flex justify-between items-center">
+                                {/* Password input */}
+                                <div className="flex justify-between items-center md:justify-between">
                                     <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
-                                    <Link to="/forgot"
-                                        className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
+                             
                                 </div>
                                 <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
                                     <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -71,7 +71,10 @@ function Login() {
 
                                     <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
                                         className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
+                                        
                                 </div>
+                                       <Link to="/forgot"
+                                        className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
                             </div>
 
                             <div>
