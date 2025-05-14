@@ -1,54 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
-import { Menu, User, LogOut, Home, Settings } from 'lucide-react';
-
+import { Menu, X, User, LogOut, Home, Settings } from 'lucide-react';
 
 function Layout() {
-    const handleLogout = () => {
-        window.location.href = '/#/login';
-        console.log('User logged out');
-    };
+  const handleLogout = () => {
+    window.location.href = '/#/login';
+    console.log('User logged out');
+  };
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      // Automatically close sidebar on small screens
-      if (window.innerWidth < 1024) {
-        setIsSidebarOpen(false);
-      } else {
-        setIsSidebarOpen(true);
-      }
-    };
-
-    // Initial check
-    handleResize();
-
-    // Add resize listener
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup listener
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   const closeSidebar = () => {
-    if (window.innerWidth < 1024 && isSidebarOpen) {
+    if (isSidebarOpen) {
       setIsSidebarOpen(false);
     }
   };
 
   return (
-    <div 
-      className="flex h-screen bg-gray-50 overflow-hidden" 
-      onClick={closeSidebar}
-    >
-      {/* Overlay for mobile sidebar */}
-      {isSidebarOpen && window.innerWidth < 1024 && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40" 
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Overlay for mobile and desktop sidebar */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={closeSidebar}
         />
       )}
@@ -59,25 +36,24 @@ function Layout() {
           fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg 
           transform transition-transform duration-300 
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:relative lg:translate-x-0
         `}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col h-full">
-          {/* Sidebar Header left section */}
-          <div className="flex items-center justify-between px-4 py-4 bg-gray-00 border-b">
-            <Link 
-              to="/" 
+          {/* Sidebar Header */}
+          <div className="flex items-center justify-between px-4 py-4 bg-gray-100 border-b">
+            <Link
+              to="/"
               className="text-xl font-bold text-gray-800 hover:text-blue-600 transition"
             >
-                Arba Dev
+              Arba Dev
             </Link>
             <button
-              className="lg:hidden text-gray-600 hover:text-gray-800"
+              className="text-gray-600 hover:text-gray-800"
               onClick={toggleSidebar}
               aria-label="Cerrar menú"
             >
-              <Menu className="w-6 h-6" />
+              <X className="w-6 h-6" />
             </button>
           </div>
 
@@ -88,7 +64,7 @@ function Layout() {
                 <Link
                   to="/crear-incidencia"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={toggleSidebar}
+                  onClick={closeSidebar}
                 >
                   <Home className="mr-3 w-5 h-5" />
                   Crear incidencia
@@ -98,7 +74,7 @@ function Layout() {
                 <Link
                   to="/perfil"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={toggleSidebar}
+                  onClick={closeSidebar}
                 >
                   <User className="mr-3 w-5 h-5" />
                   Perfil
@@ -108,7 +84,7 @@ function Layout() {
                 <Link
                   to="/personas"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={toggleSidebar}
+                  onClick={closeSidebar}
                 >
                   <Settings className="mr-3 w-5 h-5" />
                   Personas
@@ -118,40 +94,40 @@ function Layout() {
                 <Link
                   to="/mapa"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={toggleSidebar}
+                  onClick={closeSidebar}
                 >
                   <Settings className="mr-3 w-5 h-5" />
                   Mapa
                 </Link>
               </li>
-                <li>
+              <li>
                 <Link
                   to="/incidencia"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={toggleSidebar}
+                  onClick={closeSidebar}
                 >
                   <Settings className="mr-3 w-5 h-5" />
                   Incidencias
                 </Link>
               </li>
-                <li>
+              <li>
                 <Link
                   to="/estadisticas"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={toggleSidebar}
+                  onClick={closeSidebar}
                 >
                   <Settings className="mr-3 w-5 h-5" />
                   Estadísticas
                 </Link>
               </li>
-                <li>
+              <li>
                 <Link
                   to="/"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={toggleSidebar}
+                  onClick={closeSidebar}
                 >
                   <Settings className="mr-3 w-5 h-5" />
-                  Pagina Principal
+                  Página Principal
                 </Link>
               </li>
             </ul>
@@ -178,17 +154,16 @@ function Layout() {
             </button>
             <h1 className="text-lg font-bold text-gray-400">Sistema de Incidencias Locales Tauste</h1>
           </div>
-          
+
           <div className="flex items-center space-x-6">
-            <Link 
-              to="/perfil" 
+            <Link
+              to="/perfil"
               className="flex items-center text-gray-100 hover:text-cyan-500 transition"
             >
               <User className="w-7 h-7" />
-              {/* <span className="ml-2 hidden sm:block text-sm">Perfil</span> */}
             </Link>
-            <button 
-              className="text-gray-100 hover:text-red-600 transition" 
+            <button
+              className="text-gray-100 hover:text-red-600 transition"
               aria-label="Cerrar sesión"
             >
               <LogOut className="w-7 h-7" onClick={handleLogout} />
