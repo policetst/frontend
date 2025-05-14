@@ -3,10 +3,9 @@ import { DATA, postIncident } from '../funcs/Incidents';
 
 const FormularioIncidencia = () => {
 
-      const Location = DATA.latitude + ',' + DATA.longitude;
-  const [location, setLocation] = useState(Location);
+      const Location = DATA.latitude + ',' + DATA.longitude; // format: "latitude,longitude"
+  const [location, setLocation] = useState(Location); 
   useEffect(() => {
-    setLocation(Location);
   }, [DATA]);
 
   const [form, setForm] = useState({
@@ -49,6 +48,14 @@ const FormularioIncidencia = () => {
     postIncident(form)
       .then(response => {
         console.log('Incidencia creada:', response);
+        setForm({
+          status: 'Open',
+          location: location,
+          type: '',
+          description: '',
+          brigade_field: false,
+          creator_user_code: 'AR00001',
+        });
       });
   };
 
@@ -81,8 +88,8 @@ const FormularioIncidencia = () => {
           <label className="block font-medium">Coordenadas</label>
           <input
             type="text"
-            name="coordenadas"
-            value={form.coordenadas}
+            name="location"
+            value={form.location}
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md"
             placeholder="Latitud, Longitud"
