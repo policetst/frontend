@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const POST_URL = 'http://localhost:4000/incidents';
+const POST_URL = 'https://arbadev-back-joq0.onrender.com/incidents';
 
 /**
  * Función que obtiene la ubicación geográfica del usuario.
