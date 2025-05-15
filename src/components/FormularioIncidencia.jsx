@@ -1,9 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import {  postIncident, getLocation } from '../funcs/Incidents';
+import { postIncident, getLocation } from '../funcs/Incidents';
+import ImageUpload from './ImageUpload';
+import axios from 'axios';
 
 const FormularioIncidencia = () => {
   const [location, setLocation] = useState('');
-    useEffect(() => {
+  const [form, setForm] = useState({
+    status: 'Open',
+    location: '',
+    type: '',
+    description: '',
+    brigade_field: false,
+    creator_user_code: 'AR00001',
+  });
+  const [personas, setPersonas] = useState([]);
+  const [vehiculos, setVehiculos] = useState([]);
+  const [nuevaPersona, setNuevaPersona] = useState({ nombre: '', apellidos: '', dni: '', contacto: '' });
+  const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
+  const [selectedImages, setSelectedImages] = useState([]);
+
+  useEffect(() => {
     setForm(prev => ({
       ...prev,
       location: location
@@ -15,27 +31,11 @@ const FormularioIncidencia = () => {
       .then((loc) => {
         const locString = `${loc.latitude},${loc.longitude}`;
         setLocation(locString);
-        // console.log("Ubicación obtenida:", locString);
-       
       })
       .catch((error) => {
         console.error("Failed to get location:", error);
       });
-  }, [location]);
-
-  const [form, setForm] = useState({
-    status: 'Open',
-    location: location,
-    type: '',
-    description: '',
-    brigade_field: false,
-  creator_user_code: 'AR00001',
-  });
-  const [personas, setPersonas] = useState([]);
-  const [vehiculos, setVehiculos] = useState([]);
-
-  const [nuevaPersona, setNuevaPersona] = useState({ nombre: '', apellidos: '', dni: '' });
-  const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
+  }, []);
 
   const tipos = [
     'Animales',
@@ -56,39 +56,65 @@ const FormularioIncidencia = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleImagesChange = (files) => {
+    setSelectedImages(files);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Formulario completo enviado:', form);
-    //* post data to server
-    postIncident(form)
+
+    // Subir imágenes a /uploads
+    let uploadedImageUrls = [];
+    for (const file of selectedImages) {
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await axios.post('http://localhost:4000/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (res.data && res.data.file && res.data.file.url) {
+          uploadedImageUrls.push(res.data.file.url);
+        }
+      } catch (err) {
+        console.error('Error uploading image:', err);
+      }
+    }
+
+    // Añadir las URLs al form y enviar el resto de datos
+    const formToSend = {
+      ...form,
+      personas,
+      vehiculos,
+      images: uploadedImageUrls,
+    };
+
+    postIncident(formToSend)
       .then(response => {
         console.log('Incidencia creada:', response);
         setForm({
           status: 'Open',
           location: location,
           type: '',
-          descrifalse,
+          description: '',
+          brigade_field: false,
           creator_user_code: 'AR00001',
         });
+        setPersonas([]);
+        setVehiculos([]);
+        setSelectedImages([]);
       });
   };
 
   const agregarPersona = () => {
     if (nuevaPersona.nombre && nuevaPersona.apellidos && nuevaPersona.dni) {
-      setForm(prev => ({
-        ...prev,
-        personas: [...prev.personas, nuevaPersona],
-      }));
-      setNuevaPersona({ nombre: '', apellidos: '', dni: '' });
+      setPersonas(prev => [...prev, nuevaPersona]);
+      setNuevaPersona({ nombre: '', apellidos: '', dni: '', contacto: '' });
     }
   };
 
   const agregarVehiculo = () => {
     if (nuevoVehiculo.marca && nuevoVehiculo.modelo && nuevoVehiculo.color && nuevoVehiculo.matricula) {
-      setForm(prev => ({
-        ...prev,
-        vehiculos: [...prev.vehiculos, nuevoVehiculo],
-      }));
+      setVehiculos(prev => [...prev, nuevoVehiculo]);
       setNuevoVehiculo({ marca: '', modelo: '', color: '', matricula: '' });
     }
   };
@@ -144,70 +170,70 @@ const FormularioIncidencia = () => {
             type="checkbox"
             name="brigade_field"
             checked={form.brigade_field}
-                    onChange={handleChange}
+            onChange={handleChange}
             className="mr-2"
           />
           <label className="text-sm">Contacto con brigada</label>
         </div>
       </div>
 
-{/* Sección personas */}
-<div>
-  <h2 className="text-xl font-bold mb-2">Personas</h2>
-  <div className="grid grid-cols-4 gap-2 mb-2">
-    <input
-      type="text"
-      placeholder="DNI"
-      value={nuevaPersona.dni}
-      onChange={(e) => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-      className="p-2 border rounded-md"
-    />
-    <input
-      type="text"
-      placeholder="Nombre"
-      value={nuevaPersona.nombre}
-      onChange={(e) => setNuevaPersona({ ...nuevaPersona, nombre: e.target.value })}
-      className="p-2 border rounded-md"
-    />
-    <input
-      type="text"
-      placeholder="Apellidos"
-      value={nuevaPersona.apellidos}
-      onChange={(e) => setNuevaPersona({ ...nuevaPersona, apellidos: e.target.value })}
-      className="p-2 border rounded-md"
-    />
-    <input
-      type="text"
-      placeholder="Contacto"
-      value={nuevaPersona.contacto || ''}
-      onChange={(e) => setNuevaPersona({ ...nuevaPersona, contacto: e.target.value })}
-      className="p-2 border rounded-md"
-    />
-  </div>
-  <button
-    type="button"
-    onClick={agregarPersona}
-    className="mb-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-  >
-    Añadir persona
-  </button>
+      {/* Sección personas */}
+      <div>
+        <h2 className="text-xl font-bold mb-2">Personas</h2>
+        <div className="grid grid-cols-4 gap-2 mb-2">
+          <input
+            type="text"
+            placeholder="DNI"
+            value={nuevaPersona.dni}
+            onChange={(e) => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
+            className="p-2 border rounded-md"
+          />
+          <input
+            type="text"
+            placeholder="Nombre"
+            value={nuevaPersona.nombre}
+            onChange={(e) => setNuevaPersona({ ...nuevaPersona, nombre: e.target.value })}
+            className="p-2 border rounded-md"
+          />
+          <input
+            type="text"
+            placeholder="Apellidos"
+            value={nuevaPersona.apellidos}
+            onChange={(e) => setNuevaPersona({ ...nuevaPersona, apellidos: e.target.value })}
+            className="p-2 border rounded-md"
+          />
+          <input
+            type="text"
+            placeholder="Contacto"
+            value={nuevaPersona.contacto || ''}
+            onChange={(e) => setNuevaPersona({ ...nuevaPersona, contacto: e.target.value })}
+            className="p-2 border rounded-md"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={agregarPersona}
+          className="mb-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Añadir persona
+        </button>
 
-  {personas.length > 0 && (
-    <ul className="list-disc list-inside text-sm">
-      {personas.map((p, i) => (
-        <li key={i}>
-          {p.nombre} {p.apellidos} - {p.dni} - {p.contacto}
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
+        {personas.length > 0 && (
+          <ul className="list-disc list-inside text-sm">
+            {personas.map((p, i) => (
+              <li key={i}>
+                {p.nombre} {p.apellidos} - {p.dni} - {p.contacto}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {/* Sección vehículos */}
       <div>
         <h2 className="text-xl font-bold mb-2">Vehículos</h2>
         <div className="grid grid-cols-4 gap-2 mb-2">
-                <input
+          <input
             type="text"
             placeholder="Matrícula"
             value={nuevoVehiculo.matricula}
@@ -235,7 +261,6 @@ const FormularioIncidencia = () => {
             onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
             className="p-2 border rounded-md"
           />
-    
         </div>
         <button
           type="button"
@@ -253,7 +278,12 @@ const FormularioIncidencia = () => {
           </ul>
         )}
       </div>
-
+      <hr />
+      {/* Sección de imágenes */}
+      <div>
+        <h2 className="text-xl font-bold mb-2">Imágenes</h2>
+        <ImageUpload onImagesChange={handleImagesChange} />
+      </div>
       <button
         type="submit"
         className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
@@ -262,6 +292,5 @@ const FormularioIncidencia = () => {
       </button>
     </form>
   );
-};
-
+}
 export default FormularioIncidencia;
