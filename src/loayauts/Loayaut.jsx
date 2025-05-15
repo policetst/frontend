@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import '../index.css';
 import { Menu, X, User, LogOut, Home, Settings } from 'lucide-react';
+import { CircleUserRound } from 'lucide-react';
+import { NotebookPen } from 'lucide-react';
+import { Newspaper } from 'lucide-react';
+import { Map } from 'lucide-react';
+import { ChartColumn } from 'lucide-react';
+import { House } from 'lucide-react';
 
 function Layout() {
 
@@ -44,12 +50,7 @@ function Layout() {
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between px-4 py-4 bg-gray-100 border-b">
-            <Link
-              to="/"
-              className="text-xl font-bold text-gray-800 hover:text-blue-600 transition"
-            >
-              Arba Dev
-            </Link>
+            <img src="/SIL.png" alt="Logo de SIL Tauste" style={{ width: '150px', height: '80px' }}/>
             <button
               className="text-gray-600 hover:text-gray-800"
               onClick={toggleSidebar}
@@ -60,7 +61,7 @@ function Layout() {
           </div>
 
           {/* Sidebar Menu */}
-          <nav className="flex-1 py-6">
+          <nav className="flex flex-col flex-1 justify-between py-6">
             <ul className="space-y-1 px-2">
               <li>
                 <Link
@@ -68,18 +69,28 @@ function Layout() {
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
                   onClick={closeSidebar}
                 >
-                  <Home className="mr-3 w-5 h-5" />
+                  <NotebookPen className="mr-3 w-5 h-5" />
                   Crear incidencia
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/perfil"
+                  to="/incidencia"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
                   onClick={closeSidebar}
                 >
-                  <User className="mr-3 w-5 h-5" />
-                  Perfil
+                  <Newspaper className="mr-3 w-5 h-5" />
+                  Mostrar Incidencia
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/estadisticas"
+                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
+                  onClick={closeSidebar}
+                >
+                  <ChartColumn className="mr-3 w-5 h-5" />
+                  Estadísticas
                 </Link>
               </li>
               <li>
@@ -88,7 +99,7 @@ function Layout() {
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
                   onClick={closeSidebar}
                 >
-                  <Settings className="mr-3 w-5 h-5" />
+                  <CircleUserRound className="mr-3 w-5 h-5" /> 
                   Personas
                 </Link>
               </li>
@@ -98,38 +109,32 @@ function Layout() {
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
                   onClick={closeSidebar}
                 >
-                  <Settings className="mr-3 w-5 h-5" />
+                  <Map className="mr-3 w-5 h-5" />
                   Mapa
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/incidencia"
-                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={closeSidebar}
-                >
-                  <Settings className="mr-3 w-5 h-5" />
-                  Incidencias
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/estadisticas"
-                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={closeSidebar}
-                >
-                  <Settings className="mr-3 w-5 h-5" />
-                  Estadísticas
-                </Link>
-              </li>
+              
+              
+            </ul>
+            <ul className="space-y-1 px-2">
               <li>
                 <Link
                   to="/"
                   className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
                   onClick={closeSidebar}
                 >
-                  <Settings className="mr-3 w-5 h-5" />
+                  <House className="mr-3 w-5 h-5" />
                   Página Principal
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/perfil"
+                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
+                  onClick={closeSidebar}
+                >
+                  <Settings className="mr-3 w-5 h-5" />
+                  Ajustes 
                 </Link>
               </li>
             </ul>
