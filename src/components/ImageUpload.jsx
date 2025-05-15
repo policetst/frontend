@@ -20,7 +20,7 @@ function ImageUpload({ onImagesChange }) {
     const updatedImages = [...images, ...newImages];
     setImages(updatedImages);
 
-    // Notifica al componente padre
+    // * Call the onImagesChange callback with the new files
     if (onImagesChange) {
       onImagesChange(updatedImages.map(img => img.file));
     }
@@ -34,7 +34,7 @@ function ImageUpload({ onImagesChange }) {
       URL.revokeObjectURL(updated[idx].url);
       updated.splice(idx, 1);
 
-      // Notifica al padre también
+      // 
       if (onImagesChange) {
         onImagesChange(updated.map(img => img.file));
       }

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { postIncident, getLocation } from '../funcs/Incidents';
 import ImageUpload from './ImageUpload';
 import axios from 'axios';
+import { X as XIcon } from 'lucide-react';
+
 
 const FormularioIncidencia = () => {
   const [location, setLocation] = useState('');
@@ -15,7 +17,13 @@ const FormularioIncidencia = () => {
   });
   const [personas, setPersonas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
-  const [nuevaPersona, setNuevaPersona] = useState({ nombre: '', apellidos: '', dni: '', contacto: '' });
+  const [nuevaPersona, setNuevaPersona] = useState({
+    dni: '',
+    first_name: '',
+    last_name1: '',
+    last_name2: '',
+    phone_number: ''
+  });
   const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
   const [selectedImages, setSelectedImages] = useState([]);
 
@@ -80,11 +88,11 @@ const FormularioIncidencia = () => {
       }
     }
 
-    // Añadir las URLs al form y enviar el resto de datos
+    // add images to the existing form
     const formToSend = {
       ...form,
-      personas,
-      vehiculos,
+      people: personas,
+      vehicles: vehiculos,
       images: uploadedImageUrls,
     };
 
@@ -106,9 +114,15 @@ const FormularioIncidencia = () => {
   };
 
   const agregarPersona = () => {
-    if (nuevaPersona.nombre && nuevaPersona.apellidos && nuevaPersona.dni) {
+    if (nuevaPersona.dni && nuevaPersona.first_name && nuevaPersona.last_name1) {
       setPersonas(prev => [...prev, nuevaPersona]);
-      setNuevaPersona({ nombre: '', apellidos: '', dni: '', contacto: '' });
+      setNuevaPersona({
+        dni: '',
+        first_name: '',
+        last_name1: '',
+        last_name2: '',
+        phone_number: ''
+      });
     }
   };
 
@@ -117,6 +131,13 @@ const FormularioIncidencia = () => {
       setVehiculos(prev => [...prev, nuevoVehiculo]);
       setNuevoVehiculo({ marca: '', modelo: '', color: '', matricula: '' });
     }
+  };
+  const eliminarPersona = (index) => {
+    setPersonas(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const eliminarVehiculo = (index) => {
+    setVehiculos(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -180,33 +201,40 @@ const FormularioIncidencia = () => {
       {/* Sección personas */}
       <div>
         <h2 className="text-xl font-bold mb-2">Personas</h2>
-        <div className="grid grid-cols-4 gap-2 mb-2">
+        <div className="grid grid-cols-5 gap-2 mb-2">
           <input
             type="text"
             placeholder="DNI"
             value={nuevaPersona.dni}
-            onChange={(e) => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
+            onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
             placeholder="Nombre"
-            value={nuevaPersona.nombre}
-            onChange={(e) => setNuevaPersona({ ...nuevaPersona, nombre: e.target.value })}
+            value={nuevaPersona.first_name}
+            onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
-            placeholder="Apellidos"
-            value={nuevaPersona.apellidos}
-            onChange={(e) => setNuevaPersona({ ...nuevaPersona, apellidos: e.target.value })}
+            placeholder="1º Apellido"
+            value={nuevaPersona.last_name1}
+            onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
-            placeholder="Contacto"
-            value={nuevaPersona.contacto || ''}
-            onChange={(e) => setNuevaPersona({ ...nuevaPersona, contacto: e.target.value })}
+            placeholder="2º Apellido"
+            value={nuevaPersona.last_name2}
+            onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
+            className="p-2 border rounded-md"
+          />
+          <input
+            type="text"
+            placeholder="Teléfono"
+            value={nuevaPersona.phone_number}
+            onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
             className="p-2 border rounded-md"
           />
         </div>
@@ -221,8 +249,8 @@ const FormularioIncidencia = () => {
         {personas.length > 0 && (
           <ul className="list-disc list-inside text-sm">
             {personas.map((p, i) => (
-              <li key={i}>
-                {p.nombre} {p.apellidos} - {p.dni} - {p.contacto}
+              <li key={i} className="flex justify-start items-center">
+                {p.dni} - {p.first_name} {p.last_name1} {p.last_name2} - {p.phone_number} <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarPersona(i)} />
               </li>
             ))}
           </ul>
@@ -273,7 +301,10 @@ const FormularioIncidencia = () => {
         {vehiculos.length > 0 && (
           <ul className="list-disc list-inside text-sm">
             {vehiculos.map((v, i) => (
-              <li key={i}>{v.marca} {v.modelo}, {v.color}, {v.matricula}</li>
+              <li key={v.matricula} className="flex justify-start items-center">
+                {v.marca} {v.modelo}, {v.color}, {v.matricula}
+                <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarVehiculo(i)} />
+              </li>
             ))}
           </ul>
         )}
@@ -292,5 +323,5 @@ const FormularioIncidencia = () => {
       </button>
     </form>
   );
-}
+};
 export default FormularioIncidencia;

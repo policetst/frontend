@@ -12,7 +12,7 @@ import Personas from "../pages/Personas";
 import PaginaPrincipal from "../pages/PaginaPrincipal";
 import ForgotPassword from "../pages/ForgotPassword";
 import Loayaut from "../loayauts/Loayaut";
-//! crar hashrouter para poder enrutar las diferentes páginas de la aplicación
+//! make the router to use the hash router
 const ROUTER = createHashRouter([
   /*
   

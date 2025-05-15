@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const POST_URL = 'https://arbadev-back-joq0.onrender.com/incidents/';
+const POST_URL = 'http://localhost:4000/incidents';
 
 /**
- * Función que obtiene la ubicación geográfica del usuario.
+ * Function to get the user's location automatically.
  * @returns {Promise<{latitude: number, longitude: number, altitude?: number}>}
  */
 async function getLocation() {
