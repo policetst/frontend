@@ -48,15 +48,15 @@ function Layout() {
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
-          <div className="flex items-center justify-between px-4 py-4 bg-gray-100 border-b">
-            <img src="/SIL.png" alt="Logo de SIL Tauste" style={{ width: '150px', height: '80px' }}/>
-            <button
+          <div className="flex justify-center px-4 py-4 bg-[#002856] border-b">
+            <img src="/SIL-logo-tech.png" alt="Logo de SIL Tauste" style={{ width: '255px', height: '115px' }}/>
+            {/* <button
               className="text-gray-600 hover:text-gray-800"
               onClick={toggleSidebar}
               aria-label="Cerrar menú"
             >
               <X className="w-6 h-6" />
-            </button>
+            </button> */}
           </div>
 
           {/* Sidebar Menu */}
@@ -126,16 +126,6 @@ function Layout() {
                   Página Principal
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/perfil"
-                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                  onClick={closeSidebar}
-                >
-                  <Settings className="mr-3 w-5 h-5" />
-                  Ajustes 
-                </Link>
-              </li>
             </ul>
           </nav>
 
@@ -149,8 +139,8 @@ function Layout() {
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between px-4 sm:px-6 py-3 bg-white shadow-md">
-          <div className="flex items-center">
+        <header className="relative flex items-center justify-between px-4 sm:px-6 py-3 bg-[#222831] text-white shadow-md">
+          <div className="flex items-center z-10">
             <button
               className="text-gray-300 hover:text-cyan-500 mr-4"
               onClick={toggleSidebar}
@@ -158,7 +148,15 @@ function Layout() {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <h1 className="text-lg font-bold text-gray-400">Sistema de Incidencias Locales Tauste</h1>
+            
+          </div>
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
+            <img src="/SIL-logo-tech.png" alt="Logo de SIL Tauste" className="block sm:hidden w-[90px] h-[45px]"/>
+            <h1 className="hidden sm:block text-2xl font-bold text-gray-100 whitespace-nowrap">
+              SISTEMA DE INCIDENCIAS LOCALES
+              {/* <span className="block sm:hidden">SIL TAUSTE</span>
+              <span className="hidden sm:block">SISTEMA DE INCIDENCIAS LOCALES</span> */}
+            </h1>
           </div>
 
           <div className="flex items-center space-x-6">

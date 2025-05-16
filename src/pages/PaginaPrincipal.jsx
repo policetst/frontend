@@ -10,9 +10,9 @@ function PaginaPrincipal() {
       <div className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 p-4'>
         <Card 
         descripcion={"Consulta las personas implicadas en incidencias"}
-         urlimagen="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.DhFT-QL6-WLs2vyf-ArFtgHaE8%26pid%3DApi&f=1&ipt=bf29d4f88cbe3b2fd50059c0da30256201a3ab7c16a1a3092891ac1f871b739f&ipo=images" textoboton="Personas" 
-         navto={"/personas"} 
-         alt={"Personas"} title={"Personas"}/>
+        urlimagen="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.DhFT-QL6-WLs2vyf-ArFtgHaE8%26pid%3DApi&f=1&ipt=bf29d4f88cbe3b2fd50059c0da30256201a3ab7c16a1a3092891ac1f871b739f&ipo=images" textoboton="Personas" 
+        navto={"/personas"} 
+        alt={"Personas"} title={"Personas"}/>
 
 
         <Card 
@@ -51,9 +51,9 @@ function PaginaPrincipal() {
         descripcion={"Cambia tus credenciales y elige un avatar"} 
         urlimagen={"https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpng.pngtree.com%2Fpng-vector%2F20190307%2Fourlarge%2Fpngtree-vector-user-management-icon-png-image_780446.jpg&f=1&nofb=1&ipt=ad6e5a9ac735a3c0a74f6ab55e24dfea8a16067aa3d7c3d6cd573955b1ba543f"} 
         textoboton={"Gestion de usuario"}
-         navto={"/perfil"} 
-         alt={"Gestion de usuario"} 
-         title={"Perfil"}/>
+        navto={"/perfil"} 
+        alt={"Gestion de usuario"} 
+        title={"Perfil"}/>
       </div>
     </div>
   )
