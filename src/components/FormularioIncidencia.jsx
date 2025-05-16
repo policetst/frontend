@@ -7,6 +7,7 @@ import { X as XIcon } from 'lucide-react';
 
 const FormularioIncidencia = () => {
   const [location, setLocation] = useState('');
+  const  [res, setRes] = useState(null);
   const [form, setForm] = useState({
     status: 'Open',
     location: '',
@@ -96,9 +97,17 @@ const FormularioIncidencia = () => {
       images: uploadedImageUrls,
     };
 
-    postIncident(formToSend)
-      .then(response => {
-        console.log('Incidencia creada:', response);
+    try {
+      const response = await postIncident(formToSend);
+      if (response.ok) {
+        // Mostrar mensaje de éxito
+        const Swal = (await import('sweetalert2')).default;
+        Swal.fire({
+          icon: 'success',
+          title: 'Incidencia creada',
+          text: 'La incidencia se ha creado correctamente.',
+          confirmButtonText: 'Aceptar'
+        });
         setForm({
           status: 'Open',
           location: location,
@@ -110,7 +119,24 @@ const FormularioIncidencia = () => {
         setPersonas([]);
         setVehiculos([]);
         setSelectedImages([]);
+      } else {
+        const Swal = (await import('sweetalert2')).default;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.message || 'No se pudo registrar la incidencia.',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    } catch (error) {
+      const Swal = (await import('sweetalert2')).default;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'No se pudo registrar la incidencia.',
+        confirmButtonText: 'Aceptar'
       });
+    }
   };
 
   const agregarPersona = () => {

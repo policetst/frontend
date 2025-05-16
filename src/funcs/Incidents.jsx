@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const POST_URL = 'http://localhost:4000/incidents';
 
@@ -38,13 +39,39 @@ async function getLocation() {
  */
 async function postIncident(incident) {
   try {
-    console.log("Posting incident:", incident);
-    const response = await axios.post(POST_URL, incident);
-    return response.data;
+    const res = await axios.post(POST_URL, incident);
+    console.log("Response from backend:", res.data);
+    const { ok, message } = res.data;
+
+    if (ok === true) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Incidencia creada',
+        text: 'La incidencia se ha creado correctamente.',
+        confirmButtonText: 'Aceptar'
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message || 'Hubo un problema al crear la incidencia.',
+        confirmButtonText: 'Aceptar'
+      });
+    }
+
+    return res.data;
+
   } catch (error) {
-    console.error("Failed to post incident:", error);
-    throw error;
+    console.error("Error posting incident:", error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se ha podido crear la incidencia.',
+      confirmButtonText: 'Aceptar'
+    });
+    return { ok: false, message: 'Error al conectar con el servidor' };
   }
 }
+
 
 export { getLocation, postIncident };
