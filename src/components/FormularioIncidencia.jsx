@@ -6,6 +6,8 @@ import { X as XIcon } from 'lucide-react';
 
 
 const FormularioIncidencia = () => {
+  console.log('FormularioIncidencia');
+  
   const [location, setLocation] = useState('');
   const  [res, setRes] = useState(null);
   const [form, setForm] = useState({
@@ -27,7 +29,7 @@ const FormularioIncidencia = () => {
   });
   const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
   const [selectedImages, setSelectedImages] = useState([]);
-
+//useefect to put the location in the form
   useEffect(() => {
     setForm(prev => ({
       ...prev,
@@ -71,6 +73,54 @@ const FormularioIncidencia = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validación de campos obligatorios del formulario principal
+    const camposObligatorios = [
+      { campo: 'type', label: 'Tipo de incidencia' },
+      { campo: 'description', label: 'Descripción' },
+      { campo: 'location', label: 'Coordenadas' },
+    ];
+    const campoFaltante = camposObligatorios.find(c => !form[c.campo] || form[c.campo].toString().trim() === '');
+    if (campoFaltante) {
+      const Swal = (await import('sweetalert2')).default;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Falta un campo obligatorio',
+        text: `Por favor, completa el campo: ${campoFaltante.label}`,
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+
+    // Validación de campos obligatorios en personas
+    for (let i = 0; i < personas.length; i++) {
+      const p = personas[i];
+      if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number) {
+        const Swal = (await import('sweetalert2')).default;
+        Swal.fire({
+          icon: 'warning',
+          title: 'Faltan datos en una persona',
+          text: `La persona ${i + 1} debe tener todos los campos completos.`,
+          confirmButtonText: 'Aceptar'
+        });
+        return;
+      }
+    }
+
+    // Validación de campos obligatorios en vehículos
+    for (let i = 0; i < vehiculos.length; i++) {
+      const v = vehiculos[i];
+      if (!v.marca || !v.modelo || !v.color || !v.matricula) {
+        const Swal = (await import('sweetalert2')).default;
+        Swal.fire({
+          icon: 'warning',
+          title: 'Faltan datos en un vehículo',
+          text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
+          confirmButtonText: 'Aceptar'
+        });
+        return;
+      }
+    }
 
     // Subir imágenes a /uploads
     let uploadedImageUrls = [];
@@ -230,7 +280,8 @@ const FormularioIncidencia = () => {
         <div className="grid grid-cols-5 gap-2 mb-2">
           <input
             type="text"
-            placeholder="DNI"
+            name="dni"
+            placeholder="DNI - NIE"
             value={nuevaPersona.dni}
             onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
             className="p-2 border rounded-md"

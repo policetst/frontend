@@ -72,6 +72,22 @@ async function postIncident(incident) {
     return { ok: false, message: 'Error al conectar con el servidor' };
   }
 }
+/*
+*Function that returns the incidentts
+*/
+async function getIncidents() {
+  try {
+    const res = await axios.get(POST_URL);
+    console.log("Response from backend:", res.data);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching incidents:", error);
+    return { ok: false, message: 'Error al conectar con el servidor' };
+  }
+}
+/*
+* function that returns the count of people or cars in a incident
+""
+*/
 
-
-export { getLocation, postIncident };
+export { getLocation, postIncident, getIncidents };
