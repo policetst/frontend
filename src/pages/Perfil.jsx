@@ -15,7 +15,7 @@ export default function GestionUsuarios() {
       <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] p-6 space-y-8 text-gray-800">
         {/* Administrador */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Gestionar Usuario Administrador</h2>
+          <h2 className="text-xl font-semibold pb-5">Gestionar Usuario Administrador</h2>
 
           <div className="flex justify-center flex-wrap gap-6">
             {/* Avatar + ID */}
@@ -43,6 +43,8 @@ export default function GestionUsuarios() {
                   </select>
                 </div>
 
+                
+
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                     Contraseña
@@ -69,18 +71,29 @@ export default function GestionUsuarios() {
                   />
                 </div>
 
-                {/* Tema */}
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">Tema Predefinido</p>
-                  <div className="flex gap-4">
-                    <label className="flex items-center">
-                      <input type="radio" name="theme" value="light" className="form-radio text-indigo-600" />
-                      <span className="ml-2 text-gray-700">Claro</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input type="radio" name="theme" value="dark" className="form-radio text-indigo-600" />
-                      <span className="ml-2 text-gray-700">Oscuro</span>
-                    </label>
+                {/* Tema & Brigada */}
+                <div className="flex justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-1">Tema Predefinido</p>
+                    <div className="flex gap-4">
+                      <label className="flex items-center">
+                        <input type="radio" name="theme" value="light" className="form-radio text-indigo-600" />
+                        <span className="ml-2 text-gray-700">Claro</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="radio" name="theme" value="dark" className="form-radio text-indigo-600" />
+                        <span className="ml-2 text-gray-700">Oscuro</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="check"
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="check" className="text-sm text-gray-700">Envío a Brigada</label>
                   </div>
                 </div>
 
@@ -100,14 +113,14 @@ export default function GestionUsuarios() {
         {/* Lista de usuarios */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Gestionar usuarios</h2>
+            <h2 className="text-xl font-semibold pb-5">Gestionar usuarios</h2>
             <button className="border border-blue-400 text-blue-500 rounded-full p-1">
               <Plus className="w-5 h-5" />
             </button>
           </div>
 
           {/* Tarjetas de usuarios */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
             {usuarios.map((u, index) => (
               <div
                 key={index}

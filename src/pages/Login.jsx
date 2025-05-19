@@ -35,76 +35,181 @@ function Login() {
   //!jsx code
   return (
 
-<div>
-  <>
-    <section className="bg-white font-sans">
-        <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="flex items-center justify-center px-4 py-7 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
-                <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto sm:relative">
-                    <p
-                        className="text-3xl font-bold text-gray-900 mb-6 bloc">Acceso</p>
-                    <form className="mt-8">
-                        <div className="space-y-5">
-                            <div>
-                                <label htmlFor="" className="text-base font-medium text-gray-900"> Usuario </label>
-                                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                        <i className="ti ti-user text-xl"></i>
-                                    </div>
-
-                                    <input type="text" name="" id="" placeholder="" onChange={handleUsernameChange}
-                                        className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
-                                </div>
-
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between items-center">
-                                    <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
-                                    <Link to="/forgot"
-                                        className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
-                                </div>
-                                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                        <i className="ti ti-fingerprint text-xl"></i>
-                                    </div>
-
-                                    <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
-                                        className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <button type="submit"
-                                    className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-blue-400"
-                                    
-                                    onClick={handleSubmit}>
-                                    Acceder
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <div className="mt-3 space-y-3">
-                   
-
-                       
-                    </div>
+    <div className="w-full min-h-screen">
+      {/* Versión escritorio: dos columnas */}
+      <div className="hidden lg:grid grid-cols-2 min-h-screen">
+        {/* Columna izquierda: logo + formulario */}
+        <div className="flex flex-col items-center justify-center p-8 bg-white">
+            <div className="flex flex-col justify-center w-100">
+                {/* Logo de SIL */}
+                <div className="flex justify-center p-8 bg-[#002856] rounded-t-lg">
+                    <img src="/SIL-logo-tech.png" alt="Logo" className="mb-6 w-50" />
                 </div>
-            </div>
-
-            <div
-                className="relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 bg-cover bg-center sm:px-6 lg:h-screen lg:px-8 lg:bg-[url('/loginimg.jpg')] ">
-                <div className="absolute inset-0 bg-gradient-to-t from-sky-900 to-transparent hidden"></div>
-
-         
+                {/* Formulario */}
+                <form className="mt-8">
+                    <div className="space-y-5">
+                        <label htmlFor="" className="text-base font-medium text-gray-900"> Usuario </label>
+                        <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+                            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <i className="ti ti-user text-xl"></i>
+                            </div>
+                            <input type="text" name="" id="" placeholder="" onChange={handleUsernameChange}
+                            className="w-full p-3 border rounded" />
+                    </div>
+                    <div>
+                        <div className="flex justify-between items-center">
+                            <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
+                            <Link to="/forgot"
+                                className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
+                        </div>
+                        <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+                            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <i className="ti ti-fingerprint text-xl"></i>
+                            </div>
+                            <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
+                                className="w-full p-3 border rounded" />
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit"
+                            className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-[#002856]"
+                            onClick={handleSubmit}>
+                            Acceder
+                        </button>
+                    </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </section>
-  </>
-</div>
 
-  )
+        {/* Columna derecha: Torre de Tauste */}
+        <div className="relative">
+          <img src="/loginimg.jpg" alt="Torre de Tauste" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute bottom-0 left-0 right-0 h-25
+//                 bg-gradient-to-t from-zinc-800 to-transparent"></div>
+        </div>
+      </div>
+
+      {/* Versión móvil */}
+      <div className="block lg:hidden">
+        {/* Imagen de cabecera */}
+        <div className="flex justify-center bg-[#002856]">
+          <img src="/SIL-logo-tech.png" alt="Logo de SIL" className="m-5"/>
+        </div>
+
+        {/* Formulario móvil */}
+        <div className="px-6 py-8">
+            <form className="w-full max-w-sm mx-auto space-y-4">
+                <h2 className="text-xl font-semibold text-center mb-10 mt-7">Iniciar sesión</h2>
+                <label htmlFor="" className="text-base font-medium text-gray-900"> Usuario </label>
+                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <i className="ti ti-user text-xl"></i>
+                    </div>
+                    <input type="text" name="" id="" placeholder="" onChange={handleUsernameChange}
+                    className="w-full p-3 border rounded" />
+                </div>
+                <div>
+                        <div className="flex justify-between items-center">
+                            <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
+                        <Link to="/forgot"
+                            className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
+                    </div>
+                    <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+                        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <i className="ti ti-fingerprint text-xl"></i>
+                        </div>
+
+                        <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
+                            className="w-full p-3 border rounded" />
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit"
+                        className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-[#002856]"
+                        onClick={handleSubmit}>
+                        Acceder
+                    </button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+);
 }
 
-export default Login
+export default Login;
+
+
+
+//     <div className="grid grid-cols-1 lg:grid-cols-2">
+//         <div className="flex items-center justify-center px-4 py-7 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
+//             <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto sm:relative">
+//                 <div className="flex justify-center px-4 py-4 bg-[#002856] border-b">
+//                     <img src="/SIL-logo-tech.png" alt="Logo de SIL Tauste" style={{ width: '240px', height: '125px' }}/>
+//                 </div>
+//                 <form className="mt-8">
+//                     <div className="space-y-5">
+//                         <div>
+//                             <label htmlFor="" className="text-base font-medium text-gray-900"> Usuario </label>
+//                             <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+//                                 <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+//                                     <i className="ti ti-user text-xl"></i>
+//                                 </div>
+
+//                                 <input type="text" name="" id="" placeholder="" onChange={handleUsernameChange}
+//                                     className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
+//                             </div>
+
+//                         </div>
+
+//                         <div>
+//                             <div className="flex justify-between items-center">
+//                                 <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
+//                                 <Link to="/forgot"
+//                                     className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
+//                             </div>
+//                             <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+//                                 <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+//                                     <i className="ti ti-fingerprint text-xl"></i>
+//                                 </div>
+
+//                                 <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
+//                                     className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
+//                             </div>
+//                         </div>
+
+//                         <div>
+//                             <button type="submit"
+//                                 className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-[#002856]"
+                                
+//                                 onClick={handleSubmit}>
+//                                 Acceder
+//                             </button>
+//                         </div>
+//                     </div>
+//                 </form>
+
+//                 <div className="mt-3 space-y-3">
+            
+
+                
+//                 </div>
+//             </div>
+//         </div>
+
+//         <div
+//             className="relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 bg-cover bg-center sm:px-6 lg:h-screen lg:px-8 lg:bg-[url('/loginimg.jpg')] ">
+//             <div className="absolute bottom-0 left-0 right-0 h-25
+//                 bg-gradient-to-t from-zinc-800 to-transparent"></div>
+
+    
+//         </div>
+//     </div>
+    
+
+//   )
+// }
+
+// export default Login
