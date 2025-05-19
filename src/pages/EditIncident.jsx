@@ -280,7 +280,7 @@ const EditIncident = () => {
     <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
       {/* Datos de la incidencia */}
       <div>
-        <h2 className="text-xl font-bold mb-2">Editar Incidencia - {code}</h2>
+        <h2 className="text-xl font-bold mb-2 text-center"> {code}</h2>
         
         <div className="mb-4">
           <label className="block font-medium">Estado</label>
