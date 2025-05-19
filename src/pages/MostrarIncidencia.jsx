@@ -5,7 +5,7 @@ import { getIncidents } from '../funcs/Incidents';
 function MostrarIncidencia() {
   const [incidencias, setIncidencias] = useState([]);
 
-  useEffect(() => {
+  useEffect(() => {  
     const fetchIncidents = async () => {
       const data = await getIncidents();
       if (data.ok) {
@@ -22,7 +22,6 @@ function MostrarIncidencia() {
 
   const handleEdit = (id) => {
     alert(`Editar incidencia con ID: ${id}`);
-    // Aquí puedes implementar la lógica para editar la incidencia
   };
 
   return (

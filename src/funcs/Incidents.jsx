@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const POST_URL = 'http://localhost:4000/incidents';
+const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 
 /**
  * Function to get the user's location automatically.
@@ -39,7 +39,7 @@ async function getLocation() {
  */
 async function postIncident(incident) {
   try {
-    const res = await axios.post(POST_URL, incident);
+    const res = await axios.post(INCIDENTS_URL, incident);
     console.log("Response from backend:", res.data);
     const { ok, message } = res.data;
 
@@ -77,7 +77,7 @@ async function postIncident(incident) {
 */
 async function getIncidents() {
   try {
-    const res = await axios.get(POST_URL);
+    const res = await axios.get(INCIDENTS_URL);
     console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { postIncident, getLocation } from '../funcs/Incidents';
+const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
+const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
@@ -74,7 +76,7 @@ const FormularioIncidencia = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación de campos obligatorios del formulario principal
+    // * validation of the required fields
     const camposObligatorios = [
       { campo: 'type', label: 'Tipo de incidencia' },
       { campo: 'description', label: 'Descripción' },
@@ -122,13 +124,13 @@ const FormularioIncidencia = () => {
       }
     }
 
-    // Subir imágenes a /uploads
+    // * upload images to /uploads
     let uploadedImageUrls = [];
     for (const file of selectedImages) {
       const formData = new FormData();
       formData.append('file', file);
       try {
-        const res = await axios.post('http://localhost:4000/upload', formData, {
+        const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         if (res.data && res.data.file && res.data.file.url) {
@@ -139,7 +141,7 @@ const FormularioIncidencia = () => {
       }
     }
 
-    // add images to the existing form
+    // * add images to the existing form
     const formToSend = {
       ...form,
       people: personas,
@@ -150,7 +152,7 @@ const FormularioIncidencia = () => {
     try {
       const response = await postIncident(formToSend);
       if (response.ok) {
-        // Mostrar mensaje de éxito
+        // * show success message
         const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'success',

@@ -28,6 +28,24 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+      'jsdoc/require-jsdoc': ['warn', {
+        require: {
+          FunctionDeclaration: true,
+          MethodDefinition: true,
+          ClassDeclaration: true,
+          ArrowFunctionExpression: true,
+          FunctionExpression: true
+        }
+      }],
+      'jsdoc/require-description': 'warn',
+      'jsdoc/require-param': 'warn',
+      'jsdoc/require-param-description': 'warn',
+      'jsdoc/require-param-name': 'warn',
+      'jsdoc/require-param-type': 'warn',
+      'jsdoc/require-returns': 'warn',
+      'jsdoc/require-returns-description': 'warn',
+      'jsdoc/require-returns-type': 'warn',
+      'jsdoc/valid-types': 'warn'
     },
   },
 ]
