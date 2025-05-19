@@ -12,6 +12,7 @@ import Personas from "../pages/Personas";
 import PaginaPrincipal from "../pages/PaginaPrincipal";
 import ForgotPassword from "../pages/ForgotPassword";
 import Loayaut from "../loayauts/Loayaut";
+import EditIncident from "../pages/EditIncident";
 //! make the router to use the hash router
 const ROUTER = createHashRouter([
   /*
@@ -37,6 +38,11 @@ const ROUTER = createHashRouter([
   path: "/",
   element: <Loayaut/>,
   children:[
+    {
+path: '/editincident/:code',
+element: <EditIncident/>
+
+    },
      {
     path: "/",
     element: <PaginaPrincipal />
