@@ -1,8 +1,10 @@
 import React,{useState, useEffect} from 'react';
-import { getIncidents } from '../funcs/Incidents';
+import { useNavigate } from 'react-router-dom';
+import { getIncidents, countPeople, countVehicles } from '../funcs/Incidents';
 
 
 function MostrarIncidencia() {
+  const navigate = useNavigate();
   const [incidencias, setIncidencias] = useState([]);
 
   useEffect(() => {  
@@ -21,7 +23,7 @@ function MostrarIncidencia() {
   document.title = "Mostrar Incidencias";
 
   const handleEdit = (id) => {
-    alert(`Editar incidencia con ID: ${id}`);
+    navigate(`/editincident/${id}`);
   };
 
   return (
@@ -59,8 +61,8 @@ function MostrarIncidencia() {
                   {incidencia.status}
                 </td>
                 <td className="px-4 py-2 text-sm">{incidencia.description}</td>
-                <td className="px-4 py-2 text-center"> {/* Personas */} </td>
-                <td className="px-4 py-2 text-center"> {/* Vehículos */} </td>
+                <td className="px-4 py-2 text-center"> {countPeople(incidencia.people)} </td>
+                <td className="px-4 py-2 text-center"> {countVehicles(incidencia.vehicles)} </td>
                 <td className="px-4 py-2 text-center">{incidencia.brigade_field ? 'Sí' : 'No'}</td>
                 <td className="px-4 py-2 text-center">
                   <button
