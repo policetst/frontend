@@ -9,8 +9,6 @@ function CrearIncidencia() {
       <div className="flex justify-center items-center h-screen">
         <FormularioIncidencia />
       </div>
-      <button>Tocame</button>
-
 
     </div>
   )
