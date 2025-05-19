@@ -170,23 +170,33 @@ const getIncident = async (code) => {
 }
 
 /**
- * Function to count how many people are associated with an incident
- * @param {Array} people - Array of people objects
- * @returns {number} - The count of people
+ * Function to count people in an incident
+ * @param {string|number} code - ID of the incident to count people for
+ * @returns {Promise<number>}
  */
-const countPeople = (people) => {
-  if (!people || !Array.isArray(people)) return 0;
-  return people.length;
+const countPeople = async (code) => {
+  try {
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/peoplecount`);
+    return res.data.count || 0;
+  } catch (error) {
+    console.error("Error counting people:", error);
+    return 0;
+  }
 };
 
 /**
- * Function to count how many vehicles are associated with an incident
- * @param {Array} vehicles - Array of vehicle objects
- * @returns {number} - The count of vehicles
+ * Function to count vehicles in an incident
+ * @param {string|number} code - ID of the incident to count vehicles for
+ * @returns {Promise<number>}
  */
-const countVehicles = (vehicles) => {
-  if (!vehicles || !Array.isArray(vehicles)) return 0;
-  return vehicles.length;
+const countVehicles = async (code) => {
+  try {
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/vehiclescount`);
+    return res.data.count || 0;
+  } catch (error) {
+    console.error("Error counting vehicles:", error);
+    return 0;
+  }
 };
 
 export { getLocation, postIncident, getIncidents, updateIncident, getIncidentDetails, getIncident, countPeople, countVehicles };

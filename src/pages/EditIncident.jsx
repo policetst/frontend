@@ -521,7 +521,7 @@ const EditIncident = () => {
         type="submit"
         className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
       >
-        Enviar
+        Actualizar
       </button>
       
       {/* Lightbox para ver imágenes a tamaño completo */}
