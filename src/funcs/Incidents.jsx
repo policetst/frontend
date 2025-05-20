@@ -4,6 +4,14 @@ import Swal from 'sweetalert2';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 
 /**
+ * Function to get the token directly from document.cookie
+ */
+function getTokenFromCookie() {
+  const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+  return match ? match[2] : '';
+}
+
+/**
  * Function to get the user's location automatically.
  * @returns {Promise<{latitude: number, longitude: number, altitude?: number}>}
  */
@@ -38,8 +46,13 @@ async function getLocation() {
  * @returns {Promise<Object>}
  */
 async function postIncident(incident) {
+  const token = getTokenFromCookie();
   try {
-    const res = await axios.post(INCIDENTS_URL, incident);
+    const res = await axios.post(INCIDENTS_URL, incident, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Response from backend:", res.data);
     const { ok, message } = res.data;
 
@@ -60,7 +73,6 @@ async function postIncident(incident) {
     }
 
     return res.data;
-
   } catch (error) {
     console.error("Error posting incident:", error);
     Swal.fire({
@@ -73,13 +85,14 @@ async function postIncident(incident) {
   }
 }
 
-/**
- * Function that returns the incidents
- * @returns {Promise<Object>}
- */
 async function getIncidents() {
+  const token = getTokenFromCookie();
   try {
-    const res = await axios.get(INCIDENTS_URL);
+    const res = await axios.get(INCIDENTS_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
@@ -88,15 +101,14 @@ async function getIncidents() {
   }
 }
 
-/**
- * Function to update an existing incident
- * @param {string|number} code - ID of the incident to update
- * @param {Object} incidentData - Updated incident data
- * @returns {Promise<Object>}
- */
 async function updateIncident(code, incidentData) {
+  const token = getTokenFromCookie();
   try {
-    const res = await axios.put(`${INCIDENTS_URL}/${code}`, incidentData);
+    const res = await axios.put(`${INCIDENTS_URL}/${code}`, incidentData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
@@ -105,20 +117,20 @@ async function updateIncident(code, incidentData) {
   }
 }
 
-/**
- * Function to get incident details including people and vehicles
- * @param {string|number} code - ID of the incident to get details for
- * @returns {Promise<Object>}
- */
 async function getIncidentDetails(code) {
+  const token = getTokenFromCookie();
   try {
-    const res = await axios.get(`${INCIDENTS_URL}/${code}/details`);
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/details`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Incident details:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching incident details:", error);
-    return { 
-      ok: false, 
+    return {
+      ok: false,
       message: 'Error al obtener los detalles de la incidencia',
       incident: null,
       people: [],
@@ -128,11 +140,15 @@ async function getIncidentDetails(code) {
 }
 
 const getIncident = async (code) => {
+  const token = getTokenFromCookie();
   try {
-    const res = await axios.get(`${INCIDENTS_URL}/${code}/details`);
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/details`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Incident data from API:", res.data);
-    
-    // Check if response contains the incident data structure
+
     if (res.data && res.data.incident) {
       return {
         ...res.data.incident,
@@ -141,7 +157,6 @@ const getIncident = async (code) => {
         images: res.data.images || []
       };
     } else if (res.data && !res.data.incident) {
-      // Handle case where data is directly in res.data without nested structure
       return {
         ...res.data,
         people: res.data.people || [],
@@ -149,12 +164,12 @@ const getIncident = async (code) => {
         images: res.data.images || []
       };
     }
-    
+
     return res.data;
   } catch (error) {
     console.error("Error fetching incident:", error);
-    return { 
-      ok: false, 
+    return {
+      ok: false,
       message: 'Error al obtener los detalles de la incidencia',
       status: 'Open',
       location: '',
@@ -169,14 +184,14 @@ const getIncident = async (code) => {
   }
 }
 
-/**
- * Function to count people in an incident
- * @param {string|number} code - ID of the incident to count people for
- * @returns {Promise<number>}
- */
 const countPeople = async (code) => {
+  const token = getTokenFromCookie();
   try {
-    const res = await axios.get(`${INCIDENTS_URL}/${code}/peoplecount`);
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/peoplecount`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return res.data.count || 0;
   } catch (error) {
     console.error("Error counting people:", error);
@@ -184,14 +199,14 @@ const countPeople = async (code) => {
   }
 };
 
-/**
- * Function to count vehicles in an incident
- * @param {string|number} code - ID of the incident to count vehicles for
- * @returns {Promise<number>}
- */
 const countVehicles = async (code) => {
+  const token = getTokenFromCookie();
   try {
-    const res = await axios.get(`${INCIDENTS_URL}/${code}/vehiclescount`);
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/vehiclescount`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return res.data.count || 0;
   } catch (error) {
     console.error("Error counting vehicles:", error);
@@ -199,4 +214,13 @@ const countVehicles = async (code) => {
   }
 };
 
-export { getLocation, postIncident, getIncidents, updateIncident, getIncidentDetails, getIncident, countPeople, countVehicles };
+export {
+  getLocation,
+  postIncident,
+  getIncidents,
+  updateIncident,
+  getIncidentDetails,
+  getIncident,
+  countPeople,
+  countVehicles
+};
