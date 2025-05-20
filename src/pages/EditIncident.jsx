@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { postIncident, getLocation, getIncident, updateIncident } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
@@ -8,8 +8,11 @@ import { closeIncident } from '../funcs/Incidents';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const EditIncident = () => {
+  const Navigate = useNavigate();
   const { code } = useParams();
   console.log('code: '+code);
   const [loading, setLoading] = useState(true);
@@ -142,115 +145,131 @@ const EditIncident = () => {
     setSelectedImages(files);
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
+  e.preventDefault(); // evitar el envío inmediato
 
-    e.preventDefault();
-    
+  // Mensaje de confirmación
+  const Swal = (await import('sweetalert2')).default;
+  const result = await Swal.fire({
+    title: '¿Deseas actualizar la incidencia?',
+    text: 'Esta acción modificará la información actual.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, actualizar',
+    cancelButtonText: 'Cancelar'
+  });
+  Navigate(`/incidencia`);
 
-    // * validation of the required fields
-    const camposObligatorios = [
-      { campo: 'type', label: 'Tipo de incidencia' },
-      { campo: 'description', label: 'Descripción' },
-      { campo: 'location', label: 'Coordenadas' },
-    ];
-    const campoFaltante = camposObligatorios.find(c => !form[c.campo] || form[c.campo].toString().trim() === '');
-    if (campoFaltante) {
-      const Swal = (await import('sweetalert2')).default;
+  if (!result.isConfirmed) return;
+
+  // Validación de campos obligatorios
+  const camposObligatorios = [
+    { campo: 'type', label: 'Tipo de incidencia' },
+    { campo: 'description', label: 'Descripción' },
+    { campo: 'location', label: 'Coordenadas' },
+  ];
+  const campoFaltante = camposObligatorios.find(c => !form[c.campo] || form[c.campo].toString().trim() === '');
+  if (campoFaltante) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Falta un campo obligatorio',
+      text: `Por favor, completa el campo: ${campoFaltante.label}`,
+      confirmButtonText: 'Aceptar'
+    });
+    return;
+  }
+
+  // Validación de personas
+  for (let i = 0; i < personas.length; i++) {
+    const p = personas[i];
+    if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number) {
       Swal.fire({
         icon: 'warning',
-        title: 'Falta un campo obligatorio',
-        text: `Por favor, completa el campo: ${campoFaltante.label}`,
+        title: 'Faltan datos en una persona',
+        text: `La persona ${i + 1} debe tener todos los campos completos.`,
         confirmButtonText: 'Aceptar'
       });
       return;
     }
+  }
 
-    // Validación de campos obligatorios en personas
-    for (let i = 0; i < personas.length; i++) {
-      const p = personas[i];
-      if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number) {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'warning',
-          title: 'Faltan datos en una persona',
-          text: `La persona ${i + 1} debe tener todos los campos completos.`,
-          confirmButtonText: 'Aceptar'
-        });
-        return;
-      }
+  // Validación de vehículos
+  for (let i = 0; i < vehiculos.length; i++) {
+    const v = vehiculos[i];
+    if (!v.marca || !v.modelo || !v.color || !v.matricula) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Faltan datos en un vehículo',
+        text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
+        confirmButtonText: 'Aceptar'
+      });
+      return;
     }
+  }
 
-    // Validación de campos obligatorios en vehículos
-    for (let i = 0; i < vehiculos.length; i++) {
-      const v = vehiculos[i];
-      if (!v.marca || !v.modelo || !v.color || !v.matricula) {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'warning',
-          title: 'Faltan datos en un vehículo',
-          text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
-          confirmButtonText: 'Aceptar'
-        });
-        return;
-      }
+  // Mostrar cargando mientras se actualiza
+  Swal.fire({
+    title: 'Actualizando incidencia...',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
     }
+  });
 
-    // * upload images to /uploads
-    let uploadedImageUrls = [];
-    for (const file of selectedImages) {
-      const formData = new FormData();
-      formData.append('file', file);
-      try {
-        const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        if (res.data && res.data.file && res.data.file.url) {
-          uploadedImageUrls.push(res.data.file.url);
-        }
-      } catch (err) {
-        console.error('Error uploading image:', err);
-      }
-    }
-
-    // * add images to the existing form
-    const formToSend = {
-      ...form,
-      people: personas,
-      vehicles: vehiculos,
-      images: [...existingImages, ...uploadedImageUrls],
-    };
-
+  // Subida de imágenes
+  let uploadedImageUrls = [];
+  for (const file of selectedImages) {
+    const formData = new FormData();
+    formData.append('file', file);
     try {
-      // Para actualizar una incidencia existente en lugar de crear una nueva
-      const response = await updateIncident(code, formToSend);
-      if (response.ok) {
-        // * show success message
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'success',
-          title: 'Incidencia actualizada',
-          text: 'La incidencia se ha actualizado correctamente.',
-          confirmButtonText: 'Aceptar'
-        });
-      } else {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: response.message || 'No se pudo actualizar la incidencia.',
-          confirmButtonText: 'Aceptar'
-        });
+      const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data && res.data.file && res.data.file.url) {
+        uploadedImageUrls.push(res.data.file.url);
       }
-    } catch (error) {
-      const Swal = (await import('sweetalert2')).default;
+    } catch (err) {
+      console.error('Error uploading image:', err);
+    }
+  }
+
+  const formToSend = {
+    ...form,
+    people: personas,
+    vehicles: vehiculos,
+    images: [...existingImages, ...uploadedImageUrls],
+  };
+
+  try {
+    const response = await updateIncident(code, formToSend);
+    Swal.close();
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Incidencia actualizada',
+        text: 'La incidencia se ha actualizado correctamente.',
+        confirmButtonText: 'Aceptar'
+      });
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: error.response?.data?.message || 'No se pudo actualizar la incidencia.',
+        text: response.message || 'No se pudo actualizar la incidencia.',
         confirmButtonText: 'Aceptar'
       });
     }
-  };
+  } catch (error) {
+    Swal.close();
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error.response?.data?.message || 'No se pudo actualizar la incidencia.',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+};
+
 
   const agregarPersona = () => {
     if (nuevaPersona.dni && nuevaPersona.first_name && nuevaPersona.last_name1) {
