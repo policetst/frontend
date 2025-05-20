@@ -142,22 +142,11 @@ const EditIncident = () => {
     setSelectedImages(files);
   };
 
-  const handleSubmit = async (e) => {//* ask for confirmation to update the incident
-    const [cookies] = useCookies(['user']);
-    const userCode = cookies.user.code;
-    const Swal = (await import('sweetalert2')).default;
-    Swal.fire({
-      icon: 'warning',
-      title: '¿Estás seguro de querer actualizar la incidencia?',
-      confirmButtonText: 'Aceptar',
-      cancelButtonText: 'Cancelar'
-    });
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
     
-    if (form.status === 'Closed') {
-      const res = await closeIncident(code, userCode);
-      console.log(res);
-    }
+
     // * validation of the required fields
     const camposObligatorios = [
       { campo: 'type', label: 'Tipo de incidencia' },

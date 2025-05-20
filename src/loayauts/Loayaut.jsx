@@ -13,7 +13,7 @@
   import { BellRing } from 'lucide-react';
   import { useNavigate } from 'react-router-dom';
   function Layout() {
-    const [cookies] = useCookies(['user']);
+    const [cookies, setCookie] = useCookies(['user']);
     const navigate = useNavigate();
     useEffect(() => {
       if (!cookies.user || !cookies.token) {
