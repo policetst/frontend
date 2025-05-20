@@ -4,7 +4,7 @@ import { postIncident, getLocation, getIncident, updateIncident } from '../funcs
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
-import { closeIncident, getUserCodeFromCookie } from '../funcs/Incidents';
+import { closeIncident } from '../funcs/Incidents';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 
@@ -142,6 +142,8 @@ const EditIncident = () => {
   };
 
   const handleSubmit = async (e) => {//* ask for confirmation to update the incident
+    const [cookies] = useCookies(['user']);
+    const userCode = cookies.user.code;
     const Swal = (await import('sweetalert2')).default;
     Swal.fire({
       icon: 'warning',
@@ -152,7 +154,6 @@ const EditIncident = () => {
     e.preventDefault();
     
     if (form.status === 'Closed') {
-      const userCode = getUserCodeFromCookie();
       const res = await closeIncident(code, userCode);
       console.log(res);
     }
