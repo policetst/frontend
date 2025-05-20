@@ -70,7 +70,7 @@ const EditIncident = () => {
           type: data.type || '',
           description: data.description || '',
           brigade_field: data.brigade_field || false,
-          creator_user_code: data.creator_user_code || 'AR00001',
+          creator_user_code: 'AR00001',
         };
         console.log('Formulario actualizado:', updatedForm);
         setForm(updatedForm);
@@ -119,7 +119,7 @@ const EditIncident = () => {
     last_name2: '',
     phone_number: ''
   });
-  const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
+  const [nuevoVehiculo, setNuevoVehiculo] = useState({ brand: '', model: '', color: '', license_plate: '' });
 
   const tipos = [
     'Animales',
@@ -196,7 +196,7 @@ const handleSubmit = async (e) => {
   // Validación de vehículos
   for (let i = 0; i < vehiculos.length; i++) {
     const v = vehiculos[i];
-    if (!v.marca || !v.modelo || !v.color || !v.matricula) {
+    if (!v.brand || !v.model || !v.color || !v.license_plate) {
       Swal.fire({
         icon: 'warning',
         title: 'Faltan datos en un vehículo',
@@ -287,9 +287,9 @@ const handleSubmit = async (e) => {
   };
 
   const agregarVehiculo = () => {
-    if (nuevoVehiculo.marca && nuevoVehiculo.modelo && nuevoVehiculo.color && nuevoVehiculo.matricula) {
+    if (nuevoVehiculo.brand && nuevoVehiculo.model && nuevoVehiculo.color && nuevoVehiculo.license_plate) {
       setVehiculos(prev => [...prev, nuevoVehiculo]);
-      setNuevoVehiculo({ marca: '', modelo: '', color: '', matricula: '' });
+      setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
     }
   };
   const eliminarPersona = (index) => {
@@ -456,22 +456,22 @@ const handleSubmit = async (e) => {
           <input
             type="text"
             placeholder="Matrícula"
-            value={nuevoVehiculo.matricula}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, matricula: e.target.value })}
+            value={nuevoVehiculo.license_plate}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
             placeholder="Marca"
-            value={nuevoVehiculo.marca}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, marca: e.target.value })}
+            value={nuevoVehiculo.brand}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
             placeholder="Modelo"
-            value={nuevoVehiculo.modelo}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, modelo: e.target.value })}
+            value={nuevoVehiculo.model}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
@@ -494,7 +494,7 @@ const handleSubmit = async (e) => {
           <ul className="list-disc list-inside text-sm">
             {vehiculos.map((v, i) => (
               <li key={i} className="flex justify-start items-center">
-                {v.marca} {v.model}, {v.color}, {v.license_plate}
+                {v.brand} {v.model}, {v.color}, {v.brand} - {v.license_plate}
                 <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarVehiculo(i)} />
               </li>
             ))}
