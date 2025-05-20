@@ -1,5 +1,6 @@
 import React, {useState} from 'react' // * import useState to handle the state of the inputs
 import axios from 'axios';
+const LOGIN_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/login';
 import Swal from 'sweetalert2';
 import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom'; // * import Link to handle the navigation between pages
@@ -28,7 +29,7 @@ function Login() {
         e.preventDefault();
       
         try {
-          const response = await axios.post('http://localhost:4000/login', {
+          const response = await axios.post(LOGIN_URL+'/login', {
             username,
             password
           });
