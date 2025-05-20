@@ -5,6 +5,7 @@ const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
 import { closeIncident } from '../funcs/Incidents';
+import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 
