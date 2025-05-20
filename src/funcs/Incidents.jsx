@@ -1,7 +1,26 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
+
+
+
+//* function to close an incident
+const closeIncident = async (code, userCode) => {
+  const token = getTokenFromCookie();
+  try {
+    const res = await axios.put(`${INCIDENTS_URL}/${code}/${userCode}/close`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error closing incident:", error);
+    return { ok: false, message: 'Error al cerrar la incidencia' };
+  }
+}
 
 /**
  * Function to get the token directly from document.cookie
@@ -222,5 +241,6 @@ export {
   getIncidentDetails,
   getIncident,
   countPeople,
-  countVehicles
+  countVehicles,
+  closeIncident
 };

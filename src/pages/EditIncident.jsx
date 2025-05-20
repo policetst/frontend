@@ -4,6 +4,7 @@ import { postIncident, getLocation, getIncident, updateIncident } from '../funcs
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
+import { closeIncident, getUserCodeFromCookie } from '../funcs/Incidents';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 
@@ -140,10 +141,21 @@ const EditIncident = () => {
     setSelectedImages(files);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {//* ask for confirmation to update the incident
+    const Swal = (await import('sweetalert2')).default;
+    Swal.fire({
+      icon: 'warning',
+      title: '¿Estás seguro de querer actualizar la incidencia?',
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar'
+    });
     e.preventDefault();
-    console.log('Enviando formulario con datos:', form);
-
+    
+    if (form.status === 'Closed') {
+      const userCode = getUserCodeFromCookie();
+      const res = await closeIncident(code, userCode);
+      console.log(res);
+    }
     // * validation of the required fields
     const camposObligatorios = [
       { campo: 'type', label: 'Tipo de incidencia' },
