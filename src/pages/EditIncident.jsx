@@ -4,7 +4,7 @@ import { postIncident, getLocation, getIncident, updateIncident } from '../funcs
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
-import { closeIncident } from '../funcs/Incidents';
+import { closeIncident, getTokenFromCookie } from '../funcs/Incidents';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
@@ -224,7 +224,9 @@ const handleSubmit = async (e) => {
     formData.append('file', file);
     try {
       const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${getTokenFromCookie()}`
+        }
       });
       if (res.data && res.data.file && res.data.file.url) {
         uploadedImageUrls.push(res.data.file.url);
@@ -492,7 +494,7 @@ const handleSubmit = async (e) => {
           <ul className="list-disc list-inside text-sm">
             {vehiculos.map((v, i) => (
               <li key={i} className="flex justify-start items-center">
-                {v.marca} {v.modelo}, {v.color}, {v.matricula}
+                {v.marca} {v.model}, {v.color}, {v.license_plate}
                 <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarVehiculo(i)} />
               </li>
             ))}

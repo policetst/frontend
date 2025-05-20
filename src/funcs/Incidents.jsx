@@ -1,9 +1,17 @@
+import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
 
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 
+
+//*Function to get the user's token from the cookie
+//*Function to get the user's token from the cookie (sin hooks)
+const getTokenFromCookie = () => {
+  const match = document.cookie.match(/(^| )token=([^;]+)/);
+  return match ? match[2] : '';
+};
 
 
 //* function to close an incident
@@ -25,10 +33,6 @@ const closeIncident = async (code, userCode) => {
 /**
  * Function to get the token directly from document.cookie
  */
-function getTokenFromCookie() {
-  const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
-  return match ? match[2] : '';
-}
 
 /**
  * Function to get the user's location automatically.
@@ -65,8 +69,8 @@ async function getLocation() {
  * @returns {Promise<Object>}
  */
 async function postIncident(incident) {
-  const token = getTokenFromCookie();
   try {
+    const token = getTokenFromCookie();
     const res = await axios.post(INCIDENTS_URL, incident, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -121,8 +125,8 @@ async function getIncidents() {
 }
 
 async function updateIncident(code, incidentData) {
-  const token = getTokenFromCookie();
   try {
+    const token = getTokenFromCookie();
     const res = await axios.put(`${INCIDENTS_URL}/${code}`, incidentData, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -137,8 +141,8 @@ async function updateIncident(code, incidentData) {
 }
 
 async function getIncidentDetails(code) {
-  const token = getTokenFromCookie();
   try {
+    const token = getTokenFromCookie();
     const res = await axios.get(`${INCIDENTS_URL}/${code}/details`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -159,8 +163,8 @@ async function getIncidentDetails(code) {
 }
 
 const getIncident = async (code) => {
-  const token = getTokenFromCookie();
   try {
+    const token = getTokenFromCookie();
     const res = await axios.get(`${INCIDENTS_URL}/${code}/details`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -204,8 +208,8 @@ const getIncident = async (code) => {
 }
 
 const countPeople = async (code) => {
-  const token = getTokenFromCookie();
   try {
+    const token = getTokenFromCookie();
     const res = await axios.get(`${INCIDENTS_URL}/${code}/peoplecount`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -219,8 +223,8 @@ const countPeople = async (code) => {
 };
 
 const countVehicles = async (code) => {
-  const token = getTokenFromCookie();
   try {
+    const token = getTokenFromCookie();
     const res = await axios.get(`${INCIDENTS_URL}/${code}/vehiclescount`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -242,5 +246,6 @@ export {
   getIncident,
   countPeople,
   countVehicles,
-  closeIncident
+  closeIncident,
+  getTokenFromCookie
 };

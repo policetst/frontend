@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { postIncident, getLocation } from '../funcs/Incidents';
+import { useCookies } from 'react-cookie';
+import { postIncident, getLocation, getTokenFromCookie } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from './ImageUpload';
@@ -8,6 +9,7 @@ import { X as XIcon } from 'lucide-react';
 
 
 const FormularioIncidencia = () => {
+  const [cookies] = useCookies(['user']);
   console.log('FormularioIncidencia');
   
   const [location, setLocation] = useState('');
@@ -130,9 +132,14 @@ const FormularioIncidencia = () => {
       const formData = new FormData();
       formData.append('file', file);
       try {
-        const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+            const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${cookies.token}`
+          }
         });
+
+        console.log('Response from image upload:', res.data);
         if (res.data && res.data.file && res.data.file.url) {
           uploadedImageUrls.push(res.data.file.url);
         }
