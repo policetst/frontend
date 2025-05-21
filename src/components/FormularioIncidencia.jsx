@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { postIncident, getLocation, getTokenFromCookie } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
@@ -31,6 +32,7 @@ const FormularioIncidencia = () => {
     last_name2: '',
     phone_number: ''
   });
+  const navigate = useNavigate();
   const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
   const [selectedImages, setSelectedImages] = useState([]);
 //useefect to put the location in the form
@@ -166,6 +168,8 @@ const FormularioIncidencia = () => {
           title: 'Incidencia creada',
           text: 'La incidencia se ha creado correctamente.',
           confirmButtonText: 'Aceptar'
+        }).then(() => {
+          navigate('/incidencia');
         });
         setForm({
           status: 'Open',

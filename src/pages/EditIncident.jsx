@@ -69,7 +69,7 @@ const EditIncident = () => {
           location: data.location || '',
           type: data.type || '',
           description: data.description || '',
-          brigade_field: data.brigade_field || false,
+          brigade_field: data.brigade_field === true || data.brigade_field === 'true',
           creator_user_code: 'AR00001',
         };
         console.log('Formulario actualizado:', updatedForm);
@@ -236,12 +236,18 @@ const handleSubmit = async (e) => {
     }
   }
 
-  const formToSend = {
-    ...form,
-    people: personas,
-    vehicles: vehiculos,
-    images: [...existingImages, ...uploadedImageUrls],
-  };
+const formToSend = {
+  status: form.status,
+  location: form.location,
+  type: form.type,
+  description: form.description,
+  brigade_field: form.brigade_field, 
+  creator_user_code: form.creator_user_code,
+  people: personas,
+  vehicles: vehiculos,
+  images: [...existingImages, ...uploadedImageUrls],
+};
+
 
   try {
     const response = await updateIncident(code, formToSend);
