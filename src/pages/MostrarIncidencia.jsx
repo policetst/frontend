@@ -27,6 +27,7 @@ function MostrarIncidencia() {
   };
 
   return (
+<<<<<<< HEAD
        <div className="p-4">
       <h3 className="text-2xl font-bold mb-4">Incidencias</h3>
       <div className="overflow-x-auto rounded-lg shadow-lg">
@@ -76,6 +77,51 @@ function MostrarIncidencia() {
             ))}
           </tbody>
         </table>
+=======
+    <div>
+      {/* Titulo en escritorio o tablet */}
+      <div className="hidden md:block">
+        <h2 className="text-2xl font-bold mt-4 ml-15 mb-10">Mostrar incidencias</h2>
+      </div>
+      {/* Titulo en moviles */}
+      <div className="block md:hidden">
+        <h2 className="text-2xl font-bold flex justify-center mb-10">Mostrar incidencias</h2>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {incidencias.map((incidencia) => (
+          <div
+            key={incidencia.id}
+            className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between"
+          >
+            {/* Indicador de estado */}
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-bold text-gray-800">{incidencia.tipo}</h4>
+              <span
+                className={`w-4 h-4 rounded-full ${
+                  incidencia.estado === 'Abierta' ? 'bg-green-500' : 'bg-gray-400'
+                }`}
+                title={incidencia.estado}
+              ></span>
+            </div>
+            {/* Descripción */}
+            <p className="text-sm text-gray-600 mb-2">{incidencia.descripcion}</p>
+            {/* Detalles adicionales */}
+            <div className="text-sm text-gray-600 mb-4">
+              <p><strong>Personas:</strong> {incidencia.personas}</p>
+              <p><strong>Vehículos:</strong> {incidencia.vehiculos}</p>
+              <p><strong>Brigada:</strong> {incidencia.brigada ? 'Sí' : 'No'}</p>
+            </div>
+            {/* Botón de editar */}
+            <button
+              onClick={() => handleEdit(incidencia.id)}
+              className="mt-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            >
+              Editar
+            </button>
+          </div>
+        ))}
+>>>>>>> adjust/front
       </div>
     </div>
   );

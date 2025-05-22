@@ -9,8 +9,14 @@ function Estadisticas() {
   ];
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Gráfico de Incidencias</h1>
+    <div>
+      <div className="hidden md:block">
+        <h2 className="text-2xl font-bold mt-4 ml-15">Estadisticas</h2>
+      </div>
+      {/* Titulo en moviles */}
+      <div className="block md:hidden">
+        <h2 className="text-2xl font-bold flex justify-center">Estadisticas</h2>
+      </div>
       <div className="w-full h-96">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
