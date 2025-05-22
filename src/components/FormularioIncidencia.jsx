@@ -65,14 +65,20 @@ const FormularioIncidencia = () => {
         <div>
           <div className="flex justify-between">
             {/* Fecha y hora */}
-            <div className="flex justify-start items-start h-10">
+            <div className="flex flex-col justify-start items-start h-10 mb-10">
+              <p className="font-semibold">Fecha y hora:</p>
               <p>{new Date().toLocaleString()}</p>
             </div>
             {/* Agente 2 */}
             <div>
-              <p>
-                AR12345
-              </p>
+              <p className="font-semibold">Acompañante:</p>
+              <input 
+                type="text"
+                name="compa"
+                placeholder="AR12345"
+                className="w-23 pl-2 border rounded"
+              />
+              {/* <p className="flex justify-center">AR12345</p> */}
             </div>
           </div>
           <div className="mb-4">
@@ -158,13 +164,13 @@ const FormularioIncidencia = () => {
               placeholder="Contacto"
               value={nuevaPersona.contacto || ''}
               onChange={(e) => setNuevaPersona({ ...nuevaPersona, contacto: e.target.value })}
-              className="p-2 mb-2 border rounded"
+              className="p-2 border rounded"
             />
           </div>
           <button
             type="button"
             onClick={agregarPersona}
-            className="mb-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA]"
+            className="mb-2 mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]"
           >
             Añadir persona
           </button>
@@ -210,14 +216,14 @@ const FormularioIncidencia = () => {
               placeholder="Color"
               value={nuevoVehiculo.color}
               onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-              className="p-2 mb-2 border rounded"
+              className="p-2 border rounded"
             />
       
           </div>
           <button
             type="button"
             onClick={agregarVehiculo}
-            className="mb-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA]"
+            className="mb-2 mt-2 px-4 py-1 bg-[#002856] text-white rounded active:bg-[#0092CA]"
           >
             Añadir vehículo
           </button>
