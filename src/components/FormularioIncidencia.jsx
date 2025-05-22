@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ImageUpload from '../components/ImageUpload'
 
 const FormularioIncidencia = () => {
   const [form, setForm] = useState({
@@ -64,11 +65,13 @@ const FormularioIncidencia = () => {
         {/* Datos de registro */}
         <div>
           <div className="flex justify-between">
+
             {/* Fecha y hora */}
             <div className="flex flex-col justify-start items-start h-10 mb-10">
               <p className="font-semibold">Fecha y hora:</p>
               <p>{new Date().toLocaleString()}</p>
             </div>
+            
             {/* Agente 2 */}
             <div>
               <p className="font-semibold">Acompañante:</p>
@@ -78,9 +81,11 @@ const FormularioIncidencia = () => {
                 placeholder="AR12345"
                 className="w-23 pl-2 border rounded"
               />
-              {/* <p className="flex justify-center">AR12345</p> */}
             </div>
           </div>
+
+          <h3 className="text-xl font-bold mb-2">Datos esenciales</h3>
+
           <div className="mb-4">
             <label className="block font-medium">Ubicacion</label>
             <input
@@ -133,8 +138,10 @@ const FormularioIncidencia = () => {
             <label className="text-md">Envío a brigada</label>
           </div>
         </div>
+        <hr className="border-t border-gray-300 my-4" />
 
-        {/* Sección personas */}
+
+        {/* Agregar una persona */}
         <div>
           <h3 className="text-xl font-bold mb-2">Personas</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-2">
@@ -175,6 +182,7 @@ const FormularioIncidencia = () => {
             Añadir persona
           </button>
 
+          {/* Muestra las personas añadiddas */}
           {form.personas.length > 0 && (
             <ul className="list-disc list-inside text-sm">
               {form.personas.map((p, i) => (
@@ -185,8 +193,10 @@ const FormularioIncidencia = () => {
             </ul>
           )}
         </div>
+        <hr className="border-t border-gray-300 my-4" />
 
-        {/* Sección vehículos */}
+
+        {/* Agregar un vehiculo */}
         <div>
           <h3 className="text-xl font-bold mb-2">Vehículos</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-2">
@@ -218,8 +228,8 @@ const FormularioIncidencia = () => {
               onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
               className="p-2 border rounded"
             />
-      
           </div>
+          
           <button
             type="button"
             onClick={agregarVehiculo}
@@ -227,7 +237,8 @@ const FormularioIncidencia = () => {
           >
             Añadir vehículo
           </button>
-
+          
+          {/* Muestra los vehiculos añadidos */}
           {form.vehiculos.length > 0 && (
             <ul className="list-disc list-inside text-sm">
               {form.vehiculos.map((v, i) => (
@@ -235,6 +246,14 @@ const FormularioIncidencia = () => {
               ))}
             </ul>
           )}
+        </div>
+        <hr className="border-t border-gray-300 my-4" />
+
+
+        {/* Subir una imagen */}
+        <div>
+          <h3 className="text-xl font-bold mb-2">Subir imagenes</h3>
+          <ImageUpload/>
         </div>
 
         <button
