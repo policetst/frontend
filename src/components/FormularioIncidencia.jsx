@@ -79,7 +79,7 @@ const FormularioIncidencia = () => {
                 type="text"
                 name="compa"
                 placeholder="AR12345"
-                className="w-23 pl-2 border rounded"
+                className="w-23 pl-1 border rounded"
               />
             </div>
           </div>
@@ -184,17 +184,45 @@ const FormularioIncidencia = () => {
 
           {/* Muestra las personas añadiddas */}
           {form.personas.length > 0 && (
-            <ul className="list-disc list-inside text-sm">
+            <ul className="space-y-2 mt-2 text-sm">
               {form.personas.map((p, i) => (
                 <li key={i}>
-                  {p.nombre} {p.apellidos} - {p.dni} - {p.contacto}
+                  <div className="flex justify-between items-center bg-gray-100 p-3 rounded">
+                    
+                    {/* Los datos de la persona */}
+                    <span className="flex flex-col flex-1 min-w-0">
+                      <span className="truncate text-lg font-medium">{p.nombre} {p.apellidos}</span>
+                      <span className="text-sm">{p.dni} - {p.contacto}</span>
+                    </span>
+                    
+                    {/* Boton para retirar la persona. Version escritorio o tablet */}
+                    <button
+                      onClick={() => {
+                        const nuevasPersonas = form.personas.filter((_, idx) => idx !== i);
+                        setForm({ ...form, personas: nuevasPersonas });
+                      }}
+                      className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      X
+                    </button>
+                    
+                    {/* Boton para retirar la persona. Version movil */}
+                    <button
+                      onClick={() => {
+                        const nuevasPersonas = form.personas.filter((_, idx) => idx !== i);
+                        setForm({ ...form, personas: nuevasPersonas });
+                      }}
+                      className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
         <hr className="border-t border-gray-300 my-4" />
-
 
         {/* Agregar un vehiculo */}
         <div>
@@ -240,9 +268,40 @@ const FormularioIncidencia = () => {
           
           {/* Muestra los vehiculos añadidos */}
           {form.vehiculos.length > 0 && (
-            <ul className="list-disc list-inside text-sm">
+            <ul className="space-y-2 mt-2 text-sm">
               {form.vehiculos.map((v, i) => (
-                <li key={i}>{v.marca} {v.modelo}, {v.color}, {v.matricula}</li>
+                <li key={i}>
+                  <div className="flex justify-between items-center bg-gray-100 p-3 rounded">
+
+                    {/* Datos de vehiculo añadido */}
+                    <span className="flex flex-col flex-1 min-w-0">
+                      <span className="truncate text-lg font-medium">{v.marca} {v.modelo}</span>
+                      <span className="text-sm">{v.matricula} - {v.color}</span>
+                    </span>
+
+                    {/* Boton para retirar vehiculo. Version escritorio o tablet */}
+                    <button
+                      onClick={() => {
+                        const nuevoVehiculo = form.vehiculos.filter((_, idx) => idx !== i);
+                        setForm({ ...form, vehiculos: nuevoVehiculo });
+                      }}
+                      className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      X
+                    </button>
+
+                    {/* Boton para retirar vehiculo. Version movil */}
+                    <button
+                      onClick={() => {
+                        const nuevoVehiculo = form.vehiculos.filter((_, idx) => idx !== i);
+                        setForm({ ...form, vehiculos: nuevoVehiculo });
+                      }}
+                      className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </li>
               ))}
             </ul>
           )}
