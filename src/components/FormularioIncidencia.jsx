@@ -10,6 +10,7 @@ import { X as XIcon } from 'lucide-react';
 
 
 const FormularioIncidencia = () => {
+  const user_code = localStorage.getItem('username'); //** get the logged user code from local storage to use it in the form */
   const [cookies] = useCookies(['user']);
   console.log('FormularioIncidencia');
   
@@ -21,7 +22,7 @@ const FormularioIncidencia = () => {
     type: '',
     description: '',
     brigade_field: false,
-    creator_user_code: 'AR00001',
+    creator_user_code: user_code || 'AR00001',
   });
   const [personas, setPersonas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
@@ -177,7 +178,7 @@ const FormularioIncidencia = () => {
           type: '',
           description: '',
           brigade_field: false,
-          creator_user_code: 'AR00001',
+          creator_user_code: user_code || 'AR00001',
         });
         setPersonas([]);
         setVehiculos([]);

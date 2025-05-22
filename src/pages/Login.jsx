@@ -39,8 +39,7 @@ function Login() {
           const token = response.data.token;
           //* save the cookie with the token
           setCookie('token', token, { path: '/', maxAge: 3600 }); // 1 hour
-          setCookie('user', response.data.user.code, { path: '/' });
-      
+localStorage.setItem('username', username); // * save the username in local storage     
           //* navigate to the incident page
           navigate('/incidencia');
       

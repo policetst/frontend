@@ -13,10 +13,11 @@
   import { BellRing } from 'lucide-react';
   import { useNavigate } from 'react-router-dom';
   function Layout() {
+    const user_code = localStorage.getItem('username');
     const [cookies, setCookie] = useCookies(['user']);
     const navigate = useNavigate();
     useEffect(() => {
-      if (!cookies.user || !cookies.token) {
+      if (!cookies.user && !user_code) {
         navigate('/login');
       }
     }, [cookies, navigate]);
