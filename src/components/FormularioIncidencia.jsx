@@ -261,7 +261,7 @@ const FormularioIncidencia = () => {
           <button
             type="button"
             onClick={agregarVehiculo}
-            className="mb-2 mt-2 px-4 py-1 bg-[#002856] text-white rounded active:bg-[#0092CA]"
+            className="mb-2 mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]"
           >
             Añadir vehículo
           </button>
@@ -317,7 +317,7 @@ const FormularioIncidencia = () => {
 
         <button
           type="submit"
-          className="w-full bg-[#002856] text-white py-2 rounded hover:bg-[#0092CA] transition"
+          className="w-full bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]"
         >
           Crear incidencia
         </button>
