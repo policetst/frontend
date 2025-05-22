@@ -11,11 +11,20 @@ export default function GestionUsuarios() {
   ];
 
   return (
-    <div className="flex justify-center">
+    <div>
+      {/* Titulo en escritorio o tablet */}
+      <div className="hidden md:block">
+        <h2 className="text-2xl font-bold mt-4 ml-15 mb-10">Gestion de usuario</h2>
+      </div>
+      {/* Titulo en moviles */}
+      <div className="block md:hidden">
+        <h2 className="text-2xl font-bold flex justify-center mb-10">Gestion de usuario</h2>
+      </div>
+      <div className="flex justify-center">
       <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] p-6 space-y-8 text-gray-800">
         {/* Administrador */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold pb-5">Gestionar Usuario Administrador</h2>
+          <h2 className="text-xl font-semibold pb-5">Usuario Administrador</h2>
 
           <div className="flex justify-center flex-wrap gap-6">
             {/* Avatar + ID */}
@@ -86,15 +95,6 @@ export default function GestionUsuarios() {
                       </label>
                     </div>
                   </div>
-
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="check"
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="check" className="text-sm text-gray-700">Envío a Brigada</label>
-                  </div>
                 </div>
 
                 <button
@@ -144,6 +144,7 @@ export default function GestionUsuarios() {
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

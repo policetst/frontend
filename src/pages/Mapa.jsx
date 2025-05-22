@@ -8,8 +8,14 @@ function Mapa() {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Mapa Page</h1>
+    <div>
+      <div className="hidden md:block">
+        <h2 className="text-2xl font-bold mt-4 ml-15">Mapa</h2>
+      </div>
+      {/* Titulo en moviles */}
+      <div className="block md:hidden">
+        <h2 className="text-2xl font-bold flex justify-center">Mapa</h2>
+      </div>
       <input
         type="text"
         placeholder="Buscar por número de incidencia"
