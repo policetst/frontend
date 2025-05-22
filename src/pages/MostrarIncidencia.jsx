@@ -39,17 +39,9 @@ function MostrarIncidencia() {
   };
 
   return (
-    <div>
-      {/* Titulo en escritorio o tablet */}
-      <div className="hidden md:block">
-        <h2 className="text-2xl font-bold mt-4 ml-15 mb-10">Mostrar incidencias</h2>
-      </div>
-      {/* Titulo en moviles */}
-      <div className="block md:hidden">
-        <h2 className="text-2xl font-bold flex justify-center mb-10">Mostrar incidencias</h2>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="p-6">
+      <h3 className="text-2xl font-bold mb-6">Incidencias</h3>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {incidencias.map((incidencia) => (
           <div
             key={incidencia.id}
