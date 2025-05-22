@@ -18,17 +18,22 @@ const getTokenFromCookie = () => {
 const closeIncident = async (code, userCode) => {
   const token = getTokenFromCookie();
   try {
-    const res = await axios.put(`${INCIDENTS_URL}/${code}/${userCode}/close`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const res = await axios.put(
+      `${INCIDENTS_URL}/${code}/${userCode}/close`,
+      {}, // cuerpo vacío
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    });
+    );
     return res.data;
   } catch (error) {
     console.error("Error closing incident:", error);
     return { ok: false, message: 'Error al cerrar la incidencia' };
   }
-}
+};
+
 
 /**
  * Function to get the token directly from document.cookie

@@ -12,8 +12,47 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 const EditIncident = () => {
-  const Navigate = useNavigate();
+  const USER_CODE = localStorage.getItem('username') || 'AR00001';
   const { code } = useParams();
+/*
+* Function to close an incident
+* @param {string} incident_code - The code of the incident to close
+* @param {string} agent_code - The code of the agent closing the incident
+* @returns {Promise<void>}
+*/
+  const closeINC = (incident_code, agent_code) => {
+    Swal.fire({
+      title: '¿Cerrar incidencia?',
+      text: "¿Estás seguro de que deseas cerrar esta incidencia?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cerrar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await closeIncident(incident_code, agent_code);
+        if (response.ok) {
+          Swal.fire(
+            'Incidencia cerrada',
+            'La incidencia ha sido cerrada correctamente.',
+            'success'
+          );
+        } else {
+          return;
+          Swal.fire(
+            'Error',
+            response.message || 'No se pudo cerrar la incidencia.',
+            'error'
+        
+          );
+        }
+      }
+    });
+  };
+
+  const Navigate = useNavigate();
   console.log('code: '+code);
   const [loading, setLoading] = useState(true);
   
@@ -132,14 +171,49 @@ const EditIncident = () => {
     'Otras incidencias no clasificadas',
   ];
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    console.log(`Campo ${name} cambiado a:`, type === 'checkbox' ? checked : value);
-    setForm({
-      ...form,
-      [name]: type === 'checkbox' ? checked : value,
+const handleChange = async (e) => {
+  const { name, value, type, checked } = e.target;
+  const newValue = type === 'checkbox' ? checked : value;
+
+  // Mostrar alerta si se cambia el estado a "Closed"
+  if (name === 'status' && newValue === 'Closed' && form.status !== 'Closed') {
+closeINC(code, USER_CODE);
+  }
+
+  setForm({
+    ...form,
+    [name]: newValue,
+  });
+};
+const handleStatusChange = async (e) => {
+  const newStatus = e.target.value;
+
+  if (newStatus === 'Closed' && form.status !== 'Closed') {
+    const result = await Swal.fire({
+      title: '¿Cerrar incidencia?',
+      text: '¿Estás seguro de que deseas cerrar esta incidencia?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar',
+      cancelButtonText: 'Cancelar'
     });
-  };
+
+    if (!result.isConfirmed) return;
+
+    const response = await closeIncident(code, USER_CODE);
+    if (response.ok) {
+      Swal.fire('Incidencia cerrada', 'La incidencia ha sido cerrada correctamente.', 'success');
+      setForm(prev => ({ ...prev, status: 'Closed' }));
+    } else {
+      Swal.fire('Error', response.message || 'No se pudo cerrar la incidencia.', 'error');
+    }
+  } else {
+    // Si se vuelve a "Open" manualmente
+    setForm(prev => ({ ...prev, status: newStatus }));
+  }
+};
+
+
 
   const handleImagesChange = (files) => {
     setSelectedImages(files);
@@ -317,7 +391,7 @@ const formToSend = {
           <select
             name="status"
             value={form.status}
-            onChange={handleChange}
+            onChange={handleStatusChange}
             className="w-full mt-1 p-2 border rounded-md"
           >
             <option value="Open">Abierta</option>
