@@ -220,7 +220,7 @@ const handleStatusChange = async (e) => {
   };
 
 const handleSubmit = async (e) => {
-  e.preventDefault(); // evitar el envío inmediato
+  e.preventDefault(); // prevent default form submission
 
   // Mensaje de confirmación
   const Swal = (await import('sweetalert2')).default;
@@ -281,7 +281,7 @@ const handleSubmit = async (e) => {
     }
   }
 
-  // Mostrar cargando mientras se actualiza
+  // Mostrar loading
   Swal.fire({
     title: 'Actualizando incidencia...',
     allowOutsideClick: false,
@@ -291,7 +291,7 @@ const handleSubmit = async (e) => {
     }
   });
 
-  // Subida de imágenes
+  // Subida de images
   let uploadedImageUrls = [];
   for (const file of selectedImages) {
     const formData = new FormData();
@@ -606,6 +606,8 @@ const formToSend = {
                       type="button"
                       onClick={() => {
                         setExistingImages(existingImages.filter((_, i) => i !== index));
+                        console.log('Imagen eliminada:', image);
+                        
                       }}
                       className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
