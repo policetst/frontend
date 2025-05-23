@@ -1,15 +1,17 @@
 import React, {useState} from 'react' // * import useState to handle the state of the inputs
-
+import axios from 'axios';
+const LOGIN_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/login';
+import Swal from 'sweetalert2';
+import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom'; // * import Link to handle the navigation between pages
 import '../index.css'; // * import the css file to style the components
 function Login() {
+    const [cookies, setCookie] = useCookies(['token']);
+    
     const navigate = useNavigate(); // * create a instance of useNavigate to handle the navigation
 
     //! * create a user object to handle the login
-    const user = {
-        username: 'admin',
-        password: 'admin'
-    }
+   
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     //* this function captures the username input and sets the username state
@@ -23,15 +25,36 @@ function Login() {
         setPassword(e.target.value);
     }
     //* this function handles the submit event of the form and checks if the username and password are correct
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (username === user.username && password === user.password) {
-            navigate('/'); // * navigate to the home page
-          
-        } else {
-            alert('Invalid username or password');
+      
+        try {
+          const response = await axios.post(LOGIN_URL+'/login', {
+            username,
+            password
+          });
+      
+          //* assume that the token comes in response.data.token
+
+          const token = response.data.token;
+          //* save the cookie with the token
+          setCookie('token', token, { path: '/', maxAge: 3600 }); // 1 hour
+localStorage.setItem('username', username); // * save the username in local storage     
+          //* navigate to the incident page
+          navigate('/incidencia');
+      
+        } catch (error) {
+          console.error('Error en el login:', error);
+          Swal.fire({
+            title: '¡Acceso denegado!',
+            text: 'Usuario o contraseña incorrectos',
+            icon: 'error',
+            confirmButtonText: 'Reintentar',
+          });
+ 
         }
-    }
+      };
+      
   //!jsx code
   return (
 

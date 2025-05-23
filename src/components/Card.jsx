@@ -16,8 +16,7 @@ function Card({ textoboton, urlimagen, descripcion, navto, alt, title }) { //* d
         <p className="mt-2 text-gray-600">{descripcion}</p>
         <Link
           to={navto}
-          className="inline-block mt-4 px-6 py-2 text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-300"
-        >
+          className="inline-block mt-4 px-6 py-2 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]">
           {textoboton}
         </Link>
       </div>

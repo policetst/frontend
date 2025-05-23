@@ -1,7 +1,43 @@
+import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
+
+
+//*Function to get the user's token from the cookie
+//*Function to get the user's token from the cookie (sin hooks)
+const getTokenFromCookie = () => {
+  const match = document.cookie.match(/(^| )token=([^;]+)/);
+  return match ? match[2] : '';
+};
+
+
+//* function to close an incident
+const closeIncident = async (code, userCode) => {
+  const token = getTokenFromCookie();
+  try {
+    const res = await axios.put(
+      `${INCIDENTS_URL}/${code}/${userCode}/close`,
+      {}, // cuerpo vacío
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error closing incident:", error);
+    return { ok: false, message: 'Error al cerrar la incidencia' };
+  }
+};
+
+
+/**
+ * Function to get the token directly from document.cookie
+ */
 
 /**
  * Function to get the user's location automatically.
@@ -39,7 +75,12 @@ async function getLocation() {
  */
 async function postIncident(incident) {
   try {
-    const res = await axios.post(INCIDENTS_URL, incident);
+    const token = getTokenFromCookie();
+    const res = await axios.post(INCIDENTS_URL, incident, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Response from backend:", res.data);
     const { ok, message } = res.data;
 
@@ -60,7 +101,6 @@ async function postIncident(incident) {
     }
 
     return res.data;
-
   } catch (error) {
     console.error("Error posting incident:", error);
     Swal.fire({
@@ -73,13 +113,14 @@ async function postIncident(incident) {
   }
 }
 
-/**
- * Function that returns the incidents
- * @returns {Promise<Object>}
- */
 async function getIncidents() {
+  const token = getTokenFromCookie();
   try {
-    const res = await axios.get(INCIDENTS_URL);
+    const res = await axios.get(INCIDENTS_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
@@ -88,15 +129,14 @@ async function getIncidents() {
   }
 }
 
-/**
- * Function to update an existing incident
- * @param {string|number} code - ID of the incident to update
- * @param {Object} incidentData - Updated incident data
- * @returns {Promise<Object>}
- */
 async function updateIncident(code, incidentData) {
   try {
-    const res = await axios.put(`${INCIDENTS_URL}/${code}`, incidentData);
+    const token = getTokenFromCookie();
+    const res = await axios.put(`${INCIDENTS_URL}/${code}`, incidentData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
@@ -105,20 +145,20 @@ async function updateIncident(code, incidentData) {
   }
 }
 
-/**
- * Function to get incident details including people and vehicles
- * @param {string|number} code - ID of the incident to get details for
- * @returns {Promise<Object>}
- */
 async function getIncidentDetails(code) {
   try {
-    const res = await axios.get(`${INCIDENTS_URL}/${code}/details`);
+    const token = getTokenFromCookie();
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/details`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Incident details:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching incident details:", error);
-    return { 
-      ok: false, 
+    return {
+      ok: false,
       message: 'Error al obtener los detalles de la incidencia',
       incident: null,
       people: [],
@@ -129,10 +169,14 @@ async function getIncidentDetails(code) {
 
 const getIncident = async (code) => {
   try {
-    const res = await axios.get(`${INCIDENTS_URL}/${code}/details`);
+    const token = getTokenFromCookie();
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/details`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     console.log("Incident data from API:", res.data);
-    
-    // Check if response contains the incident data structure
+
     if (res.data && res.data.incident) {
       return {
         ...res.data.incident,
@@ -141,7 +185,6 @@ const getIncident = async (code) => {
         images: res.data.images || []
       };
     } else if (res.data && !res.data.incident) {
-      // Handle case where data is directly in res.data without nested structure
       return {
         ...res.data,
         people: res.data.people || [],
@@ -149,12 +192,12 @@ const getIncident = async (code) => {
         images: res.data.images || []
       };
     }
-    
+
     return res.data;
   } catch (error) {
     console.error("Error fetching incident:", error);
-    return { 
-      ok: false, 
+    return {
+      ok: false,
       message: 'Error al obtener los detalles de la incidencia',
       status: 'Open',
       location: '',
@@ -169,24 +212,45 @@ const getIncident = async (code) => {
   }
 }
 
-/**
- * Function to count how many people are associated with an incident
- * @param {Array} people - Array of people objects
- * @returns {number} - The count of people
- */
-const countPeople = (people) => {
-  if (!people || !Array.isArray(people)) return 0;
-  return people.length;
+const countPeople = async (code) => {
+  try {
+    const token = getTokenFromCookie();
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/peoplecount`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data.count || 0;
+  } catch (error) {
+    console.error("Error counting people:", error);
+    return 0;
+  }
 };
 
-/**
- * Function to count how many vehicles are associated with an incident
- * @param {Array} vehicles - Array of vehicle objects
- * @returns {number} - The count of vehicles
- */
-const countVehicles = (vehicles) => {
-  if (!vehicles || !Array.isArray(vehicles)) return 0;
-  return vehicles.length;
+const countVehicles = async (code) => {
+  try {
+    const token = getTokenFromCookie();
+    const res = await axios.get(`${INCIDENTS_URL}/${code}/vehiclescount`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data.count || 0;
+  } catch (error) {
+    console.error("Error counting vehicles:", error);
+    return 0;
+  }
 };
 
-export { getLocation, postIncident, getIncidents, updateIncident, getIncidentDetails, getIncident, countPeople, countVehicles };
+export {
+  getLocation,
+  postIncident,
+  getIncidents,
+  updateIncident,
+  getIncidentDetails,
+  getIncident,
+  countPeople,
+  countVehicles,
+  closeIncident,
+  getTokenFromCookie
+};

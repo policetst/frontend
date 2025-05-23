@@ -1,5 +1,6 @@
   import React, { useState, useEffect } from 'react';
   import { Link, Outlet } from 'react-router-dom';
+  import { useCookies } from 'react-cookie';
   import '../index.css';
   import { Menu, X, User, LogOut, Home, Settings } from 'lucide-react';
   import { CircleUserRound } from 'lucide-react';
@@ -10,9 +11,21 @@
   import { ChartColumn } from 'lucide-react';
   import { House } from 'lucide-react';
   import { BellRing } from 'lucide-react';
-
+  import { useNavigate } from 'react-router-dom';
   function Layout() {
+    const user_code = localStorage.getItem('username');
+    const [cookies, setCookie] = useCookies(['user']);
+    const navigate = useNavigate();
+    useEffect(() => {
+      if (!cookies.user && !user_code) {
+        navigate('/login');
+      }
+    }, [cookies, navigate]);
+    
+
     const handleLogout = () => {
+      setCookie('token', '', { path: '/' });
+      setCookie('user', '', { path: '/' });
       window.location.href = '/#/login';
       console.log('User logged out');
     };
@@ -188,9 +201,7 @@
                     <div className="p-4 border-b font-semibold text-gray-100 bg-[#002856]">
                       Incidencias abiertas
                     </div>
-                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-100 text-sm text-gray
-                    
-                    -700">
+                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-100 text-sm text-gray-700">
                       <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
                       <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
                       <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>

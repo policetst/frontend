@@ -13,7 +13,7 @@ function PaginaPrincipal() {
 
         <Card 
         textoboton="Crear Incidencia"
-        urlimagen="/crear-incidencia.jpg" descripcion="Registrar una nueva incidencia" 
+        urlimagen="/crear-incidencia.jpg" descripcion="Registra una nueva incidencia" 
         navto={"/crear-incidencia"} 
         alt={"Crear Incidencia"} 
         title={"Crear Incidencia"}/>
@@ -35,7 +35,7 @@ function PaginaPrincipal() {
 
 
         <Card 
-        descripcion={"Visualizar incidencias en el mapa"} 
+        descripcion={"Visualiza incidencias en el mapa"} 
         urlimagen={"mapa-tauste.png"} textoboton={"Mapa"}
         navto={"/mapa"} 
         alt={"Mapa"} 

@@ -1,24 +1,36 @@
-import React,{useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getIncidents, countPeople, countVehicles } from '../funcs/Incidents';
-
 
 function MostrarIncidencia() {
   const navigate = useNavigate();
   const [incidencias, setIncidencias] = useState([]);
+  const [counts, setCounts] = useState({});
 
-  useEffect(() => {  
+  useEffect(() => {
     const fetchIncidents = async () => {
       const data = await getIncidents();
       if (data.ok) {
         setIncidencias(data.incidents);
-        console.log("Incidencias:", data);
+        loadCounts(data.incidents);
       } else {
         console.error("Error fetching incidents:", data.message);
       }
     };
     fetchIncidents();
   }, []);
+
+  const loadCounts = async (incidents) => {
+    const newCounts = {};
+    for (const incident of incidents) {
+      const code = incident.code;
+      newCounts[code] = {
+        people: await countPeople(code),
+        vehicles: await countVehicles(code),
+      };
+    }
+    setCounts(newCounts);
+  };
 
   document.title = "Mostrar Incidencias";
 
@@ -27,55 +39,40 @@ function MostrarIncidencia() {
   };
 
   return (
-       <div className="p-4">
-      <h3 className="text-2xl font-bold mb-4">Incidencias</h3>
-      <div className="overflow-x-auto rounded-lg shadow-lg">
-        <table className="min-w-full divide-y divide-gray-200 bg-white">
-          <thead className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white sticky top-0 z-10">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Código</th>
-
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Creada por</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Tipo</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Descripción</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Personas</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Vehículos</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Brigada</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {incidencias.map((incidencia, idx) => (
-              <tr
-                key={incidencia.id}
-                className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}
-              >
-                <td className="px-4 py-2 font-mono text-xs">{incidencia.code}</td>
-                <td className="px-4 py-2 font-mono text-xs">{incidencia.creator_user_code}</td>
-                <td className="px-4 py-2">{incidencia.type}</td>
-                <td className="px-4 py-2">
-                  <span className={`inline-block w-3 h-3 rounded-full mr-2 align-middle ${
-                    incidencia.status === 'Open' ? 'bg-green-500' : 'bg-gray-400'
-                  }`}></span>
-                  {incidencia.status}
-                </td>
-                <td className="px-4 py-2 text-sm">{incidencia.description}</td>
-                <td className="px-4 py-2 text-center"> {countPeople(incidencia.people)} </td>
-                <td className="px-4 py-2 text-center"> {countVehicles(incidencia.vehicles)} </td>
-                <td className="px-4 py-2 text-center">{incidencia.brigade_field ? 'Sí' : 'No'}</td>
-                <td className="px-4 py-2 text-center">
-                  <button
-                    onClick={() => handleEdit(incidencia.code)}
-                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs shadow"
-                  >
-                    Editar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="p-6">
+      <h3 className="text-2xl font-bold mb-6">Incidencias</h3>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {incidencias.map((incidencia) => (
+          <div
+            key={incidencia.id}
+            className="bg-white shadow-md rounded-xl p-4 border hover:shadow-lg transition"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-gray-500">{incidencia.creation_date.split('T')[0]}</span>
+              <span className={`px-2 py-1 text-xs rounded-full font-semibold ${incidencia.status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                {incidencia.status}
+              </span>
+            </div>
+            <h4 className="text-lg font-semibold mb-1">Código: {incidencia.code}</h4>
+            <p className="text-sm text-gray-700 mb-2"><strong>Tipo:</strong> {incidencia.type}</p>
+            <p className="text-sm text-gray-700 mb-2"><strong>Descripción:</strong> {incidencia.description}</p>
+            <div className="text-sm text-gray-600 mb-2">
+              <p><strong>Creado por:</strong> {incidencia.creator_user_code}</p>
+              <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>
+            </div>
+            <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
+              <span>👥 {counts[incidencia.code]?.people ?? '...'}</span>
+              <span>🚗 {counts[incidencia.code]?.vehicles ?? '...'}</span>
+              <span>{incidencia.brigade_field ? '🔧 Brigada' : '—'}</span>
+            </div>
+            <button
+              onClick={() => handleEdit(incidencia.code)}
+              className="w-full mt-2 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            >
+              Editar
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );

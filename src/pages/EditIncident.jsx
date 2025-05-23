@@ -1,14 +1,58 @@
 import React, { useState, useEffect} from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { postIncident, getLocation, getIncident, updateIncident } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
+import { closeIncident, getTokenFromCookie } from '../funcs/Incidents';
+import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const EditIncident = () => {
+  const USER_CODE = localStorage.getItem('username') || 'AR00001';
   const { code } = useParams();
+/*
+* Function to close an incident
+* @param {string} incident_code - The code of the incident to close
+* @param {string} agent_code - The code of the agent closing the incident
+* @returns {Promise<void>}
+*/
+  const closeINC = (incident_code, agent_code) => {
+    Swal.fire({
+      title: '¿Cerrar incidencia?',
+      text: "¿Estás seguro de que deseas cerrar esta incidencia?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cerrar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await closeIncident(incident_code, agent_code);
+        if (response.ok) {
+          Swal.fire(
+            'Incidencia cerrada',
+            'La incidencia ha sido cerrada correctamente.',
+            'success'
+          );
+        } else {
+          return;
+          Swal.fire(
+            'Error',
+            response.message || 'No se pudo cerrar la incidencia.',
+            'error'
+        
+          );
+        }
+      }
+    });
+  };
+
+  const Navigate = useNavigate();
   console.log('code: '+code);
   const [loading, setLoading] = useState(true);
   
@@ -64,8 +108,8 @@ const EditIncident = () => {
           location: data.location || '',
           type: data.type || '',
           description: data.description || '',
-          brigade_field: data.brigade_field || false,
-          creator_user_code: data.creator_user_code || 'AR00001',
+          brigade_field: data.brigade_field === true || data.brigade_field === 'true',
+          creator_user_code: 'AR00001',
         };
         console.log('Formulario actualizado:', updatedForm);
         setForm(updatedForm);
@@ -114,7 +158,7 @@ const EditIncident = () => {
     last_name2: '',
     phone_number: ''
   });
-  const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
+  const [nuevoVehiculo, setNuevoVehiculo] = useState({ brand: '', model: '', color: '', license_plate: '' });
 
   const tipos = [
     'Animales',
@@ -127,127 +171,187 @@ const EditIncident = () => {
     'Otras incidencias no clasificadas',
   ];
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    console.log(`Campo ${name} cambiado a:`, type === 'checkbox' ? checked : value);
-    setForm({
-      ...form,
-      [name]: type === 'checkbox' ? checked : value,
+const handleChange = async (e) => {
+  const { name, value, type, checked } = e.target;
+  const newValue = type === 'checkbox' ? checked : value;
+
+  // Mostrar alerta si se cambia el estado a "Closed"
+  if (name === 'status' && newValue === 'Closed' && form.status !== 'Closed') {
+closeINC(code, USER_CODE);
+  }
+
+  setForm({
+    ...form,
+    [name]: newValue,
+  });
+};
+const handleStatusChange = async (e) => {
+  const newStatus = e.target.value;
+
+  if (newStatus === 'Closed' && form.status !== 'Closed') {
+    const result = await Swal.fire({
+      title: '¿Cerrar incidencia?',
+      text: '¿Estás seguro de que deseas cerrar esta incidencia?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar',
+      cancelButtonText: 'Cancelar'
     });
-  };
+
+    if (!result.isConfirmed) return;
+
+    const response = await closeIncident(code, USER_CODE);
+    if (response.ok) {
+      Swal.fire('Incidencia cerrada', 'La incidencia ha sido cerrada correctamente.', 'success');
+      setForm(prev => ({ ...prev, status: 'Closed' }));
+    } else {
+      Swal.fire('Error', response.message || 'No se pudo cerrar la incidencia.', 'error');
+    }
+  } else {
+    // Si se vuelve a "Open" manualmente
+    setForm(prev => ({ ...prev, status: newStatus }));
+  }
+};
+
+
 
   const handleImagesChange = (files) => {
     setSelectedImages(files);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('Enviando formulario con datos:', form);
+const handleSubmit = async (e) => {
+  e.preventDefault(); // prevent default form submission
 
-    // * validation of the required fields
-    const camposObligatorios = [
-      { campo: 'type', label: 'Tipo de incidencia' },
-      { campo: 'description', label: 'Descripción' },
-      { campo: 'location', label: 'Coordenadas' },
-    ];
-    const campoFaltante = camposObligatorios.find(c => !form[c.campo] || form[c.campo].toString().trim() === '');
-    if (campoFaltante) {
-      const Swal = (await import('sweetalert2')).default;
+  // Mensaje de confirmación
+  const Swal = (await import('sweetalert2')).default;
+  const result = await Swal.fire({
+    title: '¿Deseas actualizar la incidencia?',
+    text: 'Esta acción modificará la información actual.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, actualizar',
+    cancelButtonText: 'Cancelar'
+  });
+  Navigate(`/incidencia`);
+
+  if (!result.isConfirmed) return;
+
+  // Validación de campos obligatorios
+  const camposObligatorios = [
+    { campo: 'type', label: 'Tipo de incidencia' },
+    { campo: 'description', label: 'Descripción' },
+    { campo: 'location', label: 'Coordenadas' },
+  ];
+  const campoFaltante = camposObligatorios.find(c => !form[c.campo] || form[c.campo].toString().trim() === '');
+  if (campoFaltante) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Falta un campo obligatorio',
+      text: `Por favor, completa el campo: ${campoFaltante.label}`,
+      confirmButtonText: 'Aceptar'
+    });
+    return;
+  }
+
+  // Validación de personas
+  for (let i = 0; i < personas.length; i++) {
+    const p = personas[i];
+    if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number) {
       Swal.fire({
         icon: 'warning',
-        title: 'Falta un campo obligatorio',
-        text: `Por favor, completa el campo: ${campoFaltante.label}`,
+        title: 'Faltan datos en una persona',
+        text: `La persona ${i + 1} debe tener todos los campos completos.`,
         confirmButtonText: 'Aceptar'
       });
       return;
     }
+  }
 
-    // Validación de campos obligatorios en personas
-    for (let i = 0; i < personas.length; i++) {
-      const p = personas[i];
-      if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number) {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'warning',
-          title: 'Faltan datos en una persona',
-          text: `La persona ${i + 1} debe tener todos los campos completos.`,
-          confirmButtonText: 'Aceptar'
-        });
-        return;
-      }
+  // Validación de vehículos
+  for (let i = 0; i < vehiculos.length; i++) {
+    const v = vehiculos[i];
+    if (!v.brand || !v.model || !v.color || !v.license_plate) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Faltan datos en un vehículo',
+        text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
+        confirmButtonText: 'Aceptar'
+      });
+      return;
     }
+  }
 
-    // Validación de campos obligatorios en vehículos
-    for (let i = 0; i < vehiculos.length; i++) {
-      const v = vehiculos[i];
-      if (!v.marca || !v.modelo || !v.color || !v.matricula) {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'warning',
-          title: 'Faltan datos en un vehículo',
-          text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
-          confirmButtonText: 'Aceptar'
-        });
-        return;
-      }
+  // Mostrar loading
+  Swal.fire({
+    title: 'Actualizando incidencia...',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
     }
+  });
 
-    // * upload images to /uploads
-    let uploadedImageUrls = [];
-    for (const file of selectedImages) {
-      const formData = new FormData();
-      formData.append('file', file);
-      try {
-        const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        if (res.data && res.data.file && res.data.file.url) {
-          uploadedImageUrls.push(res.data.file.url);
-        }
-      } catch (err) {
-        console.error('Error uploading image:', err);
-      }
-    }
-
-    // * add images to the existing form
-    const formToSend = {
-      ...form,
-      people: personas,
-      vehicles: vehiculos,
-      images: [...existingImages, ...uploadedImageUrls],
-    };
-
+  // Subida de images
+  let uploadedImageUrls = [];
+  for (const file of selectedImages) {
+    const formData = new FormData();
+    formData.append('file', file);
     try {
-      // Para actualizar una incidencia existente en lugar de crear una nueva
-      const response = await updateIncident(code, formToSend);
-      if (response.ok) {
-        // * show success message
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'success',
-          title: 'Incidencia actualizada',
-          text: 'La incidencia se ha actualizado correctamente.',
-          confirmButtonText: 'Aceptar'
-        });
-      } else {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: response.message || 'No se pudo actualizar la incidencia.',
-          confirmButtonText: 'Aceptar'
-        });
+      const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
+        headers: { 'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${getTokenFromCookie()}`
+        }
+      });
+      if (res.data && res.data.file && res.data.file.url) {
+        uploadedImageUrls.push(res.data.file.url);
       }
-    } catch (error) {
-      const Swal = (await import('sweetalert2')).default;
+    } catch (err) {
+      console.error('Error uploading image:', err);
+    }
+  }
+
+const formToSend = {
+  status: form.status,
+  location: form.location,
+  type: form.type,
+  description: form.description,
+  brigade_field: form.brigade_field, 
+  creator_user_code: form.creator_user_code,
+  people: personas,
+  vehicles: vehiculos,
+  images: [...existingImages, ...uploadedImageUrls],
+};
+
+
+  try {
+    const response = await updateIncident(code, formToSend);
+    Swal.close();
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Incidencia actualizada',
+        text: 'La incidencia se ha actualizado correctamente.',
+        confirmButtonText: 'Aceptar'
+      });
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: error.response?.data?.message || 'No se pudo actualizar la incidencia.',
+        text: response.message || 'No se pudo actualizar la incidencia.',
         confirmButtonText: 'Aceptar'
       });
     }
-  };
+  } catch (error) {
+    Swal.close();
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error.response?.data?.message || 'No se pudo actualizar la incidencia.',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+};
+
 
   const agregarPersona = () => {
     if (nuevaPersona.dni && nuevaPersona.first_name && nuevaPersona.last_name1) {
@@ -263,9 +367,9 @@ const EditIncident = () => {
   };
 
   const agregarVehiculo = () => {
-    if (nuevoVehiculo.marca && nuevoVehiculo.modelo && nuevoVehiculo.color && nuevoVehiculo.matricula) {
+    if (nuevoVehiculo.brand && nuevoVehiculo.model && nuevoVehiculo.color && nuevoVehiculo.license_plate) {
       setVehiculos(prev => [...prev, nuevoVehiculo]);
-      setNuevoVehiculo({ marca: '', modelo: '', color: '', matricula: '' });
+      setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
     }
   };
   const eliminarPersona = (index) => {
@@ -287,7 +391,7 @@ const EditIncident = () => {
           <select
             name="status"
             value={form.status}
-            onChange={handleChange}
+            onChange={handleStatusChange}
             className="w-full mt-1 p-2 border rounded-md"
           >
             <option value="Open">Abierta</option>
@@ -432,22 +536,22 @@ const EditIncident = () => {
           <input
             type="text"
             placeholder="Matrícula"
-            value={nuevoVehiculo.matricula}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, matricula: e.target.value })}
+            value={nuevoVehiculo.license_plate}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
             placeholder="Marca"
-            value={nuevoVehiculo.marca}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, marca: e.target.value })}
+            value={nuevoVehiculo.brand}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
             placeholder="Modelo"
-            value={nuevoVehiculo.modelo}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, modelo: e.target.value })}
+            value={nuevoVehiculo.model}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
@@ -470,7 +574,7 @@ const EditIncident = () => {
           <ul className="list-disc list-inside text-sm">
             {vehiculos.map((v, i) => (
               <li key={i} className="flex justify-start items-center">
-                {v.marca} {v.modelo}, {v.color}, {v.matricula}
+                {v.brand} {v.model}, {v.color}, {v.brand} - {v.license_plate}
                 <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarVehiculo(i)} />
               </li>
             ))}
@@ -502,6 +606,8 @@ const EditIncident = () => {
                       type="button"
                       onClick={() => {
                         setExistingImages(existingImages.filter((_, i) => i !== index));
+                        console.log('Imagen eliminada:', image);
+                        
                       }}
                       className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
@@ -521,7 +627,7 @@ const EditIncident = () => {
         type="submit"
         className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
       >
-        Enviar
+        Actualizar
       </button>
       
       {/* Lightbox para ver imágenes a tamaño completo */}

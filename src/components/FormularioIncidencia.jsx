@@ -2,47 +2,17 @@ import React, { useState } from 'react';
 import ImageUpload from '../components/ImageUpload'
 
 const FormularioIncidencia = () => {
-  console.log('FormularioIncidencia');
-  
-  const [location, setLocation] = useState('');
-  const  [res, setRes] = useState(null);
   const [form, setForm] = useState({
-    status: 'Open',
-    location: '',
-    type: '',
-    description: '',
-    brigade_field: false,
-    creator_user_code: 'AR00001',
+    coordenadas: '',
+    tipo: '',
+    descripcion: '',
+    contactoBrigada: false,
+    personas: [],
+    vehiculos: [],
   });
-  const [personas, setPersonas] = useState([]);
-  const [vehiculos, setVehiculos] = useState([]);
-  const [nuevaPersona, setNuevaPersona] = useState({
-    dni: '',
-    first_name: '',
-    last_name1: '',
-    last_name2: '',
-    phone_number: ''
-  });
-  const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
-  const [selectedImages, setSelectedImages] = useState([]);
-//useefect to put the location in the form
-  useEffect(() => {
-    setForm(prev => ({
-      ...prev,
-      location: location
-    }));
-  }, [location]);
 
-  useEffect(() => {
-    getLocation()
-      .then((loc) => {
-        const locString = `${loc.latitude},${loc.longitude}`;
-        setLocation(locString);
-      })
-      .catch((error) => {
-        console.error("Failed to get location:", error);
-      });
-  }, []);
+  const [nuevaPersona, setNuevaPersona] = useState({ nombre: '', apellidos: '', dni: '' });
+  const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
 
   const tipos = [
     'Animales',
@@ -63,153 +33,30 @@ const FormularioIncidencia = () => {
     });
   };
 
-  const handleImagesChange = (files) => {
-    setSelectedImages(files);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    // * validation of the required fields
-    const camposObligatorios = [
-      { campo: 'type', label: 'Tipo de incidencia' },
-      { campo: 'description', label: 'Descripción' },
-      { campo: 'location', label: 'Coordenadas' },
-    ];
-    const campoFaltante = camposObligatorios.find(c => !form[c.campo] || form[c.campo].toString().trim() === '');
-    if (campoFaltante) {
-      const Swal = (await import('sweetalert2')).default;
-      Swal.fire({
-        icon: 'warning',
-        title: 'Falta un campo obligatorio',
-        text: `Por favor, completa el campo: ${campoFaltante.label}`,
-        confirmButtonText: 'Aceptar'
-      });
-      return;
-    }
-
-    // Validación de campos obligatorios en personas
-    for (let i = 0; i < personas.length; i++) {
-      const p = personas[i];
-      if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number) {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'warning',
-          title: 'Faltan datos en una persona',
-          text: `La persona ${i + 1} debe tener todos los campos completos.`,
-          confirmButtonText: 'Aceptar'
-        });
-        return;
-      }
-    }
-
-    // Validación de campos obligatorios en vehículos
-    for (let i = 0; i < vehiculos.length; i++) {
-      const v = vehiculos[i];
-      if (!v.marca || !v.modelo || !v.color || !v.matricula) {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'warning',
-          title: 'Faltan datos en un vehículo',
-          text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
-          confirmButtonText: 'Aceptar'
-        });
-        return;
-      }
-    }
-
-    // * upload images to /uploads
-    let uploadedImageUrls = [];
-    for (const file of selectedImages) {
-      const formData = new FormData();
-      formData.append('file', file);
-      try {
-        const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        if (res.data && res.data.file && res.data.file.url) {
-          uploadedImageUrls.push(res.data.file.url);
-        }
-      } catch (err) {
-        console.error('Error uploading image:', err);
-      }
-    }
-
-    // * add images to the existing form
-    const formToSend = {
-      ...form,
-      people: personas,
-      vehicles: vehiculos,
-      images: uploadedImageUrls,
-    };
-
-    try {
-      const response = await postIncident(formToSend);
-      if (response.ok) {
-        // * show success message
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'success',
-          title: 'Incidencia creada',
-          text: 'La incidencia se ha creado correctamente.',
-          confirmButtonText: 'Aceptar'
-        });
-        setForm({
-          status: 'Open',
-          location: location,
-          type: '',
-          description: '',
-          brigade_field: false,
-          creator_user_code: 'AR00001',
-        });
-        setPersonas([]);
-        setVehiculos([]);
-        setSelectedImages([]);
-      } else {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: response.message || 'No se pudo registrar la incidencia.',
-          confirmButtonText: 'Aceptar'
-        });
-      }
-    } catch (error) {
-      const Swal = (await import('sweetalert2')).default;
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'No se pudo registrar la incidencia.',
-        confirmButtonText: 'Aceptar'
-      });
-    }
+    console.log('Formulario completo enviado:', form);
+    // Aquí puedes hacer la petición a tu backend
   };
 
   const agregarPersona = () => {
-    if (nuevaPersona.dni && nuevaPersona.first_name && nuevaPersona.last_name1) {
-      setPersonas(prev => [...prev, nuevaPersona]);
-      setNuevaPersona({
-        dni: '',
-        first_name: '',
-        last_name1: '',
-        last_name2: '',
-        phone_number: ''
-      });
+    if (nuevaPersona.nombre && nuevaPersona.apellidos && nuevaPersona.dni) {
+      setForm(prev => ({
+        ...prev,
+        personas: [...prev.personas, nuevaPersona],
+      }));
+      setNuevaPersona({ nombre: '', apellidos: '', dni: '' });
     }
   };
 
   const agregarVehiculo = () => {
     if (nuevoVehiculo.marca && nuevoVehiculo.modelo && nuevoVehiculo.color && nuevoVehiculo.matricula) {
-      setVehiculos(prev => [...prev, nuevoVehiculo]);
+      setForm(prev => ({
+        ...prev,
+        vehiculos: [...prev.vehiculos, nuevoVehiculo],
+      }));
       setNuevoVehiculo({ marca: '', modelo: '', color: '', matricula: '' });
     }
-  };
-  const eliminarPersona = (index) => {
-    setPersonas(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const eliminarVehiculo = (index) => {
-    setVehiculos(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -478,4 +325,5 @@ const FormularioIncidencia = () => {
     </div>
   );
 };
+
 export default FormularioIncidencia;
