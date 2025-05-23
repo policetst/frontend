@@ -201,9 +201,7 @@
                     <div className="p-4 border-b font-semibold text-gray-100 bg-[#002856]">
                       Incidencias abiertas
                     </div>
-                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-100 text-sm text-gray
-                    
-                    -700">
+                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-100 text-sm text-gray-700">
                       <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
                       <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
                       <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
