@@ -1,16 +1,5 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from 'react';
-import { postIncident, getLocation } from '../funcs/Incidents';
-const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
-const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
-import ImageUpload from './ImageUpload';
-import axios from 'axios';
-import { X as XIcon } from 'lucide-react';
-
-=======
 import React, { useState } from 'react';
 import ImageUpload from '../components/ImageUpload'
->>>>>>> adjust/front
 
 const FormularioIncidencia = () => {
   console.log('FormularioIncidencia');
@@ -224,31 +213,6 @@ const FormularioIncidencia = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
-      {/* Datos de la incidencia */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Incidencia</h2>
-        <div className="mb-4">
-          <label className="block font-medium">Coordenadas</label>
-          <input
-            type="text"
-            name="location"
-            value={form.location}
-            onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
-            placeholder="Latitud, Longitud"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block font-medium">Tipo de incidencia</label>
-          <select
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
-=======
     <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] p-6 space-y-8">
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
         {/* Datos de registro */}
@@ -367,7 +331,6 @@ const FormularioIncidencia = () => {
             type="button"
             onClick={agregarPersona}
             className="mb-2 mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]"
->>>>>>> adjust/front
           >
             Añadir persona
           </button>
@@ -505,162 +468,14 @@ const FormularioIncidencia = () => {
           <ImageUpload/>
         </div>
 
-<<<<<<< HEAD
-        <div className="mb-4">
-          <label className="block font-medium">Descripción</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={4}
-            className="w-full mt-1 p-2 border rounded-md"
-            placeholder="Escribe una descripción detallada..."
-          />
-        </div>
-
-        <div className="flex items-center mb-4">
-          <input
-            type="checkbox"
-            name="brigade_field"
-            checked={form.brigade_field}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label className="text-sm">Contacto con brigada</label>
-        </div>
-      </div>
-
-      {/* Sección personas */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Personas</h2>
-        <div className="grid grid-cols-5 gap-2 mb-2">
-          <input
-            type="text"
-            name="dni"
-            placeholder="DNI - NIE"
-            value={nuevaPersona.dni}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={nuevaPersona.first_name}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="1º Apellido"
-            value={nuevaPersona.last_name1}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="2º Apellido"
-            value={nuevaPersona.last_name2}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Teléfono"
-            value={nuevaPersona.phone_number}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={agregarPersona}
-          className="mb-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          Añadir persona
-        </button>
-
-        {personas.length > 0 && (
-          <ul className="list-disc list-inside text-sm">
-            {personas.map((p, i) => (
-              <li key={i} className="flex justify-start items-center">
-                {p.dni} - {p.first_name} {p.last_name1} {p.last_name2} - {p.phone_number} <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarPersona(i)} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Sección vehículos */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Vehículos</h2>
-        <div className="grid grid-cols-4 gap-2 mb-2">
-          <input
-            type="text"
-            placeholder="Matrícula"
-            value={nuevoVehiculo.matricula}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, matricula: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Marca"
-            value={nuevoVehiculo.marca}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, marca: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Modelo"
-            value={nuevoVehiculo.modelo}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, modelo: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Color"
-            value={nuevoVehiculo.color}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-        </div>
-=======
->>>>>>> adjust/front
         <button
           type="submit"
           className="w-full bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]"
         >
           Crear incidencia
         </button>
-<<<<<<< HEAD
-
-        {vehiculos.length > 0 && (
-          <ul className="list-disc list-inside text-sm">
-            {vehiculos.map((v, i) => (
-              <li key={v.matricula} className="flex justify-start items-center">
-                {v.marca} {v.modelo}, {v.color}, {v.matricula}
-                <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarVehiculo(i)} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <hr />
-      {/* Sección de imágenes */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Imágenes</h2>
-        <ImageUpload onImagesChange={handleImagesChange} />
-      </div>
-      <button
-        type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
-      >
-        Enviar
-      </button>
-    </form>
-=======
       </form>
     </div>
->>>>>>> adjust/front
   );
 };
 export default FormularioIncidencia;

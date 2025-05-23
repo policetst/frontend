@@ -45,10 +45,7 @@ function ImageUpload({ onImagesChange }) {
 
   return (
     <div>
-<<<<<<< HEAD
-=======
       {/* Campo para subir la imagen */}
->>>>>>> adjust/front
       <input
         type="file"
         accept="image/*"
@@ -58,31 +55,6 @@ function ImageUpload({ onImagesChange }) {
         onChange={handleFilesChange}
       />
       <div
-<<<<<<< HEAD
-        className="cursor-pointer p-12 flex justify-center bg-white border border-dashed border-default-300 rounded-xl mb-4"
-        onClick={handleBrowseClick}
-      >
-        <div className="text-center">
-          <span className="inline-flex justify-center items-center size-16 bg-default-100 text-default-800 rounded-full">
-            <i className="i-tabler-upload size-6 shrink-0"></i>
-          </span>
-          <div className="mt-4 flex flex-wrap justify-center text-sm leading-6 text-default-600">
-            <span className="pe-1 font-medium text-default-800">Drop your files here or</span>
-            <span
-              className="bg-white font-semibold text-primary hover:text-primary-700 rounded-lg decoration-2 hover:underline"
-              style={{ cursor: 'pointer', marginLeft: 4 }}
-              onClick={e => { e.stopPropagation(); handleBrowseClick(); }}
-            >
-              browse
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-default-400">Pick images up to 2MB each.</p>
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-4">
-        {images.map((img, idx) => (
-          <div key={idx} className="relative w-32 h-32">
-=======
         className="cursor-pointer p-5 text-center text-gray-500 bg-white border border-dashed border-gray-300 rounded-xl hover:bg-gray-50 transition mb-4"
         onClick={handleBrowseClick}
       >
@@ -94,7 +66,6 @@ function ImageUpload({ onImagesChange }) {
       <div className="flex flex-wrap gap-4">
         {images.map((img, idx) => (
           <div key={idx} className="relative w-20 h-20">
->>>>>>> adjust/front
             <img
               src={img.url}
               alt={`preview-${idx}`}
@@ -103,11 +74,7 @@ function ImageUpload({ onImagesChange }) {
             <button
               type="button"
               onClick={() => handleRemove(idx)}
-<<<<<<< HEAD
-              className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
-=======
               className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center shadow"
->>>>>>> adjust/front
               title="Eliminar"
             >
               &times;
@@ -115,17 +82,12 @@ function ImageUpload({ onImagesChange }) {
           </div>
         ))}
       </div>
-<<<<<<< HEAD
-=======
       <hr className="border-t border-gray-300 my-4" />
->>>>>>> adjust/front
     </div>
   );
 }
 
 export default ImageUpload;
-<<<<<<< HEAD
-=======
 
 
 // import React, { useRef, useState } from 'react';
@@ -228,4 +190,3 @@ export default ImageUpload;
 // }
 
 // export default ImageUpload;
->>>>>>> adjust/front
