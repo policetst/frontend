@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { postIncident, getLocation, getTokenFromCookie } from '../funcs/Incidents';
-const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
-const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
+const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
+const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL || 'http://localhost:4000/upload';
 import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
@@ -34,7 +34,7 @@ const FormularioIncidencia = () => {
     phone_number: ''
   });
   const navigate = useNavigate();
-  const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
+  const [nuevoVehiculo, setNuevoVehiculo] = useState({ brand: '', model: '', color: '', license_plate: '' });
   const [selectedImages, setSelectedImages] = useState([]);
 //useefect to put the location in the form
   useEffect(() => {
@@ -117,7 +117,7 @@ const FormularioIncidencia = () => {
     // Validación de campos obligatorios en vehículos
     for (let i = 0; i < vehiculos.length; i++) {
       const v = vehiculos[i];
-      if (!v.marca || !v.modelo || !v.color || !v.matricula) {
+      if (!v.brand || !v.model || !v.color || !v.license_plate) {
         const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'warning',
@@ -138,7 +138,7 @@ const FormularioIncidencia = () => {
             const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${cookies.token}`
+            Authorization: `Bearer ${cookies.user.token || getTokenFromCookie()}`,
           }
         });
 
@@ -217,9 +217,9 @@ const FormularioIncidencia = () => {
   };
 
   const agregarVehiculo = () => {
-    if (nuevoVehiculo.marca && nuevoVehiculo.modelo && nuevoVehiculo.color && nuevoVehiculo.matricula) {
+    if (nuevoVehiculo.brand && nuevoVehiculo.model && nuevoVehiculo.color && nuevoVehiculo.license_plate) {
       setVehiculos(prev => [...prev, nuevoVehiculo]);
-      setNuevoVehiculo({ marca: '', modelo: '', color: '', matricula: '' });
+      setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
     }
   };
   const eliminarPersona = (index) => {
@@ -355,22 +355,22 @@ const FormularioIncidencia = () => {
           <input
             type="text"
             placeholder="Matrícula"
-            value={nuevoVehiculo.matricula}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, matricula: e.target.value })}
+            value={nuevoVehiculo.license_plate}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
-            placeholder="Marca"
-            value={nuevoVehiculo.marca}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, marca: e.target.value })}
+            placeholder="brand"
+            value={nuevoVehiculo.brand}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
             type="text"
-            placeholder="Modelo"
-            value={nuevoVehiculo.modelo}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, modelo: e.target.value })}
+            placeholder="Model"
+            value={nuevoVehiculo.model}
+            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
             className="p-2 border rounded-md"
           />
           <input
@@ -392,8 +392,8 @@ const FormularioIncidencia = () => {
         {vehiculos.length > 0 && (
           <ul className="list-disc list-inside text-sm">
             {vehiculos.map((v, i) => (
-              <li key={v.matricula} className="flex justify-start items-center">
-                {v.marca} {v.modelo}, {v.color}, {v.matricula}
+              <li key={v.license_plate} className="flex justify-start items-center">
+                {v.brand} {v.model}, {v.color}, {v.license_plate}
                 <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarVehiculo(i)} />
               </li>
             ))}

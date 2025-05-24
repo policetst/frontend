@@ -76,42 +76,53 @@ async function getLocation() {
 async function postIncident(incident) {
   try {
     const token = getTokenFromCookie();
+    console.log("Usando token para crear incidencia:", token);
+
     const res = await axios.post(INCIDENTS_URL, incident, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
     });
-    console.log("Response from backend:", res.data);
+
+    console.log("Respuesta del backend:", res.data);
     const { ok, message } = res.data;
 
     if (ok === true) {
-      Swal.fire({
+      await Swal.fire({
         icon: 'success',
         title: 'Incidencia creada',
         text: 'La incidencia se ha creado correctamente.',
-        confirmButtonText: 'Aceptar'
+        confirmButtonText: 'Aceptar',
       });
     } else {
-      Swal.fire({
+      await Swal.fire({
         icon: 'error',
         title: 'Error',
         text: message || 'Hubo un problema al crear la incidencia.',
-        confirmButtonText: 'Aceptar'
+        confirmButtonText: 'Aceptar',
       });
     }
 
     return res.data;
+
   } catch (error) {
-    console.error("Error posting incident:", error);
-    Swal.fire({
+    const status = error.response?.status;
+    const errorMessage = error.response?.data?.message || error.message;
+
+    console.error(`Error ${status} al crear incidencia:`, errorMessage);
+
+    await Swal.fire({
       icon: 'error',
       title: 'Error',
-      text: 'No se ha podido crear la incidencia.',
-      confirmButtonText: 'Aceptar'
+      text: errorMessage || 'No se ha podido crear la incidencia.',
+      confirmButtonText: 'Aceptar',
     });
-    return { ok: false, message: 'Error al conectar con el servidor' };
+
+    return { ok: false, message: errorMessage };
   }
 }
+
 
 async function getIncidents() {
   const token = getTokenFromCookie();
