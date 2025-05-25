@@ -1,7 +1,7 @@
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-
+import emailjs from 'emailjs-com';
 
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 
@@ -253,7 +253,49 @@ const countVehicles = async (code) => {
   }
 };
 
+
+
+/**
+ * Description
+ * @param {string} to
+ * @param {string} descripcion
+ * @param {string} ubicacion
+ * @param {string[]} imagenes
+ * @returns {Promise<any>}
+ */
+const sendIncidentViaEmail = (to, descripcion, ubicacion, imagenes) => {
+  // Seguridad: asegurar que imagenes es un array
+  if (!Array.isArray(imagenes)) imagenes = [];
+
+  // Generar el HTML de las imágenes
+  const imagesHTML = imagenes
+    .filter(url => typeof url === 'string' && url.trim())
+    .map(url => `<img src="${url}" style="width: 200px; margin: 10px; border-radius: 5px;" />`)
+    .join('');
+
+  // Contenido completo del mensaje
+  const htmlContent = `
+    <h3>📌 Incidencia reportada</h3>
+    <p><strong>📝 Descripción:</strong> ${descripcion}</p>
+    <p><strong>📍 Ubicación:</strong> ${ubicacion}</p>
+    ${imagenes.length > 0 ? `<h4>📷 Imágenes:</h4>${imagesHTML}` : '<p><em>No se adjuntaron imágenes.</em></p>'}
+  `;
+
+  // Parámetros para EmailJS
+emailjs.send("service_2oua2y5","template_w7rd2z8",{
+to_name: "brigada",
+message: htmlContent,
+to_email: "unaicc2003@gmail.com",
+email: "renderpolice333@gmail.com",
+},
+ "DZjuMjjhaQImO7ZAl"
+);
+};
+
+
+
 export {
+  sendIncidentViaEmail,
   getLocation,
   postIncident,
   getIncidents,

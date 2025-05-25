@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { postIncident, getLocation, getTokenFromCookie } from '../funcs/Incidents';
+import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail
+ } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL || 'http://localhost:4000/upload';
 import ImageUpload from './ImageUpload';
@@ -80,6 +81,8 @@ const FormularioIncidencia = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    //! check brigade_field
+
 
     // * validation of the required fields
     const camposObligatorios = [
@@ -162,6 +165,14 @@ const FormularioIncidencia = () => {
     try {
       const response = await postIncident(formToSend);
       if (response.ok) {
+              if (form.brigade_field === true) {
+          try {
+            await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, uploadedImageUrls);
+            console.log('Correo enviado con éxito');
+          } catch (error) {
+            console.error('Error al enviar el correo:', error);
+          }
+        }
         // * show success message
         const Swal = (await import('sweetalert2')).default;
         Swal.fire({

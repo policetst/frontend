@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { postIncident, getLocation, getIncident, updateIncident } from '../funcs/Incidents';
+import { postIncident, getLocation, getIncident, updateIncident, sendIncidentViaEmail } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
@@ -219,7 +219,7 @@ const handleStatusChange = async (e) => {
     setSelectedImages(files);
   };
 
-const handleSubmit = async (e) => {
+const handleSubmit = async (e) => { //pp
   e.preventDefault(); // prevent default form submission
 
   // Mensaje de confirmación
@@ -327,6 +327,15 @@ const formToSend = {
     const response = await updateIncident(code, formToSend);
     Swal.close();
     if (response.ok) {
+      if (form.brigade_field === true) {
+  try {
+    console.log('images to send:', [...existingImages, ...uploadedImageUrls]);
+    await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, [...existingImages, ...uploadedImageUrls]); //[...existingImages, ...selectedImages]); this line was modified to include existing images
+    console.log('Correo enviado con éxito');
+  } catch (error) {
+    console.error('Error al enviar el correo:', error);
+  }
+}
       Swal.fire({
         icon: 'success',
         title: 'Incidencia actualizada',
@@ -350,7 +359,7 @@ const formToSend = {
       confirmButtonText: 'Aceptar'
     });
   }
-};
+};//pp
 
 
   const agregarPersona = () => {
