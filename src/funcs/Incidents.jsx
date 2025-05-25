@@ -264,16 +264,16 @@ const countVehicles = async (code) => {
  * @returns {Promise<any>}
  */
 const sendIncidentViaEmail = (to, descripcion, ubicacion, imagenes) => {
-  // Seguridad: asegurar que imagenes es un array
+  // check and set images to array
   if (!Array.isArray(imagenes)) imagenes = [];
 
-  // Generar el HTML de las imágenes
+  //html element of images
   const imagesHTML = imagenes
     .filter(url => typeof url === 'string' && url.trim())
     .map(url => `<img src="${url}" style="width: 200px; margin: 10px; border-radius: 5px;" />`)
     .join('');
 
-  // Contenido completo del mensaje
+  // Full body of email
   const htmlContent = `
     <h3>📌 Incidencia reportada</h3>
     <p><strong>📝 Descripción:</strong> ${descripcion}</p>
@@ -281,7 +281,7 @@ const sendIncidentViaEmail = (to, descripcion, ubicacion, imagenes) => {
     ${imagenes.length > 0 ? `<h4>📷 Imágenes:</h4>${imagesHTML}` : '<p><em>No se adjuntaron imágenes.</em></p>'}
   `;
 
-  // Parámetros para EmailJS
+  // Parámetrs 
 emailjs.send("service_2oua2y5","template_w7rd2z8",{
 to_name: "brigada",
 message: htmlContent,
