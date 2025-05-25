@@ -19,7 +19,7 @@ const getTokenFromCookie = () => {
  * @returns {any}
  */
 async function deleteImage(imageUrl){
-  await axios.post(`http://localhost:4000/imagesd`, { url: imageUrl }, {
+  await axios.post(`https://arbadev-back-joq0.onrender.com/imagesd`, { url: imageUrl }, {
     headers: {
       Authorization: `Bearer ${getTokenFromCookie()}`,
     }
