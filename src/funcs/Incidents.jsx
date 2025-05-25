@@ -6,13 +6,25 @@ import emailjs from 'emailjs-com';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 
 
-//*Function to get the user's token from the cookie
 //*Function to get the user's token from the cookie (sin hooks)
 const getTokenFromCookie = () => {
   const match = document.cookie.match(/(^| )token=([^;]+)/);
   return match ? match[2] : '';
 };
 
+
+/**
+ * Function to delete images from server to optimice space
+ * @param {any} imageUrl
+ * @returns {any}
+ */
+async function deleteImage(imageUrl){
+  await axios.post(`http://localhost:4000/imagesd`, { url: imageUrl }, {
+    headers: {
+      Authorization: `Bearer ${getTokenFromCookie()}`,
+    }
+  });
+}
 
 //* function to close an incident
 const closeIncident = async (code, userCode) => {
@@ -295,6 +307,7 @@ email: "renderpolice333@gmail.com",
 
 
 export {
+  deleteImage,
   sendIncidentViaEmail,
   getLocation,
   postIncident,

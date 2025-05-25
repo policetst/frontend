@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { postIncident, getLocation, getIncident, updateIncident, sendIncidentViaEmail } from '../funcs/Incidents';
+import { postIncident, getLocation, getIncident, updateIncident, sendIncidentViaEmail, deleteImage } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
@@ -108,7 +108,7 @@ const EditIncident = () => {
           location: data.location || '',
           type: data.type || '',
           description: data.description || '',
-          brigade_field: data.brigade_field === true || data.brigade_field === 'true',
+          brigade_field: data.brigade_field === false || data.brigade_field === 'false', // Asegurarse de que sea booleano and prevent send to brigade_field by default editing
           creator_user_code: 'AR00001',
         };
         console.log('Formulario actualizado:', updatedForm);
@@ -616,6 +616,13 @@ const formToSend = {
                       onClick={() => {
                         setExistingImages(existingImages.filter((_, i) => i !== index));
                         console.log('Imagen eliminada:', image);
+               try{
+         deleteImage(image)
+
+               }catch(err){
+throw new Error(err)
+
+               }
                         
                       }}
                       className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
