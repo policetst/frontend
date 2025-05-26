@@ -2,6 +2,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 function Estadisticas() {
+  document.title = 'SIL Tauste - Estadisticas';
   const data = [
     { id: 1, tipo: 'Animales', count: 5 },
     { id: 2, tipo: 'Trafico', count: 3 },

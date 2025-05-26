@@ -8,6 +8,7 @@ const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL || 'http://localhos
 import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
+import Mapview from './Map';
 
 
 const FormularioIncidencia = () => {
@@ -256,6 +257,7 @@ const FormularioIncidencia = () => {
             className="w-full mt-1 p-2 border rounded-md"
             placeholder="Latitud, Longitud"
           />
+          <Mapview chords={form.location} />
         </div>
 
         <div className="mb-4">

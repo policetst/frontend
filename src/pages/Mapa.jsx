@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 function Mapa() {
+  document.title = 'SIL Tauste - Mapa';
   const [search, setSearch] = useState('');
 
   const handleSearchChange = (e) => {

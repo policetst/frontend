@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getIncidents, countPeople, countVehicles } from '../funcs/Incidents';
 
 function MostrarIncidencia() {
+  document.title = "SIL Tauste -  Mostrar Incidencias";
   const navigate = useNavigate();
   const [incidencias, setIncidencias] = useState([]);
   const [counts, setCounts] = useState({});
@@ -31,9 +32,6 @@ function MostrarIncidencia() {
     }
     setCounts(newCounts);
   };
-
-  document.title = "Mostrar Incidencias";
-
   const handleEdit = (id) => {
     navigate(`/editincident/${id}`);
   };

@@ -10,8 +10,10 @@ import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import Mapview from '../components/Map';
 
 const EditIncident = () => {
+  document.title = "SIL Tauste - Editar Incidencia";
   const USER_CODE = localStorage.getItem('username') || 'AR00001';
   const { code } = useParams();
 /*
@@ -108,7 +110,7 @@ const EditIncident = () => {
           location: data.location || '',
           type: data.type || '',
           description: data.description || '',
-          brigade_field: data.brigade_field === false || data.brigade_field === 'false', // Asegurarse de que sea booleano and prevent send to brigade_field by default editing
+          brigade_field: data.brigade_field ? false : false, // Asegurarse de que sea booleano and prevent send to brigade_field by default editing
           creator_user_code: 'AR00001',
         };
         console.log('Formulario actualizado:', updatedForm);
@@ -435,6 +437,7 @@ const formToSend = {
             className="w-full mt-1 p-2 border rounded-md"
             placeholder="Latitud, Longitud"
           />
+          <Mapview chords={form.location} />
         </div>
 
         <div className="mb-4">

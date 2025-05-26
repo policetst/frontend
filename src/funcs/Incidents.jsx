@@ -268,7 +268,7 @@ const countVehicles = async (code) => {
 
 
 /**
- * Description
+ * Function to send an incident via email using EmailJS to notify the brigade if necessary.
  * @param {string} to
  * @param {string} descripcion
  * @param {string} ubicacion
