@@ -65,22 +65,10 @@ const FormularioIncidencia = () => {
         {/* Datos de registro */}
         <div>
           <div className="flex justify-between">
-
             {/* Fecha y hora */}
             <div className="flex flex-col justify-start items-start h-10 mb-10">
               <p className="font-semibold">Fecha y hora:</p>
               <p>{new Date().toLocaleString()}</p>
-            </div>
-            
-            {/* Agente 2 */}
-            <div>
-              <p className="font-semibold">Acompañante:</p>
-              <input 
-                type="text"
-                name="compa"
-                placeholder="AR12345"
-                className="w-23 pl-1 border rounded"
-              />
             </div>
           </div>
 
