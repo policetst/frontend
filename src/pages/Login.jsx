@@ -6,6 +6,7 @@ import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom'; // * import Link to handle the navigation between pages
 import '../index.css'; // * import the css file to style the components
 function Login() {
+    document.title = 'SIL Tauste - Login'; // * set the title of the page
     const [cookies, setCookie] = useCookies(['token']);
     
     const navigate = useNavigate(); // * create a instance of useNavigate to handle the navigation
