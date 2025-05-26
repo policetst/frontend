@@ -34,7 +34,7 @@ function Mapview({ chords, inc_code }) {
             shadowSize: [41, 41]
           })}>
             <Popup>
-           {`Incidencia: ${inc_code}`}
+           {`Incidencia: ${inc_code ? inc_code : '*'}`}
             </Popup>
           </Marker>
         </MapContainer>
