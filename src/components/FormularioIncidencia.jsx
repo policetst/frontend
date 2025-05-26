@@ -61,16 +61,21 @@ const FormularioIncidencia = () => {
 
   return (
     <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] p-6 space-y-8">
-      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
+      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 bg-white rounded shadow-md space-y-6">
         {/* Datos de registro */}
         <div>
-          <div className="flex justify-between">
+          <div className="flex justify-end">
             {/* Fecha y hora */}
-            <div className="flex flex-col justify-start items-start h-10 mb-10">
+            <div className="flex flex-col justify-start items-end h-10 mb-10">
               <p className="font-semibold">Fecha y hora:</p>
               <p>{new Date().toLocaleString()}</p>
             </div>
+            {/* Logo de SIL */}
+            <div>
+              <img src="/SIL-logo-tech.png" alt="Logo de SIL Tauste" style={{ width: '255px', height: '115px' }}/>
+            </div>
           </div>
+          <hr className="border-t border-gray-300 my-4" />
 
           <h3 className="text-xl font-bold mb-2">Datos esenciales</h3>
 
