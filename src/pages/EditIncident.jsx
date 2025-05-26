@@ -437,7 +437,7 @@ const formToSend = {
             className="w-full mt-1 p-2 border rounded-md"
             placeholder="Latitud, Longitud"
           />
-          <Mapview chords={form.location} />
+          <Mapview chords={form.location} inc_code={code} />
         </div>
 
         <div className="mb-4">

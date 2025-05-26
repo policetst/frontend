@@ -2,7 +2,7 @@ import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
-function Mapview({ chords }) {
+function Mapview({ chords, inc_code }) {
   // Separar y convertir a número
   const [latStr, lngStr] = chords.split(',');
   const lat = Number(latStr);
@@ -25,9 +25,16 @@ function Mapview({ chords }) {
             attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <Marker position={position}>
+          <Marker position={position} icon={new L.Icon({
+            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+            shadowSize: [41, 41]
+          })}>
             <Popup>
-              Ubicación de la incidencia
+           {`Incidencia: ${inc_code}`}
             </Popup>
           </Marker>
         </MapContainer>
