@@ -11,7 +11,7 @@ const FormularioIncidencia = () => {
     vehiculos: [],
   });
 
-  const [nuevaPersona, setNuevaPersona] = useState({ nombre: '', apellidos: '', dni: '' });
+  const [nuevaPersona, setNuevaPersona] = useState({ nombre: '', apellido1: '', apellido2: '', dni: '', contacto: '', });
   const [nuevoVehiculo, setNuevoVehiculo] = useState({ marca: '', modelo: '', color: '', matricula: '' });
 
   const tipos = [
@@ -40,7 +40,7 @@ const FormularioIncidencia = () => {
   };
 
   const agregarPersona = () => {
-    if (nuevaPersona.nombre && nuevaPersona.apellidos && nuevaPersona.dni) {
+    if (nuevaPersona.nombre && nuevaPersona.apellido1 && nuevaPersona.apellido2 && nuevaPersona.dni && nuevaPersona.contacto) {
       setForm(prev => ({
         ...prev,
         personas: [...prev.personas, nuevaPersona],
@@ -161,8 +161,15 @@ const FormularioIncidencia = () => {
             />
             <input
               type="text"
-              placeholder="Apellidos"
-              value={nuevaPersona.apellidos}
+              placeholder="Primer apellido"
+              value={nuevaPersona.apellido1}
+              onChange={(e) => setNuevaPersona({ ...nuevaPersona, apellidos: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Segundo apellido"
+              value={nuevaPersona.apellido2}
               onChange={(e) => setNuevaPersona({ ...nuevaPersona, apellidos: e.target.value })}
               className="p-2 border rounded"
             />
