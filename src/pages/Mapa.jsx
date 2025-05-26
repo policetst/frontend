@@ -3,6 +3,8 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { getIncidents } from '../funcs/Incidents';
 import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
+import { getIconByType } from '../utils/iconByType';
+import L from 'leaflet';
 
 function Mapa() {
   document.title = 'SIL Tauste - Mapa';
@@ -16,8 +18,6 @@ function Mapa() {
     };
     fetchIncidents();
   }, []);
-  console.log('incidents', incidents);
-  
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -40,28 +40,40 @@ function Mapa() {
       />
 
       <div className="mt-6 h-[500px] w-full">
-        <MapContainer center={[41.98, -1.27]} zoom={13} style={{ height: '100%', width: '100%' }}>
+        <MapContainer
+          center={[41.98, -1.27]}
+          zoom={13}
+          scrollWheelZoom={true}
+          style={{
+            height: '100%',
+            width: '100%',
+            zIndex: 0,
+            borderRadius: '0.5rem',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+          }}
+        >
           <TileLayer
             attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           {filteredIncidents.map((incident) => {
             const [lat, lng] = incident.location.split(',').map(Number);
-            const isValidCoords = !isNaN(lat) && !isNaN(lng);
-            if (!isValidCoords) {
-              return <p key={incident.id} className="text-red-500">Coordenadas inválidas: {incident.location}</p>;
-            }
+            if (isNaN(lat) || isNaN(lng)) return null;
+
+            const icon = getIconByType(incident.type);
+
             return (
-              <Marker key={incident.id} position={[lat, lng]} icon={new L.Icon({
-                iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-                shadowSize: [41, 41]
-              })}>
+              <Marker key={incident.id} position={[lat, lng]} icon={icon}>
                 <Popup>
-                  <strong>Incidencia <Link to={`http://localhost:5173/editincident/${incident.code}`}>{incident.code}</Link></strong><br />
+                  <strong>
+                    Incidencia{' '}
+                    <Link to={`/editincident/${incident.code}`}>
+                      {incident.code}
+                    </Link>
+                  </strong>
+                  <br />
+                  <span className="font-semibold">{incident.type}</span>
+                  <br />
                   {incident.description}
                 </Popup>
               </Marker>
