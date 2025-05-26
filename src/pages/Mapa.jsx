@@ -11,6 +11,9 @@ function Mapa() {
   const [search, setSearch] = useState('');
   const [incidents, setIncidents] = useState([]);
 
+  const [selectedType, setSelectedType] = useState('');
+
+
   useEffect(() => {
     const fetchIncidents = async () => {
       const data = await getIncidents();
@@ -24,7 +27,8 @@ function Mapa() {
   };
 
   const filteredIncidents = incidents.filter(i =>
-    i.code.toString().includes(search)
+    i.code.toString().includes(search) &&
+  (selectedType === '' || i.type === selectedType)
   );
 
   return (
@@ -38,6 +42,17 @@ function Mapa() {
         onChange={handleSearchChange}
         className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
       />
+      <select
+  value={selectedType}
+  onChange={(e) => setSelectedType(e.target.value)}
+  className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+>
+  <option value="">Filtrar por tipo</option>
+  {[...new Set(incidents.map(i => i.type))].map(type => (
+    <option key={type} value={type}>{type}</option>
+  ))}
+</select>
+
 
       <div className="mt-6 h-[500px] w-full">
         <MapContainer
