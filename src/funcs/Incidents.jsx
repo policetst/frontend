@@ -304,9 +304,24 @@ email: "renderpolice333@gmail.com",
 );
 };
 
-
+//* get users for estadistics
+const getUsers = () => {
+  try {
+    const token = getTokenFromCookie();
+    const res =  axios.get(`http://localhost:4000/users`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data.users || [];
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
+};
 
 export {
+  getUsers,
   deleteImage,
   sendIncidentViaEmail,
   getLocation,
