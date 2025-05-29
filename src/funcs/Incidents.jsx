@@ -89,16 +89,12 @@ async function getLocation() {
 async function postIncident(incident) {
   try {
     const token = getTokenFromCookie();
-    console.log("Usando token para crear incidencia:", token);
-
     const res = await axios.post(INCIDENTS_URL, incident, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     });
-
-    console.log("Respuesta del backend:", res.data);
     const { ok, message } = res.data;
 
     if (ok === true) {
@@ -138,15 +134,12 @@ async function postIncident(incident) {
 
 //* Function to get the incidents from the backend
 async function getIncidents() {
-  const token = getTokenFromCookie();
-  console.log("Using token to fetch incidents:", token);
-  try {
+  const token = getTokenFromCookie();  try {
     const res = await axios.get(INCIDENTS_URL, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching incidents:", error);
@@ -162,7 +155,6 @@ async function updateIncident(code, incidentData) {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error updating incident:", error);
@@ -178,7 +170,6 @@ async function getIncidentDetails(code) {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Incident details:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching incident details:", error);
@@ -200,8 +191,6 @@ const getIncident = async (code) => {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Incident data from API:", res.data);
-
     if (res.data && res.data.incident) {
       return {
         ...res.data.incident,
@@ -310,7 +299,6 @@ email: "renderpolice333@gmail.com",
 const getUsers = async () => {
   try {
     const token = getTokenFromCookie();
-    console.log("Using token to fetch users:", token);
     const res =  await axios.get(BASE_URL+'/users', {
       
 headers: {
