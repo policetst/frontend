@@ -37,7 +37,7 @@ function AgentEstadistic({ data }) {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Tus estadísticas</h2>
+      <h2 className="text-2xl font-bold mb-6">Tus estadísticas <span className="underline">{localStorage.getItem("username")}</span></h2>
       <div className="grid md:grid-cols-2 gap-6">
         {/* BarChart incidencias por tipo */}
         <div className="bg-white rounded-2xl shadow p-4 flex flex-col items-center justify-center">
