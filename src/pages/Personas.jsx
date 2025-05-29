@@ -1,7 +1,7 @@
 import React from 'react';
 
 function Personas() {
-  document.title = "Personas";
+  document.title = "SIL Tauste - Personas de Interés";
   const people = [
     { id: 1, name: "Juan Pérez", phone: "123456789", incidencias: 3, vehiculos: 1, dni: "12345678A" },
     { id: 2, name: "María López", phone: "987654321", incidencias: 5, vehiculos: 2, dni: "23456789B" },

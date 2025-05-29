@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { postIncident, getLocation, getIncident, updateIncident } from '../funcs/Incidents';
+import { postIncident, getLocation, getIncident, updateIncident, sendIncidentViaEmail, deleteImage } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
@@ -10,8 +10,10 @@ import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import Mapview from '../components/Map';
 
 const EditIncident = () => {
+  document.title = "SIL Tauste - Editar Incidencia";
   const USER_CODE = localStorage.getItem('username') || 'AR00001';
   const { code } = useParams();
 /*
@@ -108,7 +110,7 @@ const EditIncident = () => {
           location: data.location || '',
           type: data.type || '',
           description: data.description || '',
-          brigade_field: data.brigade_field === true || data.brigade_field === 'true',
+          brigade_field: data.brigade_field ? false : false, // Asegurarse de que sea booleano and prevent send to brigade_field by default editing
           creator_user_code: 'AR00001',
         };
         console.log('Formulario actualizado:', updatedForm);
@@ -219,7 +221,7 @@ const handleStatusChange = async (e) => {
     setSelectedImages(files);
   };
 
-const handleSubmit = async (e) => {
+const handleSubmit = async (e) => { //pp
   e.preventDefault(); // prevent default form submission
 
   // Mensaje de confirmación
@@ -327,6 +329,15 @@ const formToSend = {
     const response = await updateIncident(code, formToSend);
     Swal.close();
     if (response.ok) {
+      if (form.brigade_field === true) {
+  try {
+    console.log('images to send:', [...existingImages, ...uploadedImageUrls]);
+    await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, [...existingImages, ...uploadedImageUrls]); //[...existingImages, ...selectedImages]); this line was modified to include existing images
+    console.log('Correo enviado con éxito');
+  } catch (error) {
+    console.error('Error al enviar el correo:', error);
+  }
+}
       Swal.fire({
         icon: 'success',
         title: 'Incidencia actualizada',
@@ -350,7 +361,7 @@ const formToSend = {
       confirmButtonText: 'Aceptar'
     });
   }
-};
+};//pp
 
 
   const agregarPersona = () => {
@@ -426,6 +437,7 @@ const formToSend = {
             className="w-full mt-1 p-2 border rounded-md"
             placeholder="Latitud, Longitud"
           />
+          <Mapview chords={form.location} inc_code={code} />
         </div>
 
         <div className="mb-4">
@@ -607,6 +619,13 @@ const formToSend = {
                       onClick={() => {
                         setExistingImages(existingImages.filter((_, i) => i !== index));
                         console.log('Imagen eliminada:', image);
+               try{
+         deleteImage(image)
+
+               }catch(err){
+throw new Error(err)
+
+               }
                         
                       }}
                       className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
