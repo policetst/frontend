@@ -4,7 +4,8 @@ import Swal from 'sweetalert2';
 import emailjs from 'emailjs-com';
 
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
-
+const USERS_URL = import.meta.env.VITE_USERS_URL || 'http://localhost:4000/users';
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
 
 //*Function to get the user's token from the cookie (sin hooks)
 const getTokenFromCookie = () => {
@@ -88,16 +89,12 @@ async function getLocation() {
 async function postIncident(incident) {
   try {
     const token = getTokenFromCookie();
-    console.log("Usando token para crear incidencia:", token);
-
     const res = await axios.post(INCIDENTS_URL, incident, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     });
-
-    console.log("Respuesta del backend:", res.data);
     const { ok, message } = res.data;
 
     if (ok === true) {
@@ -135,23 +132,21 @@ async function postIncident(incident) {
   }
 }
 
-
+//* Function to get the incidents from the backend
 async function getIncidents() {
-  const token = getTokenFromCookie();
-  try {
+  const token = getTokenFromCookie();  try {
     const res = await axios.get(INCIDENTS_URL, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching incidents:", error);
     return { ok: false, message: 'Error al conectar con el servidor' };
   }
 }
-
+//* Function to update an incident
 async function updateIncident(code, incidentData) {
   try {
     const token = getTokenFromCookie();
@@ -160,14 +155,13 @@ async function updateIncident(code, incidentData) {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error updating incident:", error);
     return { ok: false, message: 'Error al actualizar la incidencia' };
   }
 }
-
+//* Function to get details of one incident
 async function getIncidentDetails(code) {
   try {
     const token = getTokenFromCookie();
@@ -176,7 +170,6 @@ async function getIncidentDetails(code) {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Incident details:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching incident details:", error);
@@ -198,8 +191,6 @@ const getIncident = async (code) => {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Incident data from API:", res.data);
-
     if (res.data && res.data.incident) {
       return {
         ...res.data.incident,
@@ -304,9 +295,41 @@ email: "renderpolice333@gmail.com",
 );
 };
 
+//* get users for estadistics
+const getUsers = async () => {
+  try {
+    const token = getTokenFromCookie();
+    const res =  await axios.get(BASE_URL+'/users', {
+      
+headers: {
+  Authorization: `Bearer ${token}` //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiQVIwMTQ5MiIsInJvbGUiOiJTdGFuZGFyZCIsImlhdCI6MTc0ODQzNzUwNCwiZXhwIjoxNzQ4NDY2MzA0fQ.nae4Dt9BArAFL6vit9XTINKWliy7qj6L5PLE5sbkP2Y
+}
 
+    });
+     return res.data ;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
+};
+const getUserInfo = async (code) => {
+  try {
+    const token = getTokenFromCookie();
+    const res = await axios.get(`${BASE_URL}/user/${code}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    return null;
+  }
+};
 
 export {
+  getUserInfo,
+  getUsers,
   deleteImage,
   sendIncidentViaEmail,
   getLocation,
