@@ -288,7 +288,7 @@ const sendIncidentViaEmail = (to, descripcion, ubicacion, imagenes) => {
 emailjs.send("service_2oua2y5","template_w7rd2z8",{
 to_name: "brigada",
 message: htmlContent,
-to_email: "unaicc2003@gmail.com",
+to_email: to,
 email: "renderpolice333@gmail.com",
 },
  "DZjuMjjhaQImO7ZAl"

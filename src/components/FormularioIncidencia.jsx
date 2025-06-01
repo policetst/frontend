@@ -168,7 +168,7 @@ const FormularioIncidencia = () => {
       if (response.ok) {
               if (form.brigade_field === true) {
           try {
-            await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, uploadedImageUrls);
+            await sendIncidentViaEmail('unaicompaired@iesrioarba.es', form.description, form.location, uploadedImageUrls);
             console.log('Correo enviado con éxito');
           } catch (error) {
             console.error('Error al enviar el correo:', error);
@@ -297,7 +297,7 @@ const FormularioIncidencia = () => {
             onChange={handleChange}
             className="mr-2"
           />
-          <label className="text-sm">Contacto con brigada</label>
+          <label className="text-sm">enviar a brigada</label>
         </div>
       </div>
 
