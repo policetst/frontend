@@ -27,6 +27,7 @@ function MostrarIncidencia() {
       const code = incident.code;
       newCounts[code] = {
         people: await countPeople(code),
+        
         vehicles: await countVehicles(code),
       };
     }
@@ -53,7 +54,8 @@ function MostrarIncidencia() {
             </div>
             <h4 className="text-lg font-semibold mb-1">Código: {incidencia.code}</h4>
             <p className="text-sm text-gray-700 mb-2"><strong>Tipo:</strong> {incidencia.type}</p>
-            <p className="text-sm text-gray-700 mb-2"><strong>Descripción:</strong> {incidencia.description}</p>
+
+            <p className="text-sm text-gray-700 mb-2 w-full"><strong>Descripción:</strong> {incidencia.description}</p>
             <div className="text-sm text-gray-600 mb-2">
               <p><strong>Creado por:</strong> {incidencia.creator_user_code}</p>
               <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>

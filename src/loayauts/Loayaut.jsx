@@ -44,7 +44,7 @@
     };
 
     return (
-      <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-screen bg-gray-50 overflow-hidden dark">
         {/* Overlay for mobile and desktop sidebar */}
         {isSidebarOpen && (
           <div
