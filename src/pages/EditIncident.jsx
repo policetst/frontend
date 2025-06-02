@@ -426,6 +426,7 @@ const formToSend = {
           <select
             name="status"
             value={form.status}
+            disabled={form.status === 'Closed'} // Disable if already closed
             onChange={handleStatusChange}
             className="w-full mt-1 p-2 border rounded-md"
           >
@@ -508,7 +509,9 @@ const formToSend = {
           />
           <label className="text-sm">Enviado a brigada</label>
   </div>
-          <button type="button" onClick={handleReSend} className="ml-2 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700" style={{ cursor: 'pointer' }}>
+          <button type="button" onClick={handleReSend} className={`ml-2 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`} style={{ cursor: 'pointer' }}
+          disabled={form.status === 'Closed' ? true : false}
+          >
             Reenviar
           </button>
 
@@ -519,7 +522,7 @@ const formToSend = {
       {/* Sección personas */}
       <div>
         <h2 className="text-xl font-bold mb-2">Personas ({personas.length})</h2>
-        <div className="grid grid-cols-5 gap-2 mb-2">
+        <div className="flex flex-col mb-2 sm:grid sm:grid-cols-4 gap-2">
           <input
             type="text"
             name="dni"
@@ -560,8 +563,9 @@ const formToSend = {
         <button
           type="button"
           onClick={agregarPersona}
-          className="mb-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-        >
+          className={`mb-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+disabled={form.status === 'Closed' ? true : false}
+>
           Añadir persona
         </button>
 
@@ -579,7 +583,7 @@ const formToSend = {
       {/* Sección vehículos */}
       <div>
         <h2 className="text-xl font-bold mb-2">Vehículos ({vehiculos.length})</h2>
-        <div className="grid grid-cols-4 gap-2 mb-2">
+        <div className="flex flex-col mb-2 sm:grid sm:grid-cols-4 gap-2">
           <input
             type="text"
             placeholder="Matrícula"
@@ -612,7 +616,8 @@ const formToSend = {
         <button
           type="button"
           onClick={agregarVehiculo}
-          className="mb-2 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className={`mb-2 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+          disabled={form.status === 'Closed' ? true : false}
         >
           Añadir vehículo
         </button>
@@ -679,7 +684,8 @@ throw new Error(err)
       </div>
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
+        className={`w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+        disabled={form.status === 'Closed' ? true : false}
       >
         Actualizar
       </button>

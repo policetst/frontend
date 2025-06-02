@@ -11,18 +11,23 @@ function MostrarIncidencia() {
     const [filtroTipo, setFiltroTipo] = useState("");
         const [busqueda, setBusqueda] = useState("");               
 
-  useEffect(() => {
-    const fetchIncidents = async () => {
-      const data = await getIncidents();
-      if (data.ok) {
-        setIncidencias(data.incidents);
-        loadCounts(data.incidents);
-      } else {
-        console.error("Error fetching incidents:", data.message);
-      }
-    };
-    fetchIncidents();
-  }, []);
+useEffect(() => {
+  const fetchIncidents = async () => {
+    const data = await getIncidents();
+    if (data.ok) {
+//sort by creation_date in descending order
+      const sortedIncidents = data.incidents.sort((a, b) => 
+        new Date(b.creation_date) - new Date(a.creation_date)
+      );
+      setIncidencias(sortedIncidents);
+      loadCounts(sortedIncidents);
+    } else {
+      console.error("Error fetching incidents:", data.message);
+    }
+  };
+  fetchIncidents();
+}, []);
+
 
   const loadCounts = async (incidents) => {
     const newCounts = {};

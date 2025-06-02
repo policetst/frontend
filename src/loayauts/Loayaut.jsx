@@ -16,9 +16,7 @@
     const user_code = localStorage.getItem('username');
     const [cookies, setCookie] = useCookies(['user']);
     const navigate = useNavigate();
-    useEffect(() => {
-      console.log('Cookies:', cookies);
-      
+    useEffect(() => {      
       if (cookies.token == "" || user_code == "") {
         navigate('/login');
       }
