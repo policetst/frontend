@@ -7,9 +7,9 @@ function MostrarIncidencia() {
   const navigate = useNavigate();
   const [incidencias, setIncidencias] = useState([]);
   const [counts, setCounts] = useState({});
-  const [filtroFecha, setFiltroFecha] = useState("");           // yyyy-mm-dd
-  const [filtroTipo, setFiltroTipo] = useState("");
-  const [busqueda, setBusqueda] = useState("");                 // texto libre
+  const [filtroFecha, setFiltroFecha] = useState("");         
+    const [filtroTipo, setFiltroTipo] = useState("");
+        const [busqueda, setBusqueda] = useState("");               
 
   useEffect(() => {
     const fetchIncidents = async () => {
@@ -41,6 +41,10 @@ function MostrarIncidencia() {
   };
 
   // identify the unique types of incidents for the filter dropdown
+  incidencias ? <span className="text-gray-500">Cargando incidencias...</span> : null;
+  if (!incidencias || incidencias.length === 0) { // if there are no incidents, show a message
+    return <span className="text-gray-500">No hay incidencias disponibles</span>;
+  }
   const tiposUnicos = Array.from(new Set(incidencias.map(i => i.type))).filter(Boolean);
 
   // Filtrado según los criterios
