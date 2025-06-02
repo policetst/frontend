@@ -8,7 +8,7 @@ function Personas() {
 
   // Llamar a la API al cargar
   useEffect(() => {
-    fetch('http://localhost:4000/people') // asegúrate de que esta URL apunte a tu backend correctamente
+    fetch('https://arbadev-back-joq0.onrender.com/people') // asegúrate de que esta URL apunte a tu backend correctamente
       .then(res => res.json())
       .then(data => {
         if (data.ok) {
