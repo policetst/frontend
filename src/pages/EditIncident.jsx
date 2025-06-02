@@ -7,7 +7,7 @@ import ImageUpload from '../components/ImageUpload';
 import { closeIncident, getTokenFromCookie } from '../funcs/Incidents';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
-import { X as XIcon } from 'lucide-react';
+import { Pointer, X as XIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Mapview from '../components/Map';
@@ -55,7 +55,8 @@ const EditIncident = () => {
   };
 
   const Navigate = useNavigate();
-  console.log('code: '+code);
+  console.log('code: '+ code);
+  
   const [loading, setLoading] = useState(true);
   
   // Estado para el formulario y datos relacionados
@@ -77,6 +78,10 @@ const EditIncident = () => {
   // Estado para el visor de imágenes
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState('');
+  const [allImages, setAllImages] = useState([]);
+  useEffect(() => {
+    setAllImages([...existingImages, ...selectedImages]);
+  }, [existingImages, selectedImages]);
 
   // Función para abrir el lightbox
   const openLightbox = (imageUrl) => {
@@ -110,7 +115,7 @@ const EditIncident = () => {
           location: data.location || '',
           type: data.type || '',
           description: data.description || '',
-          brigade_field: data.brigade_field ? false : false, // Asegurarse de que sea booleano and prevent send to brigade_field by default editing
+          brigade_field: data.brigade_field ? true : false, // Asegurarse de que sea booleano and prevent send to brigade_field by default editing
           creator_user_code: 'AR00001',
         };
         console.log('Formulario actualizado:', updatedForm);
@@ -214,7 +219,26 @@ const handleStatusChange = async (e) => {
     setForm(prev => ({ ...prev, status: newStatus }));
   }
 };
-
+const handleReSend = () => {
+  Swal.fire({
+    title: 'Reenviar a brigada',
+    text: '¿Deseas reenviar esta incidencia a la brigada?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, reenviar',
+    cancelButtonText: 'Cancelar'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, allImages);
+        Swal.fire('Reenviado', 'La incidencia ha sido reenviada a la brigada.', 'success');
+      } catch (error) {
+        console.error('Error al enviar el correo:', error);
+        Swal.fire('Error', 'No se pudo reenviar la incidencia a la brigada.', 'error');
+      }
+    }
+  });
+};
 
 
   const handleImagesChange = (files) => {
@@ -324,15 +348,15 @@ const formToSend = {
   images: [...existingImages, ...uploadedImageUrls],
 };
 
-
   try {
     const response = await updateIncident(code, formToSend);
     Swal.close();
     if (response.ok) {
+      //! changed to a button to send the email
       if (form.brigade_field === true) {
   try {
     console.log('images to send:', [...existingImages, ...uploadedImageUrls]);
-    await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, [...existingImages, ...uploadedImageUrls]); //[...existingImages, ...selectedImages]); this line was modified to include existing images
+    await  //[...existingImages, ...selectedImages]); this line was modified to include existing images
     console.log('Correo enviado con éxito');
   } catch (error) {
     console.error('Error al enviar el correo:', error);
@@ -465,19 +489,29 @@ const formToSend = {
             onChange={handleChange}
             rows={4}
             className="w-full mt-1 p-2 border rounded-md"
-            placeholder="Escribe una descripción detallada..."
+            placeholder=""
           />
         </div>
 
-        <div className="flex items-center mb-4">
-          <input
+        <div className="flex items-center mb-4 border-1 rounded-md p-4 bg-gray-50 mx-auto">
+   <div className="flex flex-col gap-5">
+
+  <div>
+         <input
             type="checkbox"
             name="brigade_field"
             checked={form.brigade_field}
             onChange={handleChange}
+            disabled
             className="mr-2"
           />
-          <label className="text-sm">Contacto con brigada</label>
+          <label className="text-sm">Enviado a brigada</label>
+  </div>
+          <button type="button" onClick={handleReSend} className="ml-2 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700" style={{ cursor: 'pointer' }}>
+            Reenviar
+          </button>
+
+   </div>
         </div>
       </div>
 
