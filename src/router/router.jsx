@@ -13,6 +13,11 @@ import PaginaPrincipal from "../pages/PaginaPrincipal";
 import ForgotPassword from "../pages/ForgotPassword";
 import Loayaut from "../loayauts/Loayaut";
 import EditIncident from "../pages/EditIncident";
+import Vehiculos from "../pages/Vehiculos";
+import EditarVehiculo from '../pages/EditarVehiculo';
+import EditarPersona from '../pages/EditarPersona';
+
+
 //! make the router to use the hash router
 const ROUTER = createHashRouter([
   /*
@@ -25,56 +30,66 @@ const ROUTER = createHashRouter([
   * }
   */
 
-     {
+  {
     path: "/login",
     element: <Login />
   },
-   {
-
-  path: "/forgot",
-  element: <ForgotPassword />
- },
   {
-  path: "/",
-  element: <Loayaut/>,
-  children:[
-    {
-path: '/editincident/:code',
-element: <EditIncident/>
-
-    },
-     {
+    path: "/forgot",
+    element: <ForgotPassword />
+  },
+  {
     path: "/",
-    element: <PaginaPrincipal />
-  },
-  {
-    path: "/perfil",
-    element: <Perfil />
-  },
-  {
-    path: "/mapa",
-    element: <Mapa />
-  },
-  {
-    path: "/incidencia/",
-    element: <MostrarIncidencia />
-  },
-  {
-    path: "/estadisticas",
-    element: <Estadisticas />
-  },
-  {
-    path: "/crear-incidencia",
-    element: <CrearIncidencia />
-  },
-  {
-    path: "/personas",
-    element: <Personas />
-  },
-  {
-    path: "*",
-    element: <NotFound />
-  }
+    element: <Loayaut/>,
+    children:[
+    {
+      path: '/editincident/:code',
+      element: <EditIncident/>
+    },
+    {
+      path: "/",
+      element: <PaginaPrincipal />
+    },
+    {
+      path: "/perfil",
+      element: <Perfil />
+    },
+    {
+      path: "/mapa",
+      element: <Mapa />
+    },
+    {
+      path: "/incidencia/",
+      element: <MostrarIncidencia />
+    },
+    {
+      path: "/estadisticas",
+      element: <Estadisticas />
+    },
+    {
+      path: "/crear-incidencia",
+      element: <CrearIncidencia />
+    },
+    {
+      path: "/personas",
+      element: <Personas />,
+    },
+    {
+      path: "/editarpersona",
+      element: <EditarPersona />
+    },
+    {
+      path: "/vehiculos",
+      element: <Vehiculos />,
+    },
+    {
+      path: "/editarvehiculo/:matricula",
+      element: <EditarVehiculo />
+    },
+    {
+      path: "*",
+      element: <NotFound />
+    }
   ]
 }
 ]);

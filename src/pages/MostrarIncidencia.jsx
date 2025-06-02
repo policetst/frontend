@@ -37,42 +37,58 @@ function MostrarIncidencia() {
   };
 
   return (
-    <div className="p-6">
-      <h3 className="text-2xl font-bold mb-6">Incidencias</h3>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {incidencias.map((incidencia) => (
-          <div
-            key={incidencia.id}
-            className="bg-white shadow-md rounded-xl p-4 border hover:shadow-lg transition"
-          >
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-500">{incidencia.creation_date.split('T')[0]}</span>
-              <span className={`px-2 py-1 text-xs rounded-full font-semibold ${incidencia.status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                {incidencia.status}
-              </span>
-            </div>
-            <h4 className="text-lg font-semibold mb-1">Código: {incidencia.code}</h4>
-            <p className="text-sm text-gray-700 mb-2"><strong>Tipo:</strong> {incidencia.type}</p>
-            <p className="text-sm text-gray-700 mb-2"><strong>Descripción:</strong> {incidencia.description}</p>
-            <div className="text-sm text-gray-600 mb-2">
-              <p><strong>Creado por:</strong> {incidencia.creator_user_code}</p>
-              <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>
-            </div>
-            <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
-              <span>👥 {counts[incidencia.code]?.people ?? '...'}</span>
-              <span>🚗 {counts[incidencia.code]?.vehicles ?? '...'}</span>
-              <span>{incidencia.brigade_field ? '🔧 Brigada' : '—'}</span>
-            </div>
-            <button
-              onClick={() => handleEdit(incidencia.code)}
-              className="w-full mt-2 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-            >
-              Editar
-            </button>
+    <div>
+      <div className="flex justify-center">
+        <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8 text-gray-800">
+
+          {/* Titulo en escritorio o tablet */}
+          <div className="hidden xl:block">
+            <h2 className="text-2xl font-bold">Mostrar incidencias</h2>
+            <hr className="border-t border-gray-300 my-4"/>
           </div>
-        ))}
+          {/* Titulo en móviles */}
+          <div className="block xl:hidden">
+            <h2 className="text-2xl font-bold flex justify-center">Mostrar incidencias</h2>
+            <hr className="border-t border-gray-300 my-4"/>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {incidencias.map((incidencia) => (
+              <div
+                key={incidencia.id}
+                className="bg-white shadow-md rounded-xl p-4 border hover:shadow-lg transition"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-500">{incidencia.creation_date.split('T')[0]}</span>
+                  <span className={`px-2 py-1 text-xs rounded-full font-semibold ${incidencia.status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                    {incidencia.status}
+                  </span>
+                </div>
+                <h4 className="text-lg font-semibold mb-1">Código: {incidencia.code}</h4>
+                <p className="text-sm text-gray-700 mb-2"><strong>Tipo:</strong> {incidencia.type}</p>
+                <p className="text-sm text-gray-700 mb-2"><strong>Descripción:</strong> {incidencia.description}</p>
+                <div className="text-sm text-gray-600 mb-2">
+                  <p><strong>Creado por:</strong> {incidencia.creator_user_code}</p>
+                  <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
+                  <span>👥 {counts[incidencia.code]?.people ?? '...'}</span>
+                  <span>🚗 {counts[incidencia.code]?.vehicles ?? '...'}</span>
+                  <span>{incidencia.brigade_field ? '🔧 Brigada' : '—'}</span>
+                </div>
+                <button
+                  onClick={() => handleEdit(incidencia.code)}
+                  className="w-full mt-2 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                >
+                  Editar
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
+
   );
 }
 
