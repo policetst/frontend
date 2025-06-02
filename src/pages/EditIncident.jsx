@@ -454,11 +454,12 @@ const formToSend = {
         <div className="mb-4">
           <label className="block font-medium">Coordenadas</label>
           <input
+          disabled
             type="text"
             name="location"
             value={form.location}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md bg-gray-100"
             placeholder="Latitud, Longitud"
           />
           <Mapview chords={form.location} inc_code={code} />
