@@ -472,7 +472,8 @@ const formToSend = {
             name="type"
             value={form.type}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className={`w-full mt-1 p-2 border rounded-md ${form.status === 'Closed' ? 'bg-gray-100 cursor-not-allowed' : ''} disabled:cursor-not-allowed`}
+          disabled={form.status === 'Closed' ? true : false}
           >
             <option value="">-- Selecciona un tipo --</option>
             {tipos.map((tipo, idx) => (
