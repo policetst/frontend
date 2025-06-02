@@ -17,7 +17,9 @@
     const [cookies, setCookie] = useCookies(['user']);
     const navigate = useNavigate();
     useEffect(() => {
-      if (!cookies.user && !user_code) {
+      console.log('Cookies:', cookies);
+      
+      if (cookies.token == "" || user_code == "") {
         navigate('/login');
       }
     }, [cookies, navigate]);
