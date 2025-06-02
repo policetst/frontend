@@ -32,7 +32,10 @@ const getMonth = dateStr => {
 
 function AgentEstadistic({ data }) {
   const [view, setView] = useState("mensual");
+  const [filtroTipo, setFiltroTipo] = useState("");
+  const [filtroAnio, setFiltroAnio] = useState("");
 
+  // Todos los años y meses únicos presentes en los datos (sin filtrar)
   const years = useMemo(() => (
     Array.from(new Set(data.map(inc => getYear(inc.creation_date))))
       .sort((a, b) => a - b)
@@ -41,31 +44,37 @@ function AgentEstadistic({ data }) {
     Array.from(new Set(data.map(inc => getMonth(inc.creation_date))))
       .sort((a, b) => a.localeCompare(b))
   ), [data]);
-
   const tipos = useMemo(() => {
     const set = new Set(data.map(inc => inc.type));
     return Array.from(set);
   }, [data]);
-
   const tipoToY = useMemo(() => (
     Object.fromEntries(tipos.map((tipo, i) => [tipo, i + 1]))
   ), [tipos]);
 
-  // Preparar datos para ScatterChart
+  // DATOS FILTRADOS por tipo y año
+  const filteredData = useMemo(() => {
+    return data.filter(inc => (
+      (!filtroTipo || inc.type === filtroTipo) &&
+      (!filtroAnio || getYear(inc.creation_date) === Number(filtroAnio))
+    ));
+  }, [data, filtroTipo, filtroAnio]);
+
+  // Preparar datos para ScatterChart con los datos filtrados
   const scatterData = useMemo(() => {
-    return data.map(inc => ({
+    return filteredData.map(inc => ({
       x: view === "mensual" ? getMonth(inc.creation_date) : getYear(inc.creation_date),
       y: tipoToY[inc.type],
       type: inc.type,
       fecha: inc.creation_date,
     }));
-  }, [data, view, tipoToY]);
+  }, [filteredData, view, tipoToY]);
 
-  // Legend: cuántos de cada tipo
+  // Legend: cuántos de cada tipo en los datos filtrados
   const legendInfo = useMemo(() => {
     const sumas = {};
     tipos.forEach(tipo => sumas[tipo] = 0);
-    data.forEach(inc => {
+    filteredData.forEach(inc => {
       sumas[inc.type] += 1;
     });
     const total = Object.values(sumas).reduce((acc, val) => acc + val, 0);
@@ -75,16 +84,21 @@ function AgentEstadistic({ data }) {
       value: sumas[tipo],
       percent: total ? ((sumas[tipo] / total) * 100).toFixed(1) : 0,
     })).filter(entry => entry.value > 0);
-  }, [data, tipos]);
+  }, [filteredData, tipos]);
 
   const total = legendInfo.reduce((acc, curr) => acc + curr.value, 0);
-  const xValues = view === "mensual" ? months : years;
+  const xValues = view === "mensual"
+    ? Array.from(new Set(filteredData.map(inc => getMonth(inc.creation_date))))
+        .sort((a, b) => a.localeCompare(b))
+    : Array.from(new Set(filteredData.map(inc => getYear(inc.creation_date))))
+        .sort((a, b) => a - b);
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-center">
         Incidencias individuales ({view === "mensual" ? "mensual" : "anual"})
       </h2>
+      {/* Filtros */}
       <div className="flex flex-wrap gap-3 mb-5 justify-center items-center">
         <select
           className="rounded-xl border px-3 py-1"
@@ -93,6 +107,26 @@ function AgentEstadistic({ data }) {
         >
           <option value="mensual">Mensual</option>
           <option value="anual">Anual</option>
+        </select>
+        <select
+          className="rounded-xl border px-3 py-1"
+          value={filtroTipo}
+          onChange={e => setFiltroTipo(e.target.value)}
+        >
+          <option value="">Todos los tipos</option>
+          {tipos.map(tipo => (
+            <option key={tipo} value={tipo}>{tipo}</option>
+          ))}
+        </select>
+        <select
+          className="rounded-xl border px-3 py-1"
+          value={filtroAnio}
+          onChange={e => setFiltroAnio(e.target.value)}
+        >
+          <option value="">Todos los años</option>
+          {years.map(y => (
+            <option key={y} value={y}>{y}</option>
+          ))}
         </select>
       </div>
 

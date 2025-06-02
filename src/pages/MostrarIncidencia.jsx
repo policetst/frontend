@@ -94,7 +94,7 @@ function MostrarIncidencia() {
         />
       </div>
 
-      {/* Listado filtrado */}
+      {/* incident filter */}
       <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-4">
         {incidenciasFiltradas.map((incidencia) => (
           <div
@@ -111,7 +111,7 @@ function MostrarIncidencia() {
             </div>
             <h4 className="text-lg font-semibold mb-1">Código: {incidencia.code}</h4>
             <p className="text-sm text-gray-700 mb-2"><strong>Tipo:</strong> {incidencia.type}</p>
-            <p className="text-sm text-gray-700 mb-2 w-full"><strong>Descripción:</strong> {incidencia.description}</p>
+            <p className="text-sm text-gray-700 mb-2 w-2/3"><strong>Descripción:</strong> {incidencia.description}</p>
             <div className="text-sm text-gray-600 mb-2">
               <p><strong>Creado por:</strong> {incidencia.creator_user_code}</p>
               <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>
