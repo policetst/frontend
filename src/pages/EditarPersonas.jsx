@@ -1,26 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import PeopleCard from '../components/PeopleCard';
-
+import React from 'react';
+import PeopleCard from '../components/PeopleCard'
 function Personas() {
-  document.title = "Personas";
-
-  const [people, setPeople] = useState([]);
-
-  // Llamar a la API al cargar
-  useEffect(() => {
-    fetch('http://localhost:4000/people') // asegúrate de que esta URL apunte a tu backend correctamente
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok) {
-          setPeople(data.data);
-        } else {
-          console.error('Error al obtener personas:', data.message);
-        }
-      })
-      .catch(err => {
-        console.error('Error de red:', err);
-      });
-  }, []);
+  document.title = "Personas"
 
   return (
     <div>
@@ -32,14 +13,14 @@ function Personas() {
             <h2 className="text-2xl font-bold mt-4">Personas</h2>
             <hr className="border-t border-gray-300 my-4"/>
           </div>
-          {/* Titulo en móviles */}
+          {/* Titulo en moviles */}
           <div className="block md:hidden">
             <h2 className="text-2xl font-bold flex justify-center">Personas</h2>
             <hr className="border-t border-gray-300 my-4"/>
           </div>
 
-          {/* Tarjetas */}
           <div className='grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-1 gap-6'>
+
             {people.map((persona) => (
               <PeopleCard 
                 key={persona.dni}
@@ -51,11 +32,10 @@ function Personas() {
               />
             ))}
           </div>
-          
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default Personas;
+export default Personas
