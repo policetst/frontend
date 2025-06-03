@@ -1,7 +1,7 @@
 import React from 'react'
 import Card from '../components/Card'
 function PaginaPrincipal() {
-  document.title = "Pagina Principal"
+  document.title = "SIL Tauste"
 
 
   

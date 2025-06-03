@@ -4,6 +4,7 @@ import AgentsStatsPanel from '../components/AgentsStatsPanel'
 import { getUserInfo, getIncidents } from '../funcs/Incidents';
 
 function Estadisticas() {
+  document.title = "SIL Tauste - Estadisticas"
   const [userinfo, setUserInfo] = useState([]);
   document.title = "SIL Tauste - Estadísticas";
   const [incidents, setIncidents] = useState([]);
@@ -28,6 +29,7 @@ console.log("incidents", incidents);
       <AgentEstadistic data={userinfo} />
       <AgentsStatsPanel incidents={incidents} />
     </div>
+    
   )
 }
 

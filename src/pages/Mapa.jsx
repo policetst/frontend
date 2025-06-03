@@ -33,40 +33,52 @@ function Mapa() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mt-4 text-center">Mapa</h2>
+      <div className="flex justify-center">
+        <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8 text-gray-800">
 
-      <input
-        type="text"
-        placeholder="Buscar por número de incidencia"
-        value={search}
-        onChange={handleSearchChange}
-        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
-      />
-      <select
-  value={selectedType}
-  onChange={(e) => setSelectedType(e.target.value)}
-  className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
->
-  <option value="">Filtrar por tipo</option>
-  {[...new Set(incidents.map(i => i.type))].map(type => (
-    <option key={type} value={type}>{type}</option>
-  ))}
-</select>
+          {/* Titulo en escritorio o tablet */}
+          <div className="hidden xl:block">
+              <h2 className="text-2xl font-bold">Mapa</h2>
+              <hr className="border-t border-gray-300 my-4"/>
+          </div>
+          {/* Titulo en móviles */}
+          <div className="block xl:hidden">
+              <h2 className="text-2xl font-bold flex justify-center">Mapa</h2>
+              <hr className="border-t border-gray-300 my-4"/>
+          </div>
+
+        <input
+          type="text"
+          placeholder="Buscar por número de incidencia"
+          value={search}
+          onChange={handleSearchChange}
+          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
+        />
+        <select
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+          >
+          <option value="">Filtrar por tipo</option>
+            {[...new Set(incidents.map(i => i.type))].map(type => (
+          <option key={type} value={type}>{type}</option>
+          ))}
+        </select>
 
 
-      <div className="mt-6 h-[500px] w-full">
-        <MapContainer
-          center={[41.98, -1.27]}
-          zoom={13}
-          scrollWheelZoom={true}
-          style={{
+        <div className="mt-6 h-[500px] w-full">
+          <MapContainer
+            center={[41.98, -1.27]}
+            zoom={13}
+            scrollWheelZoom={true}
+            style={{
             height: '100%',
             width: '100%',
             zIndex: 0,
             borderRadius: '0.5rem',
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-          }}
-        >
+            }}
+          >
           <TileLayer
             attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -92,9 +104,11 @@ function Mapa() {
                   {incident.description}
                 </Popup>
               </Marker>
-            );
+          );
           })}
-        </MapContainer>
+          </MapContainer>
+        </div>
+        </div>
       </div>
     </div>
   );

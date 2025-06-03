@@ -1,17 +1,27 @@
   import React, { useState, useEffect } from 'react';
-  import { Link, Outlet } from 'react-router-dom';
+  import { useNavigate, Link, Outlet } from 'react-router-dom';
   import { useCookies } from 'react-cookie';
   import '../index.css';
-  import { Menu, X, User, LogOut, Home, Settings } from 'lucide-react';
-  import { CircleUserRound } from 'lucide-react';
-  import { Users } from 'lucide-react';
-  import { NotebookPen } from 'lucide-react';
-  import { Newspaper } from 'lucide-react';
-  import { Map } from 'lucide-react';
-  import { ChartColumn } from 'lucide-react';
-  import { House } from 'lucide-react';
-  import { BellRing } from 'lucide-react';
-  import { useNavigate } from 'react-router-dom';
+  import {
+    Menu,
+    X,
+    User,
+    LogOut,
+    Home,
+    Settings,
+    CircleUserRound,
+    Users,
+    NotebookPen,
+    Newspaper,
+    Map,
+    ChartColumn,
+    House,
+    BellRing,
+    CarFront,
+  } from 'lucide-react';
+
+
+
   function Layout() {
     const user_code = localStorage.getItem('username');
     const [cookies, setCookie] = useCookies(['user']);
@@ -66,14 +76,8 @@
             {/* Sidebar Header */}
             <div className="flex justify-center px-4 py-4 bg-[#002856] border-b">
               <img src="/SIL-logo-tech.png" alt="Logo de SIL Tauste" style={{ width: '255px', height: '115px' }}/>
-              {/* <button
-                className="text-gray-600 hover:text-gray-800"
-                onClick={toggleSidebar}
-                aria-label="Cerrar menú"
-              >
-                <X className="w-6 h-6" />
-              </button> */}
             </div>
+            
 
             {/* Sidebar Menu */}
             <nav className="flex flex-col flex-1 justify-between py-6">
@@ -116,6 +120,16 @@
                   >
                     <Users className="mr-3 w-5 h-5" /> 
                     Personas
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/vehiculos"
+                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
+                    onClick={closeSidebar}
+                  >
+                    <CarFront className="mr-3 w-5 h-5" />
+                    Vehiculos
                   </Link>
                 </li>
                 <li>
@@ -233,8 +247,23 @@
 
           </header>
 
+          {/* Mostrar usuario actual */}
+          <div className="h-10 w-full">
+            <div className="h-10 flex items-center justify-center sm:justify-end text-gray-900 px-4">
+              {/* <CircleUserRound className="mr-2 w-5 h-5" /> */}
+              <p className="pr-1.5">Agente:</p>
+              <Link
+                to="/perfil"
+                className="text-gray-900 hover:text-cyan-500 transition"
+                onClick={closeSidebar}
+              >
+                {user_code}
+              </Link>
+            </div>
+          </div>
+
           {/* Main Content */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
+          <main className="flex-1 overflow-y-auto bg-gray-50">
             <Outlet />
           </main>
 
