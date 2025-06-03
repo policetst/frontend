@@ -16,6 +16,7 @@ export default function GestionUsuarios() {
     }));
   };
   const handleSubmit = async (e) => {
+    alert('Formulario enviado');
     console.log('Submitting form with data:', formData);
     
     e.preventDefault();

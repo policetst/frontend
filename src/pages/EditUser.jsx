@@ -22,7 +22,8 @@ function EditUser() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    alert('¡Atención! Esta acción actualizará los datos del usuario.');
+  
     console.log('Submitting form with data:', formData);
     try {
       const updated = await updateUserDetails(code, formData);
