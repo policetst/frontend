@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail
- } from '../funcs/Incidents';
+import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL || 'http://localhost:4000/upload';
 import ImageUpload from './ImageUpload';
@@ -10,14 +9,11 @@ import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 import Mapview from './Map';
 
-
 const FormularioIncidencia = () => {
-  const user_code = localStorage.getItem('username'); //** get the logged user code from local storage to use it in the form */
+  const user_code = localStorage.getItem('username');
   const [cookies] = useCookies(['user']);
-  console.log('FormularioIncidencia');
-  
   const [location, setLocation] = useState('');
-  const  [res, setRes] = useState(null);
+  const [res, setRes] = useState(null);
   const [form, setForm] = useState({
     status: 'Open',
     location: '',
@@ -35,10 +31,11 @@ const FormularioIncidencia = () => {
     last_name2: '',
     phone_number: ''
   });
-  const navigate = useNavigate();
   const [nuevoVehiculo, setNuevoVehiculo] = useState({ brand: '', model: '', color: '', license_plate: '' });
   const [selectedImages, setSelectedImages] = useState([]);
-//useefect to put the location in the form
+  const navigate = useNavigate();
+
+  // Set location on mount and when location changes
   useEffect(() => {
     setForm(prev => ({
       ...prev,
@@ -82,10 +79,7 @@ const FormularioIncidencia = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //! check brigade_field
 
-
-    // * validation of the required fields
     const camposObligatorios = [
       { campo: 'type', label: 'Tipo de incidencia' },
       { campo: 'description', label: 'Descripción' },
@@ -103,7 +97,6 @@ const FormularioIncidencia = () => {
       return;
     }
 
-    // Validación de campos obligatorios en personas
     for (let i = 0; i < personas.length; i++) {
       const p = personas[i];
       if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number) {
@@ -118,7 +111,6 @@ const FormularioIncidencia = () => {
       }
     }
 
-    // Validación de campos obligatorios en vehículos
     for (let i = 0; i < vehiculos.length; i++) {
       const v = vehiculos[i];
       if (!v.brand || !v.model || !v.color || !v.license_plate) {
@@ -133,20 +125,18 @@ const FormularioIncidencia = () => {
       }
     }
 
-    // * upload images to /uploads
     let uploadedImageUrls = [];
     for (const file of selectedImages) {
       const formData = new FormData();
       formData.append('file', file);
       try {
-            const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
+        const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${cookies.user.token || getTokenFromCookie()}`,
           }
         });
 
-        console.log('Response from image upload:', res.data);
         if (res.data && res.data.file && res.data.file.url) {
           uploadedImageUrls.push(res.data.file.url);
         }
@@ -155,7 +145,6 @@ const FormularioIncidencia = () => {
       }
     }
 
-    // * add images to the existing form
     const formToSend = {
       ...form,
       people: personas,
@@ -166,15 +155,13 @@ const FormularioIncidencia = () => {
     try {
       const response = await postIncident(formToSend);
       if (response.ok) {
-              if (form.brigade_field === true) {
+        if (form.brigade_field === true) {
           try {
-            await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, uploadedImageUrls);
-            console.log('Correo enviado con éxito');
+            await sendIncidentViaEmail('unaicompaired@iesrioarba.es', form.description, form.location, uploadedImageUrls);
           } catch (error) {
             console.error('Error al enviar el correo:', error);
           }
         }
-        // * show success message
         const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'success',
@@ -234,6 +221,7 @@ const FormularioIncidencia = () => {
       setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
     }
   };
+
   const eliminarPersona = (index) => {
     setPersonas(prev => prev.filter((_, i) => i !== index));
   };
@@ -248,25 +236,23 @@ const FormularioIncidencia = () => {
         {/* Datos de registro */}
         <div>
           <div className="flex justify-center md:justify-end">
-            
-            {/* Fecha y hora (sin segundos) */}
+            {/* Fecha y hora */}
             <div className="flex items-center h-8">
               <p className="font-semibold mr-2">Fecha y hora:</p>
               <p>{new Date().toLocaleString(
                 undefined, {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </p>
             </div>
           </div>
-          <hr className="border-t border-gray-300 my-4"/>
+          <hr className="border-t border-gray-300 my-4" />
 
           <h3 className="text-xl font-bold mb-4">Datos esenciales</h3>
-
           <div className="mb-4">
             <label className="block font-medium">Coordenadas</label>
             <input
@@ -279,7 +265,6 @@ const FormularioIncidencia = () => {
             />
             <Mapview chords={form.location} />
           </div>
-
           <div className="mb-4">
             <label className="block font-medium">Tipo de incidencia</label>
             <select
@@ -296,7 +281,6 @@ const FormularioIncidencia = () => {
               ))}
             </select>
           </div>
-
           <div className="mb-4">
             <label className="block font-medium">Descripción</label>
             <textarea
@@ -308,7 +292,6 @@ const FormularioIncidencia = () => {
               placeholder="Escribe una descripción detallada..."
             />
           </div>
-
           <div className="flex items-center mb-4">
             <input
               type="checkbox"
@@ -323,7 +306,6 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 my-4" />
 
         {/* Sección personas */}
-        
         <div>
           <h3 className="text-xl font-bold mb-2">Personas</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-2">
@@ -371,28 +353,21 @@ const FormularioIncidencia = () => {
           >
             Añadir persona
           </button>
-
           {personas.length > 0 && (
             <ul className="space-y-2 mt-2 text-sm">
               {personas.map((p, i) => (
                 <li key={i}>
                   <div className="flex justify-between items-center bg-gray-100 p-3 rounded">
-                    
-                    {/* Los datos de la persona */}
                     <span className="flex flex-col flex-1 min-w-0">
                       <span className="truncate text-lg font-medium">{p.first_name} {p.last_name1} {p.last_name2}</span>
                       <span className="text-sm">{p.dni} - {p.phone_number}</span>
                     </span>
-                    
-                    {/* Boton para retirar la persona. Version escritorio o tablet */}
                     <button
                       onClick={() => eliminarPersona(i)}
                       className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       X
                     </button>
-                    
-                    {/* Boton para retirar la persona. Version movil */}
                     <button
                       onClick={() => eliminarPersona(i)}
                       className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
@@ -447,30 +422,23 @@ const FormularioIncidencia = () => {
           >
             Añadir vehículo
           </button>
-
           {vehiculos.length > 0 && (
             <ul className="space-y-2 mt-2 text-sm">
               {vehiculos.map((v, i) => (
                 <li key={i}>
                   <div className="flex justify-between items-center bg-gray-100 p-3 rounded">
-
-                    {/* Datos de vehiculo añadido */}
                     <span className="flex flex-col flex-1 min-w-0">
                       <span className="truncate text-lg font-medium">{v.brand} {v.model}</span>
                       <span className="text-sm">{v.license_plate} - {v.color}</span>
                     </span>
-
-                    {/* Boton para retirar vehiculo. Version escritorio o tablet */}
                     <button
-                      onClick={() => eliminarVehiculo(i)} 
+                      onClick={() => eliminarVehiculo(i)}
                       className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       X
                     </button>
-
-                    {/* Boton para retirar vehiculo. Version movil */}
                     <button
-                      onClick={() => eliminarVehiculo(i)} 
+                      onClick={() => eliminarVehiculo(i)}
                       className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       Eliminar
@@ -498,4 +466,5 @@ const FormularioIncidencia = () => {
     </div>
   );
 };
+
 export default FormularioIncidencia;

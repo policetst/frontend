@@ -1,10 +1,26 @@
 import React, {useState} from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios';
 
 function ForgotPassword() {
+
     document.title = "Recuperar contraseña"
      const [email, setEmail] = useState('');
-     /*
+     
+     /**
+      * resetPassword function to send a request to the backend to reset the password
+      * @returns {Promise<void>}
+      */
+     const resetPassword = (email)=> {
+  axios.post('https://arbadev-back-joq0.onrender.com/users/resetpassword', { email })
+    .then(response => {
+      alert(response.data);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+}
+     /**
      maneja el evento de cambio del input de correo electrónico
      @param {Event} e - evento de cambio
      @returns {void}
@@ -20,7 +36,11 @@ function ForgotPassword() {
      */
     const handleSubmit = (e) => {
         e.preventDefault();
-    alert('Se ha enviado un correo electrónico a ' + email + ' para restablecer tu contraseña');
+        if (email.trim() === '') {
+            alert('Por favor, introduce un correo electrónico válido.');
+            return;
+        }
+        resetPassword(email);
     }
   return (
     <div>

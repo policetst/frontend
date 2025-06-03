@@ -26,8 +26,8 @@
     const user_code = localStorage.getItem('username');
     const [cookies, setCookie] = useCookies(['user']);
     const navigate = useNavigate();
-    useEffect(() => {
-      if (!cookies.user && !user_code) {
+    useEffect(() => {      
+      if (cookies.token == "" || user_code == "") {
         navigate('/login');
       }
     }, [cookies, navigate]);
@@ -54,7 +54,7 @@
     };
 
     return (
-      <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-screen bg-gray-50 overflow-hidden dark">
         {/* Overlay for mobile and desktop sidebar */}
         {isSidebarOpen && (
           <div
