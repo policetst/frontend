@@ -4,7 +4,6 @@ import Swal from 'sweetalert2';
 import emailjs from 'emailjs-com';
 
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
-const USERS_URL = import.meta.env.VITE_USERS_URL || 'http://localhost:4000/users';
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
 
 //*Function to get the user's token from the cookie (sin hooks)

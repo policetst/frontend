@@ -635,6 +635,24 @@ disabled={form.status === 'Closed' ? true : false}
         )}
       </div>
       <hr />
+ {/* teammate */}
+ <div className="mb-4 flex flex-col items-start">
+        <h2 className="text-xl font-bold mb-2">Compañero</h2>
+        <input
+          type="text"
+          placeholder="Nombre del compañero"
+          value={form.teammate || ''}
+          onChange={e => setForm({ ...form, teammate: e.target.value })}
+          className="p-2 border rounded-md w-full"
+        />
+        <button
+          type="button"
+          onClick={() => setForm({ ...form, teammate: '' })}
+          className="ml-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 mt-2"
+        >
+          Añadir
+        </button>
+ </div>
       {/* Sección de imágenes */}
       <div>
         <h2 className="text-xl font-bold mb-2">

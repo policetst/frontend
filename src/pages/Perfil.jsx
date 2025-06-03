@@ -1,14 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Pencil } from 'lucide-react';
+import { getUserRole, getUserDetails, getAllUsers } from '../funcs/Users';
 
 export default function GestionUsuarios() {
+  const [username, setUsername] = useState('');
+  const [userRole, setUserRole] = useState('Standard');
   const [temaClaro, setTemaClaro] = useState(true);
 
-  const usuarios = [
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: true },
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: false },
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: true },
-  ];
+  const [usuarios, setUsuarios] = useState([]);
+
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    setUsername(username || 'Usuario');
+
+    const fetchUserRole = async () => {
+      const role = await getUserRole(username);
+      setUserRole(role || 'Standard');
+    };
+    fetchUserRole();
+
+    const fetchUsuarios = async () => {
+      const allUsers = await getAllUsers();
+      setUsuarios(allUsers);
+    };
+    fetchUsuarios();
+  }, []);
 
   return (
     <div>
