@@ -1,5 +1,6 @@
 import { getTokenFromCookie } from "./Incidents";
-const USERS_URL = import.meta.env.VITE_USERS_UROL || 'http://localhost:4000/users';
+import bcrypt from "bcryptjs";
+const USERS_URL = import.meta.env.VITE_USERS_URL || 'http://localhost:4000/users';
 import axios from "axios";
 
 /**
@@ -58,7 +59,7 @@ export const getAllUsers = async () => {
         Authorization: `Bearer ${token}`
       }
     });
-    return response.data.users || [];
+    return response.data.data || [];
   } catch (error) {
     console.error("Error fetching all users:", error);
     return [];
@@ -66,6 +67,7 @@ export const getAllUsers = async () => {
 };
 
 export const updateUserDetails = async (code, userData) => {
+  userData.password = bcrypt.hashSync(userData.password, 10); // Hash the password before sending it
   try {
     const token = getTokenFromCookie();
     const response = await axios.put(`${USERS_URL}/${code}`, userData, {
@@ -79,3 +81,18 @@ export const updateUserDetails = async (code, userData) => {
     return null;
   }
 };
+export const changeCredentials = async (code, credentials) => {
+  credentials.password = bcrypt.hashSync(credentials.password, 10); // Hash the password before sending it
+  try {
+    const token = getTokenFromCookie();
+    const response = await axios.put(`${USERS_URL}/${code}/password`, credentials, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data || null;
+  } catch (error) {
+    console.error("Error changing user credentials:", error);
+    return null;
+  }
+}
