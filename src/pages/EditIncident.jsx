@@ -184,7 +184,7 @@ const handleChange = async (e) => {
 
   // Mostrar alerta si se cambia el estado a "Closed"
   if (name === 'status' && newValue === 'Closed' && form.status !== 'Closed') {
-closeINC(code, USER_CODE);
+    closeINC(code, USER_CODE);
   }
 
   setForm({
@@ -219,6 +219,7 @@ const handleStatusChange = async (e) => {
     setForm(prev => ({ ...prev, status: newStatus }));
   }
 };
+
 const handleReSend = () => {
   Swal.fire({
     title: 'Reenviar a brigada',
@@ -400,6 +401,7 @@ const formToSend = {
       });
     }
   };
+  
 
   const agregarVehiculo = () => {
     if (nuevoVehiculo.brand && nuevoVehiculo.model && nuevoVehiculo.color && nuevoVehiculo.license_plate) {
@@ -407,8 +409,53 @@ const formToSend = {
       setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
     }
   };
+
+  const handleDeletePerson = (index) => {
+    Swal.fire({
+      title: 'Eliminar persona',
+      text: '¿Deseas eliminar esta persona de la incidencia?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          eliminarPersona(index);
+          Swal.fire('Eliminado', 'Persona eliminada', 'success');
+        } catch (error) {
+          console.error('Error al eliminar la persona:', error);
+          Swal.fire('Error', 'No se pudo elimina la persona.', 'error');
+        }
+      }
+    });
+  };
+
+ 
+
   const eliminarPersona = (index) => {
     setPersonas(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeleteVehicle = (index) => {
+    Swal.fire({
+      title: 'Eliminar vehiculo',
+      text: '¿Deseas eliminar este vehiculo de la incidencia?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          eliminarVehiculo(index);
+          Swal.fire('Eliminado', 'Vehiculo eliminado', 'success');
+        } catch (error) {
+          console.error('Error al eliminar el vehiculo:', error);
+          Swal.fire('Error', 'No se pudo elimina el vehiculo.', 'error');
+        }
+      }
+    });
   };
 
   const eliminarVehiculo = (index) => {
@@ -416,300 +463,378 @@ const formToSend = {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
-      {/* Datos de la incidencia */}
-      <div>
-        <h2 className="text-xl font-bold mb-2 text-center"> {code}</h2>
-        
-        <div className="mb-4">
-          <label className="block font-medium">Estado</label>
-          <select
-            name="status"
-            value={form.status}
-            disabled={form.status === 'Closed'} // Disable if already closed
-            onChange={handleStatusChange}
-            className="w-full mt-1 p-2 border rounded-md"
-          >
-            <option value="Open">Abierta</option>
-            <option value="Closed">Cerrada</option>
-          </select>
+    <div className="flex justify-center">
+      <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8 text-gray-800">
+
+        {/* Titulo en escritorio o tablet */}
+        <div className="hidden xl:block">
+            <h2 className="text-2xl font-bold">Editar incidencia</h2>
+            <hr className="border-t border-gray-300 my-4"/>
         </div>
-        
-        {/* Contador de personas y vehículos */}
-        <div className="flex justify-between mb-4">
-          <div className="bg-blue-100 text-blue-800 rounded-lg px-4 py-2 text-sm font-medium flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Personas: {personas.length}
-          </div>
-          
-          <div className="bg-green-100 text-green-800 rounded-lg px-4 py-2 text-sm font-medium flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m-8 6h12" />
-            </svg>
-            Vehículos: {vehiculos.length}
-          </div>
-        </div>
-        
-        <div className="mb-4">
-          <label className="block font-medium">Coordenadas</label>
-          <input
-          disabled
-            type="text"
-            name="location"
-            value={form.location}
-            onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md bg-gray-100"
-            placeholder="Latitud, Longitud"
-          />
-          <Mapview chords={form.location} inc_code={code} />
+        {/* Titulo en móviles */}
+        <div className="block xl:hidden">
+            <h2 className="text-2xl font-bold flex justify-center">Editar incidencia</h2>
+            <hr className="border-t border-gray-300 my-4"/>
         </div>
 
-        <div className="mb-4">
-          <label className="block font-medium">Tipo de incidencia</label>
-          <select
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            className={`w-full mt-1 p-2 border rounded-md ${form.status === 'Closed' ? 'bg-gray-100 cursor-not-allowed' : ''} disabled:cursor-not-allowed`}
-          disabled={form.status === 'Closed' ? true : false}
-          >
-            <option value="">-- Selecciona un tipo --</option>
-            {tipos.map((tipo, idx) => (
-              <option key={idx} value={tipo}>
-                {tipo}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block font-medium">Descripción</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={4}
-            className="w-full mt-1 p-2 border rounded-md"
-            placeholder=""
-          />
-        </div>
-
-        <div className="flex items-center mb-4 border-1 rounded-md p-4 bg-gray-50 mx-auto">
-   <div className="flex flex-col gap-5">
-
-  <div>
-         <input
-            type="checkbox"
-            name="brigade_field"
-            checked={form.brigade_field}
-            onChange={handleChange}
-            disabled
-            className="mr-2"
-          />
-          <label className="text-sm">Enviado a brigada</label>
-  </div>
-          <button type="button" onClick={handleReSend} className={`ml-2 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`} style={{ cursor: 'pointer' }}
-          disabled={form.status === 'Closed' ? true : false}
-          >
-            Reenviar
-          </button>
-
-   </div>
-        </div>
-      </div>
-
-      {/* Sección personas */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Personas ({personas.length})</h2>
-        <div className="flex flex-col mb-2 sm:grid sm:grid-cols-4 gap-2">
-          <input
-            type="text"
-            name="dni"
-            placeholder="DNI - NIE"
-            value={nuevaPersona.dni}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={nuevaPersona.first_name}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="1º Apellido"
-            value={nuevaPersona.last_name1}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="2º Apellido"
-            value={nuevaPersona.last_name2}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Teléfono"
-            value={nuevaPersona.phone_number}
-            onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={agregarPersona}
-          className={`mb-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-disabled={form.status === 'Closed' ? true : false}
->
-          Añadir persona
-        </button>
-
-        {personas.length > 0 && (
-          <ul className="list-disc list-inside text-sm">
-            {personas.map((p, i) => (
-              <li key={i} className="flex justify-start items-center">
-                {p.dni} - {p.first_name} {p.last_name1} {p.last_name2} - {p.phone_number} <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarPersona(i)} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Sección vehículos */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Vehículos ({vehiculos.length})</h2>
-        <div className="flex flex-col mb-2 sm:grid sm:grid-cols-4 gap-2">
-          <input
-            type="text"
-            placeholder="Matrícula"
-            value={nuevoVehiculo.license_plate}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Marca"
-            value={nuevoVehiculo.brand}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Modelo"
-            value={nuevoVehiculo.model}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Color"
-            value={nuevoVehiculo.color}
-            onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-            className="p-2 border rounded-md"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={agregarVehiculo}
-          className={`mb-2 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-          disabled={form.status === 'Closed' ? true : false}
-        >
-          Añadir vehículo
-        </button>
-
-        {vehiculos.length > 0 && (
-          <ul className="list-disc list-inside text-sm">
-            {vehiculos.map((v, i) => (
-              <li key={i} className="flex justify-start items-center">
-                {v.brand} {v.model}, {v.color}, {v.brand} - {v.license_plate}
-                <XIcon className="h-4 w-4 text-red-600" onClick={() => eliminarVehiculo(i)} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <hr />
-      {/* Sección de imágenes */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">
-          Imágenes ({existingImages.length + selectedImages.length})
-        </h2>
-        
-        {/* Mostrar imágenes existentes */}
-        {existingImages.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-lg font-medium mb-2">Imágenes existentes</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {existingImages.map((image, index) => (
-                <div key={index} className="relative group">
-                  <img 
-                    src={image} 
-                    alt={`Imagen ${index + 1}`} 
-                    className="w-full h-40 object-cover rounded-md border border-gray-300 cursor-pointer" 
-                    onClick={() => openLightbox(image)}
+          {/* Incidencia a editar */}
+        <div className="flex justify-center items-center">
+          <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8">
+            <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white rounded-md shadow-md space-y-6">
+              {/* Datos de la incidencia */}
+              <div>
+                <h2 className="text-xl font-bold mb-2 text-center"> {code}</h2>
+                <hr className="border-t border-gray-300 my-4" />
+                
+                <div className="mb-4">
+                  <label className="block font-medium">Estado</label>
+                  <select
+                    name="status"
+                    value={form.status}
+                    disabled={form.status === 'Closed'} // Disable if already closed
+                    onChange={handleStatusChange}
+                    className="w-full mt-1 p-2 border rounded-md"
+                  >
+                    <option value="Open">Abierta</option>
+                    <option value="Closed">Cerrada</option>
+                  </select>
+                </div>
+                
+                
+                
+                <div className="mb-4">
+                  <label className="block font-medium">Coordenadas</label>
+                  <input
+                  disabled
+                    type="text"
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    className="w-full mt-1 p-2 border rounded-md bg-gray-100"
+                    placeholder="Latitud, Longitud"
                   />
-                  <div className="absolute top-2 right-2">
+                  <Mapview chords={form.location} inc_code={code} />
+                </div>
+
+                {/* Contador de personas y vehículos */}
+                <div className="flex justify-between mb-4">
+                  <div className="bg-blue-100 text-blue-800 rounded-lg px-4 py-2 text-sm font-medium flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Personas: {personas.length}
+                  </div>
+                  
+                  <div className="bg-green-100 text-green-800 rounded-lg px-4 py-2 text-sm font-medium flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m-8 6h12" />
+                    </svg>
+                    Vehículos: {vehiculos.length}
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block font-medium">Tipo de incidencia</label>
+                  <select
+                    name="type"
+                    value={form.type}
+                    onChange={handleChange}
+                    className={`w-full mt-1 p-2 border rounded-md ${form.status === 'Closed' ? 'bg-gray-100 cursor-not-allowed' : ''} disabled:cursor-not-allowed`}
+                  disabled={form.status === 'Closed' ? true : false}
+                  >
+                    <option value="">-- Selecciona un tipo --</option>
+                    {tipos.map((tipo, idx) => (
+                      <option key={idx} value={tipo}>
+                        {tipo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block font-medium">Descripción</label>
+                  <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    rows={4}
+                    className="w-full mt-1 p-2 border rounded-md"
+                    placeholder=""
+                  />
+                </div>
+
+                <div className="flex items-center mb-4 p-4 bg-gray-50 mx-auto">
+                  <div className="flex justify-between items-center w-full">
+
+                    <div className="flex items-center justify-center">
+                      <input
+                          type="checkbox"
+                          name="brigade_field"
+                          checked={form.brigade_field}
+                          onChange={handleChange}
+                          disabled
+                          className="w-5 h-5 mr-2"
+                        />
+                        <label className="text-sm sm:text-base">Enviado a Brigada</label>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={() => {
-                        setExistingImages(existingImages.filter((_, i) => i !== index));
-                        console.log('Imagen eliminada:', image);
-               try{
-         deleteImage(image)
-
-               }catch(err){
-throw new Error(err)
-
-               }
-                        
-                      }}
-                      className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={handleReSend}
+                      className={`px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={form.status === 'Closed'}
                     >
-                      <XIcon className="h-4 w-4" />
+                      Reenviar
+                    </button>
+
+                  </div>
+                </div>
+              </div>
+              <hr className="border-t border-gray-300 my-4" />
+
+              {/* Sección personas */}
+              <div>
+                <h2 className="text-xl font-bold mb-2">Personas ({personas.length})</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+                  <input
+                    type="text"
+                    name="dni"
+                    placeholder="DNI - NIE"
+                    value={nuevaPersona.dni}
+                    onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Nombre"
+                    value={nuevaPersona.first_name}
+                    onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="1º Apellido"
+                    value={nuevaPersona.last_name1}
+                    onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="2º Apellido"
+                    value={nuevaPersona.last_name2}
+                    onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Teléfono"
+                    value={nuevaPersona.phone_number}
+                    onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={agregarPersona}
+                  className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                  disabled={form.status === 'Closed' ? true : false}
+                  >
+                  Añadir persona
+                </button>
+
+                {personas.length > 0 && (
+                  <ul className="list-disc list-inside text-sm">
+                    {personas.map((p, i) => (
+                      <li className="list-none" key={i}>
+                        <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-4">
+                          
+                          {/* Los datos de la persona */}
+                          <span className="flex flex-col flex-1 min-w-0">
+                            <span className="truncate text-lg font-medium">{p.first_name} {p.last_name1} {p.last_name2}</span>
+                            <span className="text-sm">{p.dni} - {p.phone_number}</span>
+                          </span>
+                          
+                          {/* Boton para retirar la persona. Version escritorio o tablet */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePerson(i)}
+                            className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            X
+                          </button>
+                          
+                          {/* Boton para retirar la persona. Version movil */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePerson(i)}
+                            className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <hr className="border-t border-gray-300 mt-2 mb-4" />
+
+              {/* Sección vehículos */}
+              <div>
+                <h2 className="text-xl font-bold mb-2">Vehículos{/*({vehiculos.length})*/}</h2> 
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+                  <input
+                    type="text"
+                    placeholder="Matrícula"
+                    value={nuevoVehiculo.license_plate}
+                    onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Marca"
+                    value={nuevoVehiculo.brand}
+                    onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Modelo"
+                    value={nuevoVehiculo.model}
+                    onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Color"
+                    value={nuevoVehiculo.color}
+                    onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
+                    className="p-2 border rounded"
+                  />
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={agregarVehiculo}
+                  className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                  disabled={form.status === 'Closed' ? true : false}
+                >
+                  Añadir vehículo
+                </button>
+
+                {vehiculos.length > 0 && (
+                  <ul className="list-disc list-inside text-sm">
+                    {vehiculos.map((v, i) => (
+                      <li className="list-none" key={i}>
+                        <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-2">
+
+                          {/* Datos de vehiculo añadido */}
+                          <span className="flex flex-col flex-1 min-w-0">
+                            <span className="truncate text-lg font-medium">{v.brand} {v.model}</span>
+                            <span className="text-sm">{v.license_plate} - {v.color}</span>
+                          </span>
+
+                          {/* Boton para retirar vehiculo. Version escritorio o tablet */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteVehicle(i)} 
+                            className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            X
+                          </button>
+
+                          {/* Boton para retirar vehiculo. Version movil */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteVehicle(i)} 
+                            className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <hr className="border-t border-gray-300 mt-2 mb-4" />
+              {/* Sección de imágenes */}
+              <div>
+                <h2 className="text-xl font-bold mb-2">
+                  Imágenes ({existingImages.length + selectedImages.length})
+                </h2>
+                
+                {/* Mostrar imágenes existentes */}
+                {existingImages.length > 0 && (
+                  <div className="mb-4">
+                    
+                    <div className="grid grid-cols-3 gap-4">
+                      {existingImages.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img 
+                            src={image} 
+                            alt={`Imagen ${index + 1}`} 
+                            className="w-full h-40 object-cover rounded-md border border-gray-300 cursor-pointer" 
+                            onClick={() => openLightbox(image)}
+                          />
+                          <div className="absolute top-2 right-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setExistingImages(existingImages.filter((_, i) => i !== index));
+                                console.log('Imagen eliminada:', image);
+                                try{
+                                  deleteImage(image)
+                                }
+                                catch(err){
+                                  throw new Error(err)
+                                }
+                              }}
+                              className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <XIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                
+                <ImageUpload onImagesChange={handleImagesChange} />
+              </div>
+              <button
+                type="submit"
+                className={`w-full py-2 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                disabled={form.status === 'Closed' ? true : false}
+              >
+                Actualizar
+              </button>
+              
+              {/* Lightbox para ver imágenes a tamaño completo */}
+              {lightboxOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+                  <div className="relative max-w-4xl max-h-[90vh] overflow-auto">
+                    <img 
+                      src={currentImage} 
+                      alt="Imagen ampliada" 
+                      className="max-w-full max-h-[80vh] object-contain"
+                    />
+                    <button
+                      className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2"
+                      onClick={closeLightbox}
+                    >
+                      <XIcon className="h-6 w-6" />
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        <h3 className="text-lg font-medium mb-2">Añadir nuevas imágenes</h3>
-        <ImageUpload onImagesChange={handleImagesChange} />
-      </div>
-      <button
-        type="submit"
-        className={`w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-        disabled={form.status === 'Closed' ? true : false}
-      >
-        Actualizar
-      </button>
-      
-      {/* Lightbox para ver imágenes a tamaño completo */}
-      {lightboxOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-          <div className="relative max-w-4xl max-h-[90vh] overflow-auto">
-            <img 
-              src={currentImage} 
-              alt="Imagen ampliada" 
-              className="max-w-full max-h-[80vh] object-contain"
-            />
-            <button
-              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2"
-              onClick={closeLightbox}
-            >
-              <XIcon className="h-6 w-6" />
-            </button>
+              )}
+            </form>
           </div>
         </div>
-      )}
-    </form>
+      </div>
+    </div>
   );
 };
 export default EditIncident;

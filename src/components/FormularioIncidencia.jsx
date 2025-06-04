@@ -168,7 +168,7 @@ const FormularioIncidencia = () => {
       if (response.ok) {
               if (form.brigade_field === true) {
           try {
-            await sendIncidentViaEmail('unaicompaired@iesrioarba.es', form.description, form.location, uploadedImageUrls);
+            await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, uploadedImageUrls);
             console.log('Correo enviado con éxito');
           } catch (error) {
             console.error('Error al enviar el correo:', error);
@@ -326,7 +326,7 @@ const FormularioIncidencia = () => {
         
         <div>
           <h3 className="text-xl font-bold mb-2">Personas</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
             <input
               type="text"
               name="dni"
@@ -367,7 +367,7 @@ const FormularioIncidencia = () => {
           <button
             type="button"
             onClick={agregarPersona}
-            className="mb-2 mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]"
+            className="mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
           >
             Añadir persona
           </button>
@@ -375,8 +375,8 @@ const FormularioIncidencia = () => {
           {personas.length > 0 && (
             <ul className="space-y-2 mt-2 text-sm">
               {personas.map((p, i) => (
-                <li key={i}>
-                  <div className="flex justify-between items-center bg-gray-100 p-3 rounded">
+                <li className="list-none" key={i}>
+                  <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-2">
                     
                     {/* Los datos de la persona */}
                     <span className="flex flex-col flex-1 min-w-0">
@@ -405,19 +405,83 @@ const FormularioIncidencia = () => {
             </ul>
           )}
         </div>
-        <hr className="border-t border-gray-300 my-4" />
+        <hr className="border-t border-gray-300 mt-2 mb-4" />
 
-        <div className="flex items-center mb-4">
-          <input
-            type="checkbox"
-            name="brigade_field"
-            checked={form.brigade_field}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label className="text-sm">enviar a brigada</label>
+        {/* Sección vehículos */}
+        <div>
+          <h2 className="text-xl font-bold mb-2">Vehículos</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+            <input
+              type="text"
+              placeholder="Matrícula"
+              value={nuevoVehiculo.license_plate}
+              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="brand"
+              value={nuevoVehiculo.brand}
+              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Model"
+              value={nuevoVehiculo.model}
+              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Color"
+              value={nuevoVehiculo.color}
+              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
+              className="p-2 border rounded"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={agregarVehiculo}
+            className="mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+          >
+            Añadir vehículo
+          </button>
+
+          {vehiculos.length > 0 && (
+            <ul className="list-disc list-inside text-sm">
+              {vehiculos.map((v, i) => (
+                <li className="list-none" key={i}>
+                  <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-2">
+
+                    {/* Datos de vehiculo añadido */}
+                    <span className="flex flex-col flex-1 min-w-0">
+                      <span className="truncate text-lg font-medium">{v.brand} {v.model}</span>
+                      <span className="text-sm">{v.license_plate} - {v.color}</span>
+                    </span>
+
+                    {/* Boton para retirar vehiculo. Version escritorio o tablet */}
+                    <button
+                      onClick={() => eliminarVehiculo(i)} 
+                      className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      X
+                    </button>
+
+                    {/* Boton para retirar vehiculo. Version movil */}
+                    <button
+                      onClick={() => eliminarVehiculo(i)} 
+                      className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <hr className="border-t border-gray-300 my-4" />
+        <hr className="border-t border-gray-300 mt-2 mb-4" />
 
         {/* Sección de imágenes */}
         <div>
@@ -426,7 +490,7 @@ const FormularioIncidencia = () => {
         </div>
         <button
           type="submit"
-          className="mb-2 mt-2 px-4 py-1 w-full bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]"
+          className="mb-2 mt-2 px-4 py-2 w-full bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
         >
           Crear incidencia
         </button>
