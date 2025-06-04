@@ -17,13 +17,18 @@ export default function GestionUsuarios() {
     }));
   };
   const handleSubmit = async (e) => {
-    alert('Formulario enviado');
     console.log('Submitting form with data:', formData);
     
     e.preventDefault();
     try {
       const updatedUser = await changeCredentials(username, formData);
       console.log('User updated:', updatedUser);
+ if (updatedUser) {
+        alert('Usuario actualizado correctamente');
+      }
+    else {
+        alert('Error al actualizar el usuario: complete todos los campos');
+      }
     } catch (error) {
       console.error('Error updating user:', error);
     }

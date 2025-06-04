@@ -22,12 +22,14 @@ function EditUser() {
   };
 
   const handleSubmit = async (e) => {
-    alert('¡Atención! Esta acción actualizará los datos del usuario.');
+    e.preventDefault();
+    // alert('¡Atención! Esta acción actualizará los datos del usuario.');
   
     console.log('Submitting form with data:', formData);
     try {
       const updated = await updateUserDetails(code, formData);
       console.log('User updated:', updated);
+      alert('Usuario actualizado correctamente');
     } catch (error) {
       console.error('Update failed:', error);
     }
