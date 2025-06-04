@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Pencil } from 'lucide-react';
 import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
+import AddUser from '../components/AddUser';
 
 export default function GestionUsuarios() {
   const [formData, setFormData] = useState({
@@ -148,9 +149,7 @@ export default function GestionUsuarios() {
         <div className={`space-y-4 ${userRole === 'Administrator' ? 'mt-8' : 'hidden'}`}>
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold pb-5">Gestionar usuarios</h2>
-            <button className="border border-blue-400 text-blue-500 rounded-full p-1">
-              <Plus className="w-5 h-5" />
-            </button>
+            <AddUser />
           </div>
 
           {/* Tarjetas de usuarios */}

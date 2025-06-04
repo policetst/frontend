@@ -96,3 +96,23 @@ export const changeCredentials = async (code, credentials) => {
     return null;
   }
 }
+/**
+ * Function to create a new user
+ * @param {Object} userData - The data for the new user
+ * @returns {Promise<Object>} - The created user data or an error message
+ */
+export const createUser = async (userData) => {
+  userData.password = bcrypt.hashSync(userData.password, 10); // Hash the password before sending it
+  try {
+    const token = getTokenFromCookie();
+    const response = await axios.post(`${USERS_URL}`, userData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data || null;
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return null;
+  }
+};
