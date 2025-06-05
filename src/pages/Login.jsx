@@ -197,9 +197,9 @@ function Login() {
                             tabIndex={-1}
                         >
                             {visible ? (
-                                <i className="ti ti-eye-off text-xl"></i>
+                       <EyeOff className="w-6 h-6 text-gray-500" />
                             ) : (
-                                <i className="ti ti-eye text-xl"></i>
+                       <Eye className="w-6 h-6 text-gray-500" />
                             )}
                         </button>
                       </div>
