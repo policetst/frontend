@@ -5,6 +5,18 @@ import Swal from 'sweetalert2';
 import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom'; // * import Link to handle the navigation between pages
 import '../index.css'; // * import the css file to style the components
+import { EyeOff, Eye } from 'lucide-react';
+
+
+
+
+
+
+
+
+
+
+
 function Login() {
     document.title = 'SIL Tauste - Login'; // * set the title of the page
     const [cookies, setCookie] = useCookies(['token']);
@@ -15,6 +27,12 @@ function Login() {
    
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [visible, setVisible] = useState(false); // * create a state to handle the visibility of the password input
+
+    //* this function toggles the visibility of the password input
+    const togglePasswordVisibility = () => {
+        setVisible(!visible);
+    }
     //* this function captures the username input and sets the username state
     const handleUsernameChange = (e) => {
         e.preventDefault();
@@ -90,8 +108,33 @@ function Login() {
                             <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                 <i className="ti ti-fingerprint text-xl"></i>
                             </div>
-                            <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
-                                className="w-full p-3 border rounded" />
+              <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600 w-full">
+  {/* Icono fingerprint a la izquierda */}
+  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+    <i className="ti ti-fingerprint text-xl"></i>
+  </div>
+{/* eye */}
+  <input
+    type={visible ? "text" : "password"}
+    onChange={handlePasswordChange}
+    value={password}
+    className="w-full p-3 pr-12 pl-10 border rounded"
+    placeholder=""
+  />
+  <button
+    type="button"
+    onClick={togglePasswordVisibility}
+    className="absolute top-1/2 right-3 -translate-y-1/2"
+    tabIndex={-1}
+  >
+    {visible ? (
+      <EyeOff className="w-6 h-6 text-gray-500" />
+    ) : (
+      <Eye className="w-6 h-6 text-gray-500" />
+    )}
+  </button>
+</div>
+
                         </div>
                     </div>
                     <div>
@@ -135,7 +178,7 @@ function Login() {
                 </div>
                 <div>
                         <div className="flex justify-between items-center">
-                            <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
+                            <label htmlFor="" className="text-base font-medium text-gray-900"> </label>
                         <Link to="/forgot"
                             className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
                     </div>
@@ -144,8 +187,22 @@ function Login() {
                             <i className="ti ti-fingerprint text-xl"></i>
                         </div>
 
-                        <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
+                      <div>
+                                                <input type="${visible ? 'text' : 'password'}" name="" id="" placeholder="" onChange={handlePasswordChange}
                             className="w-full p-3 border rounded" />
+                        <button
+                            type="button"
+                            onClick={togglePasswordVisibility}
+                            className="absolute top-1/2 right-3 -translate-y-1/2"
+                            tabIndex={-1}
+                        >
+                            {visible ? (
+                                <i className="ti ti-eye-off text-xl"></i>
+                            ) : (
+                                <i className="ti ti-eye text-xl"></i>
+                            )}
+                        </button>
+                      </div>
                     </div>
                 </div>
 
