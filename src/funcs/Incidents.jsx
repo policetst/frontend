@@ -325,8 +325,23 @@ const getUserInfo = async (code) => {
     return null;
   }
 };
+const getOpenIncidents = async () => {
+  try {
+    const token = getTokenFromCookie();
+    const res = await axios.get(`${INCIDENTS_URL}/open`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data.incidents || [];
+  } catch (error) {
+    console.error("Error fetching open incidents:", error);
+    return [];
+  }
+};
 
 export {
+  getOpenIncidents,
   getUserInfo,
   getUsers,
   deleteImage,

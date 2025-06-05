@@ -2,6 +2,7 @@
   import { useNavigate, Link, Outlet } from 'react-router-dom';
   import { useCookies } from 'react-cookie';
   import '../index.css';
+  import Notifications from '../components/Notifications';
   import {
     Menu,
     X,
@@ -42,8 +43,6 @@
     };
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [showTasks, setShowTasks] = useState(false);
-
     const toggleSidebar = () => {
       setIsSidebarOpen(!isSidebarOpen);
     };
@@ -177,7 +176,7 @@
           </div>
         </aside>
 
-        {/* Cabecera: Hamburguesa + titulo + botones(notificaciones, logout) */}
+        {/* header */}
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Hamburguesa */}
           <header className="relative flex items-center justify-between px-4 sm:px-6 py-3 bg-[#222831] text-white shadow-md">
@@ -202,39 +201,7 @@
             {/* Botones */}
             <div className="flex items-center space-x-6">
               {/* Campana de notificaciones */}
-              <div className="relative">
-                <button
-                  className="flex items-center justify-center text-gray-100 hover:text-cyan-500 transition w-6 h-6"
-                  onClick={() => setShowTasks(!showTasks)}
-                >
-                  <BellRing className="w-6 h-6" />
-                </button>
-
-                {/* Dropdown de tareas */}
-                {showTasks && (
-                  <div className="fixed top-16 right-4 w-64 bg-white rounded-md shadow-lg z-50 border border-zinc-400">
-                    <div className="p-4 border-b font-semibold text-gray-100 bg-[#002856]">
-                      Incidencias abiertas
-                    </div>
-                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-100 text-sm text-gray-700">
-                      <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
-                      <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
-                      <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
-                      <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
-                    </ul>
-                    <div className="p-2 text-center text-xs text-blue-500 hover:underline cursor-pointer">
-                      <Link
-                        to="/incidencia"
-                        className="px-2 py-1 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                        onClick={closeSidebar}
-                      >
-                        Ir a Mostrar incidencias
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-              </div>
+ <Notifications/>
 
               {/* Botón de logout */}
               <button
