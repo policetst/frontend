@@ -74,7 +74,7 @@ function PeopleCard({ dni, first_name, last_name1, last_name2, phone_number }) {
         {/* Botón para editar persona */}
         <div className="flex flex-col justify-center items-end flex-grow-0">
             <Link
-            to={`/people/${dni}`}
+            to={`/editarpersona/${dni}`}
             className="text-blue-600 hover:text-blue-800"
             >
             <PencilLine className="w-4 h-4" />

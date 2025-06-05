@@ -1,7 +1,11 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 function EditarVehiculo() {
   document.title = "SIL Tauste - Editar Vehiculo"; // Esto cambia el título de la pestaña del navegador
+  const {license_plate} = useParams()
+  console.log(license_plate)
+
 
   return (
     <div>

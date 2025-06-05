@@ -20,7 +20,7 @@ function VehicleCard({ brand, model, color, license_plate }) {
         {/* Botón para editar vehiculo */}
         <div className="flex flex-col justify-center items-end flex-grow-0">
           <Link
-          to={`/vehicle/${license_plate}`}
+          to={`/editarvehiculo/${license_plate}`}
           className="text-blue-600 hover:text-blue-800"
           >
           <PencilLine className="w-4 h-4" />

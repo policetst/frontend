@@ -51,6 +51,7 @@ const ROUTER = createHashRouter([
       path: '/editincident/:code',
       element: <EditIncident/>
     },
+
     {
       path: "/",
       element: <PaginaPrincipal />
@@ -80,7 +81,7 @@ const ROUTER = createHashRouter([
       element: <Personas />,
     },
     {
-      path: "/editarpersona",
+      path: "/editarpersona/:dni",
       element: <EditarPersona />
     },
     {
@@ -88,7 +89,7 @@ const ROUTER = createHashRouter([
       element: <Vehiculos />,
     },
     {
-      path: "/editarvehiculo/:matricula",
+      path: "/editarvehiculo/:license_plate",
       element: <EditarVehiculo />
     },
     {
