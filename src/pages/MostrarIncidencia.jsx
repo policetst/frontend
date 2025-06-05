@@ -8,81 +8,63 @@ function MostrarIncidencia() {
   const [incidencias, setIncidencias] = useState([]);
   const [counts, setCounts] = useState({});
   const [filtroFecha, setFiltroFecha] = useState("");         
-    const [filtroTipo, setFiltroTipo] = useState("");
-        const [busqueda, setBusqueda] = useState("");               
+  const [filtroTipo, setFiltroTipo] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState(""); // NUEVO ESTADO
+  const [busqueda, setBusqueda] = useState("");               
 
-useEffect(() => {
-  const fetchIncidents = async () => {
-    const data = await getIncidents();
-    if (data.ok) {
-//sort by creation_date in descending order
-      const sortedIncidents = data.incidents.sort((a, b) => 
-        new Date(b.creation_date) - new Date(a.creation_date)
-      );
-      setIncidencias(sortedIncidents);
-      loadCounts(sortedIncidents);
-    } else {
-      console.error("Error fetching incidents:", data.message);
-    }
-  };
-  fetchIncidents();
-}, []);
+  useEffect(() => {
+    const fetchIncidents = async () => {
+      const data = await getIncidents();
+      if (data.ok) {
+        const sortedIncidents = data.incidents.sort((a, b) => 
+          new Date(b.creation_date) - new Date(a.creation_date)
+        );
+        setIncidencias(sortedIncidents);
+      } else {
+        console.error("Error fetching incidents:", data.message);
+      }
+    };
+    fetchIncidents();
+  }, []);
 
-
-  const loadCounts = async (incidents) => {
-    const newCounts = {};
-    for (const incident of incidents) {
-      const code = incident.code;
-      newCounts[code] = {
-        people: await countPeople(code),
-        vehicles: await countVehicles(code),
-      };
-    }
-    setCounts(newCounts);
-  };
+  // const loadCounts = async (incidents) => { ... }
 
   const handleEdit = (id) => {
     navigate(`/editincident/${id}`);
   };
 
-  // identify the unique types of incidents for the filter dropdown
   incidencias ? <span className="text-gray-500">Cargando incidencias...</span> : null;
-  if (!incidencias || incidencias.length === 0) { // if there are no incidents, show a message
+  if (!incidencias || incidencias.length === 0) {
     return <span className="text-gray-500">No hay incidencias disponibles</span>;
   }
   const tiposUnicos = Array.from(new Set(incidencias.map(i => i.type))).filter(Boolean);
 
-  // Filtrado según los criterios
+  // Filtro con el nuevo filtro de status
   const incidenciasFiltradas = incidencias.filter(incidencia => {
-    // Filtro por fecha
     const fechaOk = !filtroFecha || (incidencia.creation_date && incidencia.creation_date.startsWith(filtroFecha));
-    // Filtro por tipo
     const tipoOk = !filtroTipo || incidencia.type === filtroTipo;
-    // Búsqueda por código o usuario
+    const statusOk = !filtroStatus || incidencia.status === filtroStatus; // NUEVO
     const texto = busqueda.trim().toLowerCase();
     const busquedaOk = !texto || (
       (incidencia.code && incidencia.code.toLowerCase().includes(texto)) ||
       (incidencia.creator_user_code && incidencia.creator_user_code.toLowerCase().includes(texto))
     );
-    return fechaOk && tipoOk && busquedaOk;
+    return fechaOk && tipoOk && statusOk && busquedaOk;
   });
 
   return (
     <div>
       <div className="flex justify-center">
         <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8 text-gray-800">
-
-          {/* Titulo en escritorio o tablet */}
+          {/* Titulo */}
           <div className="hidden xl:block">
             <h2 className="text-2xl font-bold">Incidencias</h2>
             <hr className="border-t border-gray-300 my-4"/>
           </div>
-          {/* Titulo en móviles */}
           <div className="block xl:hidden">
             <h2 className="text-2xl font-bold flex justify-center">Incidencias</h2>
             <hr className="border-t border-gray-300 my-4"/>
           </div>
-
           {/* Filtros */}
           <div className="flex flex-wrap gap-4 mb-6">
             <input
@@ -102,6 +84,15 @@ useEffect(() => {
                 <option key={tipo} value={tipo}>{tipo}</option>
               ))}
             </select>
+            <select
+              value={filtroStatus}
+              onChange={e => setFiltroStatus(e.target.value)}
+              className="border rounded px-2 py-1"
+            >
+              <option value=""> estados</option>
+              <option value="Open">Abiertas</option>
+              <option value="Closed">Cerradas</option>
+            </select>
             <input
               type="text"
               value={busqueda}
@@ -110,12 +101,7 @@ useEffect(() => {
               placeholder="Buscar por agente o código"
             />
           </div>
-
-
-
-
-
-          {/* incident filter */}
+          {/* Lista de incidencias */}
           <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-4">
             {incidenciasFiltradas.map((incidencia) => (
               <div
@@ -127,7 +113,7 @@ useEffect(() => {
                     {incidencia.creation_date ? incidencia.creation_date.split('T')[0] : ''}
                   </span>
                   <span className={`px-2 py-1 text-xs rounded-full font-semibold ${incidencia.status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                    {incidencia.status}
+                    {incidencia.status === 'Open' ? 'Abierta' : 'Cerrada'}
                   </span>
                 </div>
                 <h4 className="text-lg font-semibold mb-1">Código: {incidencia.code}</h4>

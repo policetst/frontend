@@ -40,7 +40,7 @@ function Notifications() {  const [showTasks, setShowTasks] = useState(false);
             {count}
           </span>
         )}
-        <BellRing className="w-6 h-6" />
+        <BellRing className="w-6 h-6 hover:text-gray-600" />
       </button>
 
       {/* Dropdown de tareas */}
@@ -56,8 +56,10 @@ function Notifications() {  const [showTasks, setShowTasks] = useState(false);
             {openIncidents.map((incident) => (
               <Link key={incident.code} to={`/editincident/${incident.code}`}>
                 <li className="p-3 hover:bg-gray-50 cursor-pointer">
-                  {incident.description}
+                  {incident.code} - {incident.type} - {incident.description.substring(0, 20)}{incident.description.length > 20 ? '...' : ''}
                 </li>
+              <hr className='border-gray-200'/>
+
               </Link>
             ))}
           </ul>
