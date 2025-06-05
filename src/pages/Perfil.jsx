@@ -1,14 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Plus, Pencil } from 'lucide-react';
+import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
+import AddUser from '../components/AddUser';
 
 export default function GestionUsuarios() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+  const handleSubmit = async (e) => {
+    console.log('Submitting form with data:', formData);
+    
+    e.preventDefault();
+    try {
+      const updatedUser = await changeCredentials(username, formData);
+      console.log('User updated:', updatedUser);
+ if (updatedUser) {
+        alert('Usuario actualizado correctamente');
+      }
+    else {
+        alert('Error al actualizar el usuario: complete todos los campos');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+  const [username, setUsername] = useState('');
+  const [userRole, setUserRole] = useState('Standard');
   const [temaClaro, setTemaClaro] = useState(true);
 
-  const usuarios = [
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: true },
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: false },
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: true },
-  ];
+  const [usuarios, setUsuarios] = useState([]);
+
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    setUsername(username || 'Usuario');
+
+    const fetchUserRole = async () => {
+      const role = await getUserRole(username);
+      setUserRole(role || 'Standard');
+    };
+    fetchUserRole();
+
+    const fetchUsuarios = async () => {
+      const allUsers = await getAllUsers();
+      setUsuarios(allUsers);
+    };
+    fetchUsuarios();
+  }, []);
+  console.log(usuarios);
+  
 
   return (
     <div>
@@ -24,7 +72,7 @@ export default function GestionUsuarios() {
       <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] p-6 space-y-8 text-gray-800">
         {/* Administrador */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold pb-5">Usuario Administrador</h2>
+          <h2 className="text-xl font-semibold pb-5">Usuario {userRole !== "Standard" ? "Administrador" : "Estándar"}</h2>
 
           <div className="flex justify-center flex-wrap gap-6">
             {/* Avatar + ID */}
@@ -32,25 +80,13 @@ export default function GestionUsuarios() {
               <div className="w-24 h-24 border-2 border-gray-400 rounded-full flex items-center justify-center">
                 <span className="text-5xl">👤</span>
               </div>
-              <span className="font-semibold mt-2">AR01100</span>
+              <span className="font-semibold mt-2">{username}</span>
             </div>
 
             {/* Formulario */}
-            <form className="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md">
+            <form className="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md" onSubmit={handleSubmit}>
               <div className="space-y-4">
-                <div>
-                  <label htmlFor="status" className="block text-md font-medium text-gray-700">
-                    Estado
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
-                    className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 md:text-md"
-                  >
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
-                  </select>
-                </div>
+               
 
                 
 
@@ -60,6 +96,8 @@ export default function GestionUsuarios() {
                   </label>
                   <input
                     type="password"
+                    value={formData.password}
+                    onChange={handleChange}
                     id="password"
                     name="password"
                     className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -73,6 +111,8 @@ export default function GestionUsuarios() {
                   </label>
                   <input
                     type="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     id="email"
                     name="email"
                     className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -111,12 +151,10 @@ export default function GestionUsuarios() {
         <hr />
 
         {/* Lista de usuarios */}
-        <div className="space-y-4">
+        <div className={`space-y-4 ${userRole === 'Administrator' ? 'mt-8' : 'hidden'}`}>
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold pb-5">Gestionar usuarios</h2>
-            <button className="border border-blue-400 text-blue-500 rounded-full p-1">
-              <Plus className="w-5 h-5" />
-            </button>
+            <AddUser />
           </div>
 
           {/* Tarjetas de usuarios */}
@@ -125,21 +163,23 @@ export default function GestionUsuarios() {
               <div
                 key={index}
                 className={`flex justify-between items-center border rounded px-3 py-2 ${
-                  u.activo ? 'bg-white text-black' : 'bg-gray-100 text-gray-400'
+                  u.status ? 'bg-white text-black' : 'bg-gray-100 text-gray-400'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`w-2 h-full mt-1 rounded-sm ${
-                      u.activo ? 'bg-blue-500' : 'bg-gray-400'
+                      u.status ? 'bg-blue-500' : 'bg-gray-400'
                     }`}
                   ></div>
                   <div className="flex flex-col">
-                    <span className={`font-bold ${!u.activo && 'text-gray-400'}`}>{u.id}</span>
+                    <span className={`font-bold ${!u.status && 'text-gray-400'}`}>{u.code}</span>
                     <span className="text-sm">{u.nombre} | {u.email}</span>
                   </div>
                 </div>
-                <Pencil className="w-4 h-4 text-blue-600 cursor-pointer" />
+               <Link to={`/edituser/${u.code}`} className="text-blue-500 hover:text-blue-700">
+                 <Pencil className="w-4 h-4 text-blue-600 cursor-pointer" />
+               </Link>
               </div>
             ))}
           </div>

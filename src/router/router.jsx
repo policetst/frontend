@@ -16,6 +16,7 @@ import EditIncident from "../pages/EditIncident";
 import Vehiculos from "../pages/Vehiculos";
 import EditarVehiculo from '../pages/EditarVehiculo';
 import EditarPersona from '../pages/EditarPersona';
+import EditUser from '../pages/EditUser';
 
 
 //! make the router to use the hash router
@@ -42,6 +43,10 @@ const ROUTER = createHashRouter([
     path: "/",
     element: <Loayaut/>,
     children:[
+      {
+        path: '/edituser/:code',
+        element: <EditUser/>
+      },
     {
       path: '/editincident/:code',
       element: <EditIncident/>
