@@ -40,9 +40,9 @@ function Login() {
           const token = response.data.token;
           //* save the cookie with the token
           setCookie('token', token, { path: '/', maxAge: 3600 }); // 1 hour
-localStorage.setItem('username', username); // * save the username in local storage     
+          localStorage.setItem('username', username); // * save the username in local storage     
           //* navigate to the incident page
-          navigate('/incidencia');
+          navigate('/');
       
         } catch (error) {
           console.error('Error en el login:', error);

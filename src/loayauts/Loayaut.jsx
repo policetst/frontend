@@ -5,13 +5,14 @@
   import {
     Menu,
     X,
-    User,
+    UserSearch,
     LogOut,
     Home,
     Settings,
     CircleUserRound,
     Users,
     NotebookPen,
+    NotebookText,
     Newspaper,
     Map,
     ChartColumn,
@@ -98,8 +99,18 @@
                     className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
                     onClick={closeSidebar}
                   >
-                    <Newspaper className="mr-3 w-5 h-5" />
+                    <NotebookText  className="mr-3 w-5 h-5" />
                     Mostrar Incidencia
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/vehiculos"
+                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
+                    onClick={closeSidebar}
+                  >
+                    <UserSearch className="mr-3 w-5 h-5" />
+                    Personas y vehiculos
                   </Link>
                 </li>
                 <li>
@@ -112,7 +123,7 @@
                     Estadísticas
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     to="/personas"
                     className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
@@ -121,17 +132,7 @@
                     <Users className="mr-3 w-5 h-5" /> 
                     Personas
                   </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/vehiculos"
-                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                    onClick={closeSidebar}
-                  >
-                    <CarFront className="mr-3 w-5 h-5" />
-                    Vehiculos
-                  </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link
                     to="/mapa"

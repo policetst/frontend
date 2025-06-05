@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'; //* link its a react co,mponent that al
 
 function Card({ textoboton, urlimagen, descripcion, navto, alt, title }) { //* desestructuring props to get the values of the props
   return (
-    <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+    <div className="w-80 bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
       {/* Imagen */}
       <img
         className="w-full h-48 object-cover"
@@ -14,11 +14,13 @@ function Card({ textoboton, urlimagen, descripcion, navto, alt, title }) { //* d
       <div className="p-4">
         <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
         <p className="mt-2 text-gray-600">{descripcion}</p>
-        <Link
-          to={navto}
-          className="inline-block mt-4 px-6 py-2 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#2374FF]">
-          {textoboton}
-        </Link>
+        <div className="flex justify-center">
+          <Link
+            to={navto}
+            className="inline-block text-center mt-5 px-6 py-2 w-50 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]">
+            {textoboton}
+          </Link>
+        </div>
       </div>
     </div>
   );
