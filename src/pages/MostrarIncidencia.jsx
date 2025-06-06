@@ -19,8 +19,7 @@ function MostrarIncidencia() {
         const sortedIncidents = data.incidents.sort((a, b) => 
           new Date(b.creation_date) - new Date(a.creation_date)
         );
-        setIncidencias(sortedIncidents);
-      } else {
+        setIncidencias(sortedIncidents);      } else {
         console.error("Error fetching incidents:", data.message);
       }
     };
