@@ -1,13 +1,15 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Pencil } from 'lucide-react';
 import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
 import AddUser from '../components/AddUser';
+import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
 
 export default function GestionUsuarios() {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    emailbrigada: ''
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,6 +36,7 @@ export default function GestionUsuarios() {
     }
   };
   const [username, setUsername] = useState('');
+  const [emailconfig, setEmailConfig] = useState('');
   const [userDetails, setUserDetails] = useState(null);
   const [userRole, setUserRole] = useState('Standard');
   const [temaClaro, setTemaClaro] = useState(true);
@@ -49,6 +52,7 @@ const fetchUserDetails = async () => {
       ...prev,
       email: details.user.email || ''
     }));
+
     console.log('User details:', details);
   };
     fetchUserDetails();
@@ -64,9 +68,20 @@ const fetchUserDetails = async () => {
       const allUsers = await getAllUsers();
       setUsuarios(allUsers);
     };
-    fetchUsuarios();
+    fetchUsuarios();    const fetchEmailConfig = async () => {
+      const emailConfig = await getEmailConfig();
+      console.log('Email config:', emailConfig.data.brigade_field);
+      
+      setEmailConfig(emailConfig.data.brigade_field);
+      setFormData(prev => ({
+        ...prev,
+        emailbrigada: emailConfig.data.brigade_field || ''
+      }));
+
+    };
+    fetchEmailConfig();
   }, []);
-  console.log(usuarios);
+  // console.log(usuarios);
   
 
   return (
