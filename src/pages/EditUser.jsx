@@ -137,19 +137,7 @@ function EditUser() {
 
           {/* Tema & Brigada (esto NO se guarda porque no está en formData, ojo) */}
           <div className="flex justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Tema Predefinido</p>
-              <div className="flex gap-4">
-                <label className="flex items-center">
-                  <input type="radio" name="theme" value="light" className="form-radio text-indigo-600" />
-                  <span className="ml-2 text-gray-700">Claro</span>
-                </label>
-                <label className="flex items-center">
-                  <input type="radio" name="theme" value="dark" className="form-radio text-indigo-600" />
-                  <span className="ml-2 text-gray-700">Oscuro</span>
-                </label>
-              </div>
-            </div>
+        
           </div>
 
           <button
