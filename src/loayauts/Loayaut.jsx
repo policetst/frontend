@@ -41,7 +41,7 @@
       window.location.href = '/#/login';
       console.log('User logged out');
     };
-
+        window.addEventListener("beforeunload", handleLogout);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const toggleSidebar = () => {
       setIsSidebarOpen(!isSidebarOpen);
