@@ -12,6 +12,51 @@ const getTokenFromCookie = () => {
   return match ? match[2] : '';
 };
 
+/**
+ * Function to validate DNI/NIF
+ * @param {String} texto
+ * @returns {Boolean}
+ */
+function validarDniNif(texto) {
+  if (!texto) return false;
+  const value = texto.toUpperCase().trim();
+
+  const dniPattern = /^(\d{8})([A-Z])$/;
+  const niePattern = /^[XYZ]\d{7}[A-Z]$/;
+
+  const letras = 'TRWAGMYFPDXBNJZSQVHLCKE';
+
+  if (dniPattern.test(value)) {
+    const [, num, letra] = value.match(dniPattern);
+    return letras[num % 23] === letra;
+  }
+
+  // Validación NIE
+  if (niePattern.test(value)) {
+    let nieNum = value.replace('X', '0').replace('Y', '1').replace('Z', '2');
+    const num = nieNum.slice(0, 8);
+    const letra = nieNum[8];
+    return letras[num % 23] === letra;
+  }
+
+  return false;
+}
+/**
+ * Description: Function to validate license plates
+ * @param {String} texto
+ * @returns {Boolean}
+ */
+function validarMatricula(texto) {
+  if (!texto) return false;
+  // Eliminar espacios y pasar a mayúsculas
+  const value = texto.toUpperCase().replace(/\s+/g, '');
+
+  // Patrón: 4 números + 3 letras (sin vocales, Ñ, Q)
+  const matriculaPattern = /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/;
+
+  return matriculaPattern.test(value);
+}
+
 
 /**
  * Function to delete images from server to optimice space
@@ -342,6 +387,8 @@ const getOpenIncidents = async () => {
 
 export {
   getOpenIncidents,
+  validarDniNif,
+  validarMatricula,
   getUserInfo,
   getUsers,
   deleteImage,

@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail
- } from '../funcs/Incidents';
+import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail } from '../funcs/Incidents';
+import { validarDniNif, validarMatricula } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL || 'http://localhost:4000/upload';
+const API_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
 import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 import Mapview from './Map';
 
-
 const FormularioIncidencia = () => {
-  const user_code = localStorage.getItem('username'); //** get the logged user code from local storage to use it in the form */
+  const user_code = localStorage.getItem('username');
   const [cookies] = useCookies(['user']);
-  console.log('FormularioIncidencia');
-  
   const [location, setLocation] = useState('');
-  const  [res, setRes] = useState(null);
+  const [res, setRes] = useState(null);
   const [form, setForm] = useState({
     status: 'Open',
     location: '',
@@ -35,17 +33,13 @@ const FormularioIncidencia = () => {
     last_name2: '',
     phone_number: ''
   });
+  const [nuevoVehiculo, setNuevoVehiculo] = useState({
+    brand: '', model: '', color: '', license_plate: ''
+  });
   const navigate = useNavigate();
-  const [nuevoVehiculo, setNuevoVehiculo] = useState({ brand: '', model: '', color: '', license_plate: '' });
   const [selectedImages, setSelectedImages] = useState([]);
-//useefect to put the location in the form
-  useEffect(() => {
-    setForm(prev => ({
-      ...prev,
-      location: location
-    }));
-  }, [location]);
 
+  // Cargar localización al iniciar
   useEffect(() => {
     getLocation()
       .then((loc) => {
@@ -56,6 +50,14 @@ const FormularioIncidencia = () => {
         console.error("Failed to get location:", error);
       });
   }, []);
+
+  // Actualizar location en form
+  useEffect(() => {
+    setForm(prev => ({
+      ...prev,
+      location: location
+    }));
+  }, [location]);
 
   const tipos = [
     'Animales',
@@ -70,22 +72,75 @@ const FormularioIncidencia = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm({
-      ...form,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+    if (name === 'location') {
+      setLocation(value);
+      setForm(prev => ({ ...prev, location: value }));
+    } else if (name === 'brigade_field') {
+      setForm(prev => ({ ...prev, brigade_field: checked }));
+    } else if (["dni", "first_name", "last_name1", "last_name2", "phone_number"].includes(name)) {
+      setNuevaPersona(prev => ({ ...prev, [name]: value }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    }
   };
 
   const handleImagesChange = (files) => {
     setSelectedImages(files);
   };
 
+  // AUTOCOMPLETADO PERSONA
+  const handleDniBlur = async (e) => {
+    const dni = e.target.value.trim();
+    if (validarDniNif(dni)) {
+      console.log(`Buscando persona con DNI/NIE: ${dni}`);
+      
+      try {
+        const token = cookies.user?.token || getTokenFromCookie();
+        const res = await axios.get(`${API_URL}/people/${dni}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.ok && res.data.data) {
+          setNuevaPersona({
+            dni: res.data.data.dni,
+            first_name: res.data.data.first_name,
+            last_name1: res.data.data.last_name1,
+            last_name2: res.data.data.last_name2,
+            phone_number: res.data.data.phone_number
+          });
+        }
+      } catch (err) {
+     alert('No se pudo encontrar la persona con ese DNI/NIE. Puedes continuar y añadirla manualmente si es necesario.');
+      }
+    }
+  };
+
+  // AUTOCOMPLETADO VEHICULO
+  const handleMatriculaBlur = async (e) => {
+    const license_plate = e.target.value.trim();
+    if (validarMatricula(license_plate)) {
+      try {
+        const token = cookies.user?.token || getTokenFromCookie();
+        const res = await axios.get(`${API_URL}/vehicles/${license_plate}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.ok && res.data.data) {
+          setNuevoVehiculo({
+            license_plate: res.data.data.license_plate,
+            brand: res.data.data.brand,
+            model: res.data.data.model,
+            color: res.data.data.color,
+          });
+        }
+      } catch (err) {
+        // No pasa nada si no existe
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //! check brigade_field
 
-
-    // * validation of the required fields
+    // Validación de campos obligatorios
     const camposObligatorios = [
       { campo: 'type', label: 'Tipo de incidencia' },
       { campo: 'description', label: 'Descripción' },
@@ -103,50 +158,47 @@ const FormularioIncidencia = () => {
       return;
     }
 
-    // Validación de campos obligatorios en personas
+    // Validación personas
     for (let i = 0; i < personas.length; i++) {
       const p = personas[i];
-      if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number) {
+      if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number || !validarDniNif(p.dni)) {
         const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'warning',
-          title: 'Faltan datos en una persona',
-          text: `La persona ${i + 1} debe tener todos los campos completos.`,
+          title: 'Faltan o son inválidos los datos de una persona',
+          text: `Revisa la persona ${i + 1}`,
           confirmButtonText: 'Aceptar'
         });
         return;
       }
     }
-
-    // Validación de campos obligatorios en vehículos
+    // Validación vehículos
     for (let i = 0; i < vehiculos.length; i++) {
       const v = vehiculos[i];
-      if (!v.brand || !v.model || !v.color || !v.license_plate) {
+      if (!v.brand || !v.model || !v.color || !v.license_plate || !validarMatricula(v.license_plate)) {
         const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'warning',
-          title: 'Faltan datos en un vehículo',
-          text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
+          title: 'Faltan o son inválidos los datos de un vehículo',
+          text: `Revisa el vehículo ${i + 1}`,
           confirmButtonText: 'Aceptar'
         });
         return;
       }
     }
 
-    // * upload images to /uploads
+    // Subir imágenes
     let uploadedImageUrls = [];
     for (const file of selectedImages) {
       const formData = new FormData();
       formData.append('file', file);
       try {
-            const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
+        const res = await axios.post(INCIDENTS_IMAGES_URL, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${cookies.user.token || getTokenFromCookie()}`,
+            Authorization: `Bearer ${cookies.user?.token || getTokenFromCookie()}`,
           }
         });
-
-        console.log('Response from image upload:', res.data);
         if (res.data && res.data.file && res.data.file.url) {
           uploadedImageUrls.push(res.data.file.url);
         }
@@ -155,7 +207,6 @@ const FormularioIncidencia = () => {
       }
     }
 
-    // * add images to the existing form
     const formToSend = {
       ...form,
       people: personas,
@@ -166,15 +217,13 @@ const FormularioIncidencia = () => {
     try {
       const response = await postIncident(formToSend);
       if (response.ok) {
-              if (form.brigade_field === true) {
+        if (form.brigade_field === true) {
           try {
             await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, uploadedImageUrls);
-            console.log('Correo enviado con éxito');
           } catch (error) {
             console.error('Error al enviar el correo:', error);
           }
         }
-        // * show success message
         const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'success',
@@ -215,25 +264,64 @@ const FormularioIncidencia = () => {
     }
   };
 
-  const agregarPersona = () => {
-    if (nuevaPersona.dni && nuevaPersona.first_name && nuevaPersona.last_name1) {
-      setPersonas(prev => [...prev, nuevaPersona]);
-      setNuevaPersona({
-        dni: '',
-        first_name: '',
-        last_name1: '',
-        last_name2: '',
-        phone_number: ''
+  // Añadir persona con validación
+  const agregarPersona = async () => {
+    if (!nuevaPersona.dni || !validarDniNif(nuevaPersona.dni)) {
+      const Swal = (await import('sweetalert2')).default;
+      Swal.fire({
+        icon: 'warning',
+        title: 'DNI/NIE inválido',
+        text: 'Introduce un DNI o NIE válido para la persona.',
+        confirmButtonText: 'Aceptar'
       });
+      return;
     }
+    if (!nuevaPersona.first_name || !nuevaPersona.last_name1) {
+      const Swal = (await import('sweetalert2')).default;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Faltan campos obligatorios',
+        text: 'Introduce al menos nombre y primer apellido.',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+    setPersonas(prev => [...prev, nuevaPersona]);
+    setNuevaPersona({
+      dni: '',
+      first_name: '',
+      last_name1: '',
+      last_name2: '',
+      phone_number: ''
+    });
   };
 
-  const agregarVehiculo = () => {
-    if (nuevoVehiculo.brand && nuevoVehiculo.model && nuevoVehiculo.color && nuevoVehiculo.license_plate) {
-      setVehiculos(prev => [...prev, nuevoVehiculo]);
-      setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
+  // Añadir vehículo con validación
+  const agregarVehiculo = async () => {
+    if (!nuevoVehiculo.license_plate || !validarMatricula(nuevoVehiculo.license_plate)) {
+      const Swal = (await import('sweetalert2')).default;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Matrícula inválida',
+        text: 'Introduce una matrícula válida.',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
     }
+    if (!nuevoVehiculo.brand || !nuevoVehiculo.model || !nuevoVehiculo.color) {
+      const Swal = (await import('sweetalert2')).default;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Faltan campos obligatorios',
+        text: 'Completa todos los datos del vehículo.',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+    setVehiculos(prev => [...prev, nuevoVehiculo]);
+    setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
   };
+
   const eliminarPersona = (index) => {
     setPersonas(prev => prev.filter((_, i) => i !== index));
   };
@@ -248,8 +336,6 @@ const FormularioIncidencia = () => {
         {/* Datos de registro */}
         <div>
           <div className="flex justify-center md:justify-end">
-            
-            {/* Fecha y hora (sin segundos) */}
             <div className="flex items-center h-8">
               <p className="font-semibold mr-2">Fecha y hora:</p>
               <p>{new Date().toLocaleString(
@@ -263,7 +349,7 @@ const FormularioIncidencia = () => {
               </p>
             </div>
           </div>
-          <hr className="border-t border-gray-300 my-4"/>
+          <hr className="border-t border-gray-300 my-4" />
 
           <h3 className="text-xl font-bold mb-4">Datos esenciales</h3>
 
@@ -323,7 +409,6 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 my-4" />
 
         {/* Sección personas */}
-        
         <div>
           <h3 className="text-xl font-bold mb-2">Personas</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
@@ -332,35 +417,40 @@ const FormularioIncidencia = () => {
               name="dni"
               placeholder="DNI - NIE"
               value={nuevaPersona.dni}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
+              onChange={handleChange}
+              onBlur={handleDniBlur}
               className="p-2 border rounded"
             />
             <input
               type="text"
+              name="first_name"
               placeholder="Nombre"
               value={nuevaPersona.first_name}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
+              onChange={handleChange}
               className="p-2 border rounded"
             />
             <input
               type="text"
+              name="last_name1"
               placeholder="1º Apellido"
               value={nuevaPersona.last_name1}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
+              onChange={handleChange}
               className="p-2 border rounded"
             />
             <input
               type="text"
+              name="last_name2"
               placeholder="2º Apellido"
               value={nuevaPersona.last_name2}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
+              onChange={handleChange}
               className="p-2 border rounded"
             />
             <input
               type="text"
+              name="phone_number"
               placeholder="Teléfono"
               value={nuevaPersona.phone_number}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
+              onChange={handleChange}
               className="p-2 border rounded"
             />
           </div>
@@ -377,22 +467,16 @@ const FormularioIncidencia = () => {
               {personas.map((p, i) => (
                 <li className="list-none" key={i}>
                   <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-2">
-                    
-                    {/* Los datos de la persona */}
                     <span className="flex flex-col flex-1 min-w-0">
                       <span className="truncate text-lg font-medium">{p.first_name} {p.last_name1} {p.last_name2}</span>
                       <span className="text-sm">{p.dni} - {p.phone_number}</span>
                     </span>
-                    
-                    {/* Boton para retirar la persona. Version escritorio o tablet */}
                     <button
                       onClick={() => eliminarPersona(i)}
                       className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       X
                     </button>
-                    
-                    {/* Boton para retirar la persona. Version movil */}
                     <button
                       onClick={() => eliminarPersona(i)}
                       className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
@@ -416,18 +500,19 @@ const FormularioIncidencia = () => {
               placeholder="Matrícula"
               value={nuevoVehiculo.license_plate}
               onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
+              onBlur={handleMatriculaBlur}
               className="p-2 border rounded"
             />
             <input
               type="text"
-              placeholder="brand"
+              placeholder="Marca"
               value={nuevoVehiculo.brand}
               onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
               className="p-2 border rounded"
             />
             <input
               type="text"
-              placeholder="Model"
+              placeholder="Modelo"
               value={nuevoVehiculo.model}
               onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
               className="p-2 border rounded"
@@ -453,24 +538,18 @@ const FormularioIncidencia = () => {
               {vehiculos.map((v, i) => (
                 <li className="list-none" key={i}>
                   <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-2">
-
-                    {/* Datos de vehiculo añadido */}
                     <span className="flex flex-col flex-1 min-w-0">
                       <span className="truncate text-lg font-medium">{v.brand} {v.model}</span>
                       <span className="text-sm">{v.license_plate} - {v.color}</span>
                     </span>
-
-                    {/* Boton para retirar vehiculo. Version escritorio o tablet */}
                     <button
-                      onClick={() => eliminarVehiculo(i)} 
+                      onClick={() => eliminarVehiculo(i)}
                       className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       X
                     </button>
-
-                    {/* Boton para retirar vehiculo. Version movil */}
                     <button
-                      onClick={() => eliminarVehiculo(i)} 
+                      onClick={() => eliminarVehiculo(i)}
                       className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       Eliminar
@@ -498,4 +577,5 @@ const FormularioIncidencia = () => {
     </div>
   );
 };
+
 export default FormularioIncidencia;
