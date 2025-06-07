@@ -30,7 +30,7 @@ function PaginaPrincipal() {
         <Card 
         descripcion={"Consulta las implicaciones en incidencias"}
         urlimagen="/personas.jpg" textoboton="Personas y vehiculos" 
-        navto={"/personas"} 
+        navto={"/personas-y-vehiculos"} 
         alt={"Personas"} title={"Personas y vehiculos"}/>
 
 

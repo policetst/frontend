@@ -104,7 +104,7 @@
                 </li>
                 <li>
                   <Link
-                    to="/vehiculos"
+                    to="/personas-y-vehiculos"
                     className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
                     onClick={closeSidebar}
                   >
@@ -122,16 +122,6 @@
                     Estadísticas
                   </Link>
                 </li>
-                {/* <li>
-                  <Link
-                    to="/personas"
-                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                    onClick={closeSidebar}
-                  >
-                    <Users className="mr-3 w-5 h-5" /> 
-                    Personas
-                  </Link>
-                </li> */}
                 <li>
                   <Link
                     to="/mapa"
@@ -164,6 +154,16 @@
                   >
                     <CircleUserRound className="mr-3 w-5 h-5" />
                     Gestion de usuario
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/login"
+                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-3 w-5 h-5" />
+                    Cerrar sesión
                   </Link>
                 </li>
               </ul>
@@ -199,18 +199,18 @@
               </h1>
             </div>
             {/* Botones */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-6 ">
               {/* Campana de notificaciones */}
- <Notifications/>
+              <Notifications />
 
-              {/* Botón de logout */}
-              <button
-                className="flex items-center justify-center text-gray-100 hover:text-red-600 transition w-6 h-6"
-                aria-label="Cerrar sesión"
-                onClick={handleLogout}
+              {/* Botón de Pagina Principal */}
+              <Link
+                to="/"
+                className="flex items-center justify-center text-gray-100 hover:text-cyan-500 transition w-6 h-6"
+                aria-label="Pagina principal"
               >
-                <LogOut className="w-6 h-6" />
-              </button>
+                <Home className="w-6 h-6" />
+              </Link>
             </div>
 
           </header>

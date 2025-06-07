@@ -46,6 +46,41 @@ const FormularioIncidencia = () => {
     }));
   }, [location]);
 
+  // Estilo del botón para presetnar Añidr Persona
+  const [active, setActive] = useState(false);
+
+  const [mostrarFormularioPersona, setMostrarFormularioPersona] = useState(false);
+
+
+  // VIEJO-- Autocompletado al Añadir Persona
+  const handleClickMostrarPersona = () => {
+  // Si ya se escribió un DNI, revisar si ya está añadido
+  const existe = personas.find(p => p.dni === nuevaPersona.dni);
+  if (existe) {
+    setPersonaExistente(existe);
+    setMostrarInputsPersona(false);
+  } else {
+    setPersonaExistente(null);
+    setMostrarInputsPersona(true);
+  }
+};
+
+  const [mostrarFormularioVehiculo, setMostrarFormularioVehiculo] = useState(false);
+
+
+  // VIEJO-- Autocompletado al Añadir Persona
+  const handleClickMostrarVehiculo = () => {
+  // Si ya se escribió un DNI, revisar si ya está añadido
+  const existe = vehiculos.find(p => p.dni === nuevoVehiculo.license_plate);
+  if (existe) {
+    setVehiculoExistente(existe);
+    setMostrarInputsVehiculo(false);
+  } else {
+    setVehiculoExistente(null);
+    setMostrarInputsVehiculo(true);
+  }
+};
+
   useEffect(() => {
     getLocation()
       .then((loc) => {
@@ -324,53 +359,76 @@ const FormularioIncidencia = () => {
 
         {/* Sección personas */}
         
-        <div>
-          <h3 className="text-xl font-bold mb-2">Personas</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
-            <input
-              type="text"
-              name="dni"
-              placeholder="DNI - NIE"
-              value={nuevaPersona.dni}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={nuevaPersona.first_name}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="1º Apellido"
-              value={nuevaPersona.last_name1}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="2º Apellido"
-              value={nuevaPersona.last_name2}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Teléfono"
-              value={nuevaPersona.phone_number}
-              onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
-              className="p-2 border rounded"
-            />
-          </div>
+        <div className="flex flex-row justify-between mb-2">
+          <h3 className="text-xl font-bold">Personas</h3>
           <button
             type="button"
-            onClick={agregarPersona}
-            className="mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+            onClick={() => setMostrarFormularioPersona(prev => !prev)}
+            className={`px-4 py-1 rounded text-white 
+              ${mostrarFormularioPersona 
+                ? 'bg-gray-400 hover:bg-gray-700' 
+                : 'bg-[#002856] hover:bg-[#0092CA]'}
+            `}
           >
-            Añadir persona
+            {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
           </button>
+
+        </div>
+        <div className="mt-4">
+          {mostrarFormularioPersona && (
+            <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+                <input
+                  type="text"
+                  placeholder="DNI - NIE"
+                  value={nuevaPersona.dni}
+                  onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Nombre"
+                  value={nuevaPersona.first_name}
+                  onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="1º Apellido"
+                  value={nuevaPersona.last_name1}
+                  onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="2º Apellido"
+                  value={nuevaPersona.last_name2}
+                  onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Teléfono"
+                  value={nuevaPersona.phone_number}
+                  onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
+                  className="p-2 border rounded"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={agregarPersona}
+                className="px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+              >
+                Agregar persona
+              </button>
+            </div>
+          )}
+
+        </div>
+        <div>
+
+          {/* Mostrar las personas añadidas para  */}
 
           {personas.length > 0 && (
             <ul className="space-y-2 mt-2 text-sm">
@@ -408,46 +466,67 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 mt-2 mb-4" />
 
         {/* Sección vehículos */}
-        <div>
-          <h2 className="text-xl font-bold mb-2">Vehículos</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
-            <input
-              type="text"
-              placeholder="Matrícula"
-              value={nuevoVehiculo.license_plate}
-              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="brand"
-              value={nuevoVehiculo.brand}
-              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Model"
-              value={nuevoVehiculo.model}
-              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Color"
-              value={nuevoVehiculo.color}
-              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-              className="p-2 border rounded"
-            />
-          </div>
+        <div className="flex flex-row justify-between mb-2">
+          <h3 className="text-xl font-bold">Vehículos</h3>
           <button
             type="button"
-            onClick={agregarVehiculo}
-            className="mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+            onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
+            className={`px-4 py-1 rounded text-white 
+              ${mostrarFormularioVehiculo 
+                ? 'bg-gray-400 hover:bg-gray-700' 
+                : 'bg-[#002856] hover:bg-[#0092CA]'}
+            `}
           >
-            Añadir vehículo
+            {mostrarFormularioVehiculo ? 'Ocultar' : 'Nuevo vehículo'}
           </button>
 
+        </div>
+
+
+        <div className="mt-4">
+          {mostrarFormularioVehiculo && (
+            <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+                <input
+                  type="text"
+                  placeholder="Matrícula"
+                  value={nuevoVehiculo.license_plate}
+                  onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Marca"
+                  value={nuevoVehiculo.brand}
+                  onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Modelo"
+                  value={nuevoVehiculo.model}
+                  onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Color"
+                  value={nuevoVehiculo.color}
+                  onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
+                  className="p-2 border rounded"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={agregarVehiculo}
+                className="mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+              >
+                Agregar vehículo
+              </button>
+            </div>
+            )}
+        </div>
+        <div>
           {vehiculos.length > 0 && (
             <ul className="list-disc list-inside text-sm">
               {vehiculos.map((v, i) => (

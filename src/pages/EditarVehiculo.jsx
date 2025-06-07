@@ -1,11 +1,7 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 
 function EditarVehiculo() {
   document.title = "SIL Tauste - Editar Vehiculo"; // Esto cambia el título de la pestaña del navegador
-  const {license_plate} = useParams()
-  console.log(license_plate)
-
 
   return (
     <div>
@@ -24,6 +20,10 @@ function EditarVehiculo() {
                 </div>
 
                 {/* Contenido */}
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 bg-red-200 p-4">Columna 1</div>
+                    <div className="flex-1 bg-blue-200 p-4">Columna 2</div>
+                </div>
             </div>
         </div>
     </div>

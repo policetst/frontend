@@ -8,12 +8,11 @@ import Login from "../pages/Login";
 import MostrarIncidencia from "../pages/MostrarIncidencia";
 import Estadisticas from "../pages/Estadisticas";
 import CrearIncidencia from "../pages/CrearIncidencia";
-import Personas from "../pages/Personas";
 import PaginaPrincipal from "../pages/PaginaPrincipal";
 import ForgotPassword from "../pages/ForgotPassword";
 import Loayaut from "../loayauts/Loayaut";
 import EditIncident from "../pages/EditIncident";
-import Vehiculos from "../pages/Vehiculos";
+import PersonasVehiculos from "../pages/PersonasVehiculos";
 import EditarVehiculo from '../pages/EditarVehiculo';
 import EditarPersona from '../pages/EditarPersona';
 import EditUser from '../pages/EditUser';
@@ -51,7 +50,6 @@ const ROUTER = createHashRouter([
       path: '/editincident/:code',
       element: <EditIncident/>
     },
-
     {
       path: "/",
       element: <PaginaPrincipal />
@@ -77,16 +75,12 @@ const ROUTER = createHashRouter([
       element: <CrearIncidencia />
     },
     {
-      path: "/personas",
-      element: <Personas />,
+      path: "/personas-y-vehiculos",
+      element: <PersonasVehiculos />,
     },
     {
       path: "/editarpersona/:dni",
       element: <EditarPersona />
-    },
-    {
-      path: "/vehiculos",
-      element: <Vehiculos />,
     },
     {
       path: "/editarvehiculo/:license_plate",

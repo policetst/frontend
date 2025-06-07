@@ -8,7 +8,7 @@ function Vehiculos() {
 
   const [vehicles, setVehicles] = useState([]);
   const [people, setPeople] = useState([]);
-  const [showVehicles, setShowVehicles] = useState(true);
+  const [showVehicles, setShowVehicles] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
