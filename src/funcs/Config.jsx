@@ -21,8 +21,9 @@ const getEmailConfig = async () => {
 const updateEmailConfig = async (config) => {
   try {
     const token = getTokenFromCookie();
-    const res = await axios.put(`/config/email`, config, {
+    const res = await axios.put(`https://arbadev-back-joq0.onrender.com/config/email`, config, {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       }
     });

@@ -10,6 +10,7 @@ import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 import Mapview from './Map';
+import { getEmailConfig } from '../funcs/Config';
 
 const FormularioIncidencia = () => {
   const user_code = localStorage.getItem('username');
@@ -218,8 +219,9 @@ const FormularioIncidencia = () => {
       const response = await postIncident(formToSend);
       if (response.ok) {
         if (form.brigade_field === true) {
+          const email = getEmailConfig();
           try {
-            await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, uploadedImageUrls);
+            await sendIncidentViaEmail(email, form.description, form.location, uploadedImageUrls);
           } catch (error) {
             console.error('Error al enviar el correo:', error);
           }

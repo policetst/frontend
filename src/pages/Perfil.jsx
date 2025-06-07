@@ -25,7 +25,11 @@ export default function GestionUsuarios() {
     try {
       const updatedUser = await changeCredentials(username, formData);
       console.log('User updated:', updatedUser);
- if (updatedUser) {
+      // Update email configuration if brigade email is provided
+      if (formData.emailbrigada) {
+        await updateEmailConfig({"email": formData.emailbrigada});
+      }
+      if (updatedUser) {
         alert('Usuario actualizado correctamente');
       }
     else {
