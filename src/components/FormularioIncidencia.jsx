@@ -364,10 +364,10 @@ const FormularioIncidencia = () => {
           <button
             type="button"
             onClick={() => setMostrarFormularioPersona(prev => !prev)}
-            className={`px-4 py-1 rounded text-white 
+            className={`px-3 py-1 rounded text-white 
               ${mostrarFormularioPersona 
                 ? 'bg-gray-400 hover:bg-gray-700' 
-                : 'bg-[#002856] hover:bg-[#0092CA]'}
+                : 'bg-[#002856] hover:bg-cyan-600'}
             `}
           >
             {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
@@ -418,7 +418,7 @@ const FormularioIncidencia = () => {
               <button
                 type="button"
                 onClick={agregarPersona}
-                className="px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+                className="mt-1 px-3 py-2 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
               >
                 Agregar persona
               </button>
@@ -471,10 +471,10 @@ const FormularioIncidencia = () => {
           <button
             type="button"
             onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
-            className={`px-4 py-1 rounded text-white 
+            className={`px-3 py-1 rounded text-white 
               ${mostrarFormularioVehiculo 
                 ? 'bg-gray-400 hover:bg-gray-700' 
-                : 'bg-[#002856] hover:bg-[#0092CA]'}
+                : 'bg-[#002856] hover:bg-cyan-600'}
             `}
           >
             {mostrarFormularioVehiculo ? 'Ocultar' : 'Nuevo vehículo'}
@@ -519,7 +519,7 @@ const FormularioIncidencia = () => {
               <button
                 type="button"
                 onClick={agregarVehiculo}
-                className="mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+                className="mt-2 px-3 py-2 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
               >
                 Agregar vehículo
               </button>
@@ -567,12 +567,14 @@ const FormularioIncidencia = () => {
           <h2 className="text-xl font-bold mb-2">Subir imágenes</h2>
           <ImageUpload onImagesChange={handleImagesChange} />
         </div>
-        <button
-          type="submit"
-          className="mb-2 mt-2 px-4 py-2 w-full bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
-        >
-          Crear incidencia
-        </button>
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="mb-2 mt-2 px-4 py-2 w-40 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
+          >
+            Crear incidencia
+          </button>
+        </div>
       </form>
     </div>
   );
