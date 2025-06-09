@@ -89,7 +89,6 @@ const FormularioIncidencia = () => {
     setSelectedImages(files);
   };
 
-  // AUTOCOMPLETADO PERSONA
   const handleDniBlur = async (e) => {
     const dni = e.target.value.trim();
     if (validarDniNif(dni)) {
@@ -115,7 +114,7 @@ const FormularioIncidencia = () => {
     }
   };
 
-  // AUTOCOMPLETADO VEHICULO
+ 
   const handleMatriculaBlur = async (e) => {
     const license_plate = e.target.value.trim();
     if (validarMatricula(license_plate)) {
