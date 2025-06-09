@@ -26,7 +26,8 @@ console.log("incidents", incidents);
 
   return (
     <div>
-      <AgentEstadistic data={userinfo} />
+<AgentEstadistic data={incidents} user_code={localStorage.getItem('username')} />
+
       <AgentsStatsPanel incidents={incidents} />
     </div>
     
