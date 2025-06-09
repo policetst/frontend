@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Mapview from '../components/Map';
 import { validarDniNif,validarMatricula } from '../funcs/Incidents';
+import AddTeammate from '../components/AddTeammate';
 
 const EditIncident = () => {
   document.title = "SIL Tauste - Editar Incidencia";
@@ -72,6 +73,8 @@ const EditIncident = () => {
   });
   
   const [personas, setPersonas] = useState([]);
+  const [teammate, setTeammate] = useState('');
+  const [creator_code, setCreatorCode] = useState(null);
   const [vehiculos, setVehiculos] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
@@ -112,6 +115,9 @@ const EditIncident = () => {
         }
         
         // Actualizar el formulario con todos los datos de la incidencia
+        setTeammate(data.team_mate);
+        setCreatorCode(data.creator_user_code);
+        console.log('Compañero:', data.team_mate);
         const updatedForm = {
           status: data.status || 'Open',
           location: data.location || '',
@@ -530,6 +536,8 @@ const formToSend = {
           {/* Incidencia a editar */}
         <div className="flex justify-center items-center">
           <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8">
+                <AddTeammate incident_code={code} team_mate_code={localStorage.getItem('username')} creator_user_code={creator_code} team_mate={ teammate}/>
+
             <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white rounded-md shadow-md space-y-6">
               {/* Datos de la incidencia */}
               <div>

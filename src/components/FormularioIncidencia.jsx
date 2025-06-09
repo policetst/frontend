@@ -23,7 +23,7 @@ const FormularioIncidencia = () => {
     type: '',
     description: '',
     brigade_field: false,
-    creator_user_code: user_code || 'AR00001',
+    creator_user_code: user_code,
   });
   const [personas, setPersonas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
@@ -109,7 +109,6 @@ const FormularioIncidencia = () => {
           });
         }
       } catch (err) {
-     alert('No se pudo encontrar la persona con ese DNI/NIE. Puedes continuar y añadirla manualmente si es necesario.');
       }
     }
   };
