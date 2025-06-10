@@ -11,6 +11,7 @@ const COLORS = {
   "Ruidos": "#FF6666",
   "Otras incidencias no clasificadas": "#8884d8",
   "Asistencia Colaboración Ciudadana": "#00897B",
+  "Ilícito penal": "#AB47BC",
   "default": "#AAAAAA"
 };
 
@@ -22,7 +23,20 @@ const TIPO_ACRONIMOS = {
   "Ruidos": "RDS",
   "Otras incidencias no clasificadas": "OTR",
   "Asistencia Colaboración Ciudadana": "ACC",
+  "Ilícito penal": "ILP"
 };
+
+// Lista fija de tipos, SIEMPRE aparece en el filtro:
+const tipos = [
+  "Animales",
+  "Seguridad Ciudadana",
+  "Trafico",
+  "Ruidos",
+  "Asistencia Colaboración Ciudadana",
+  "Ilícito penal",
+  "Incidencias Urbanísticas",
+  "Otras incidencias no clasificadas"
+];
 
 const getYear = dateStr => (new Date(dateStr)).getFullYear();
 const getMonth = dateStr => {
@@ -30,35 +44,38 @@ const getMonth = dateStr => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
 
-function AgentEstadistic({ data }) {
+function AgentEstadistic({ data, user_code }) {
   const [view, setView] = useState("mensual");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroAnio, setFiltroAnio] = useState("");
 
-  // Todos los años y meses únicos presentes en los datos (sin filtrar)
+  // Solo incidencias donde el usuario es creador o compañero (normalizado)
+  const userIncidents = useMemo(() => {
+    const userCodeNorm = user_code ? user_code.trim().toUpperCase() : "";
+    return data.filter(
+      inc =>
+        (inc.creator_user_code && inc.creator_user_code.trim().toUpperCase() === userCodeNorm) ||
+        (inc.team_mate && inc.team_mate.trim().toUpperCase() === userCodeNorm)
+    );
+  }, [data, user_code]);
+
   const years = useMemo(() => (
-    Array.from(new Set(data.map(inc => getYear(inc.creation_date))))
+    Array.from(new Set(userIncidents.map(inc => getYear(inc.creation_date))))
       .sort((a, b) => a - b)
-  ), [data]);
-  const months = useMemo(() => (
-    Array.from(new Set(data.map(inc => getMonth(inc.creation_date))))
-      .sort((a, b) => a.localeCompare(b))
-  ), [data]);
-  const tipos = useMemo(() => {
-    const set = new Set(data.map(inc => inc.type));
-    return Array.from(set);
-  }, [data]);
+  ), [userIncidents]);
+
+  // Prepara mapping de tipo a eje Y:
   const tipoToY = useMemo(() => (
     Object.fromEntries(tipos.map((tipo, i) => [tipo, i + 1]))
-  ), [tipos]);
+  ), []);
 
   // DATOS FILTRADOS por tipo y año
   const filteredData = useMemo(() => {
-    return data.filter(inc => (
+    return userIncidents.filter(inc => (
       (!filtroTipo || inc.type === filtroTipo) &&
       (!filtroAnio || getYear(inc.creation_date) === Number(filtroAnio))
     ));
-  }, [data, filtroTipo, filtroAnio]);
+  }, [userIncidents, filtroTipo, filtroAnio]);
 
   // Preparar datos para ScatterChart con los datos filtrados
   const scatterData = useMemo(() => {
@@ -84,7 +101,7 @@ function AgentEstadistic({ data }) {
       value: sumas[tipo],
       percent: total ? ((sumas[tipo] / total) * 100).toFixed(1) : 0,
     })).filter(entry => entry.value > 0);
-  }, [filteredData, tipos]);
+  }, [filteredData]);
 
   const total = legendInfo.reduce((acc, curr) => acc + curr.value, 0);
   const xValues = view === "mensual"

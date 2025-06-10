@@ -6,21 +6,22 @@ function MostrarIncidencia() {
   document.title = "SIL Tauste -  Mostrar Incidencias";
   const navigate = useNavigate();
   const [incidencias, setIncidencias] = useState([]);
-  const [counts, setCounts] = useState({});
   const [filtroFecha, setFiltroFecha] = useState("");         
   const [filtroTipo, setFiltroTipo] = useState("");
-  const [filtroStatus, setFiltroStatus] = useState(""); // NUEVO ESTADO
+  const [filtroStatus, setFiltroStatus] = useState(""); 
   const [busqueda, setBusqueda] = useState("");               
 
   useEffect(() => {
     const fetchIncidents = async () => {
       const data = await getIncidents();
       if (data.ok) {
+        // sort incidents by creation_date in descending order
         const sortedIncidents = data.incidents.sort((a, b) => 
           new Date(b.creation_date) - new Date(a.creation_date)
         );
-        setIncidencias(sortedIncidents);
-      } else {
+        setIncidencias(sortedIncidents);      
+      } 
+        else {
         console.error("Error fetching incidents:", data.message);
       }
     };
@@ -40,17 +41,30 @@ function MostrarIncidencia() {
   const tiposUnicos = Array.from(new Set(incidencias.map(i => i.type))).filter(Boolean);
 
   // Filtro con el nuevo filtro de status
-  const incidenciasFiltradas = incidencias.filter(incidencia => {
-    const fechaOk = !filtroFecha || (incidencia.creation_date && incidencia.creation_date.startsWith(filtroFecha));
-    const tipoOk = !filtroTipo || incidencia.type === filtroTipo;
-    const statusOk = !filtroStatus || incidencia.status === filtroStatus; // NUEVO
-    const texto = busqueda.trim().toLowerCase();
-    const busquedaOk = !texto || (
-      (incidencia.code && incidencia.code.toLowerCase().includes(texto)) ||
-      (incidencia.creator_user_code && incidencia.creator_user_code.toLowerCase().includes(texto))
-    );
-    return fechaOk && tipoOk && statusOk && busquedaOk;
-  });
+const incidenciasFiltradas = incidencias.filter(incidencia => {
+  const fechaOk = !filtroFecha || (incidencia.creation_date && incidencia.creation_date.startsWith(filtroFecha));
+  const tipoOk = !filtroTipo || incidencia.type === filtroTipo;
+  const statusOk = !filtroStatus || incidencia.status === filtroStatus;
+
+  const texto = busqueda.trim().toLowerCase();
+  // Allow to search across multiple fields 
+  const fieldsToSearch = [
+    incidencia.code,
+    incidencia.creator_user_code,
+    incidencia.closure_user_code,
+    incidencia.type,
+    incidencia.description,
+    incidencia.status,
+    incidencia.brigade_field ? 'brigada' : '',
+    incidencia.creation_date
+    // Agrega aquí más campos si tienes más
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  const busquedaOk = !texto || fieldsToSearch.includes(texto);
+
+  return fechaOk && tipoOk && statusOk && busquedaOk;
+});
+
 
   return (
     <div>
@@ -98,7 +112,7 @@ function MostrarIncidencia() {
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               className="border rounded px-2 py-1"
-              placeholder="Buscar por agente o código"
+              placeholder="Buscar por palabras clave"
             />
           </div>
           {/* Lista de incidencias */}
@@ -124,8 +138,8 @@ function MostrarIncidencia() {
                   <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>
                 </div>
                 <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
-                  <span>👥 {counts[incidencia.code]?.people ?? '...'}</span>
-                  <span>🚗 {counts[incidencia.code]?.vehicles ?? '...'}</span>
+                  <span>👥 {'...'}</span>
+                  <span>🚗 {'...'}</span>
                   <span>{incidencia.brigade_field ? '🔧 Brigada' : '—'}</span>
                 </div>
                 <button

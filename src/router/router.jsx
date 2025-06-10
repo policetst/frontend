@@ -15,6 +15,7 @@ import EditIncident from "../pages/EditIncident";
 import PersonasVehiculos from "../pages/PersonasVehiculos";
 import EditarVehiculo from '../pages/EditarVehiculo';
 import EditarPersona from '../pages/EditarPersona';
+import Error from "../pages/Error";
 import EditUser from '../pages/EditUser';
 
 
@@ -41,7 +42,9 @@ const ROUTER = createHashRouter([
   {
     path: "/",
     element: <Loayaut/>,
+    errorElement: <Error />, //! Error page for the entire app
     children:[
+
       {
         path: '/edituser/:code',
         element: <EditUser/>

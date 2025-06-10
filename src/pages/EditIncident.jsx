@@ -2,6 +2,7 @@ import React, { useState, useEffect} from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { postIncident, getLocation, getIncident, updateIncident, sendIncidentViaEmail, deleteImage } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
+const API_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api';
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 import ImageUpload from '../components/ImageUpload';
 import { closeIncident, getTokenFromCookie } from '../funcs/Incidents';
@@ -11,6 +12,8 @@ import { Pointer, X as XIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Mapview from '../components/Map';
+import { validarDniNif,validarMatricula } from '../funcs/Incidents';
+import AddTeammate from '../components/AddTeammate';
 
 const EditIncident = () => {
   document.title = "SIL Tauste - Editar Incidencia";
@@ -70,6 +73,8 @@ const EditIncident = () => {
   });
   
   const [personas, setPersonas] = useState([]);
+  const [teammate, setTeammate] = useState('');
+  const [creator_code, setCreatorCode] = useState(null);
   const [vehiculos, setVehiculos] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
@@ -110,6 +115,9 @@ const EditIncident = () => {
         }
         
         // Actualizar el formulario con todos los datos de la incidencia
+        setTeammate(data.team_mate);
+        setCreatorCode(data.creator_user_code);
+        console.log('Compañero:', data.team_mate);
         const updatedForm = {
           status: data.status || 'Open',
           location: data.location || '',
@@ -246,7 +254,55 @@ const handleReSend = () => {
     setSelectedImages(files);
   };
 
-const handleSubmit = async (e) => { //pp
+    const handleDniBlur = async (e) => {
+    const dni = e.target.value.trim();
+    if (validarDniNif(dni)) {
+      console.log(`Buscando persona con DNI/NIE: ${dni}`);
+      
+      try {
+        const token =  getTokenFromCookie();
+        const res = await axios.get(`${API_URL}/people/${dni}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.ok && res.data.data) {
+          setNuevaPersona({
+            dni: res.data.data.dni,
+            first_name: res.data.data.first_name,
+            last_name1: res.data.data.last_name1,
+            last_name2: res.data.data.last_name2,
+            phone_number: res.data.data.phone_number
+          });
+        }
+      } catch (err) {
+     alert('No se pudo encontrar la persona con ese DNI/NIE. Puedes continuar y añadirla manualmente si es necesario.');
+        console.error('Error al buscar persona por DNI/NIE:', err);
+      }
+    }
+  };
+    const handleMatriculaBlur = async (e) => {
+    const license_plate = e.target.value.trim();
+    console.log(`Buscando vehículo con matrícula: ${license_plate}`);
+    if (validarMatricula(license_plate)) {
+      try {
+        const token = getTokenFromCookie();
+        const res = await axios.get(`${API_URL}/vehicles/${license_plate}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.ok && res.data.data) {
+          console.log('Vehículo encontrado:', res.data.data);
+          setNuevoVehiculo({
+            license_plate: res.data.data.license_plate,
+            brand: res.data.data.brand,
+            model: res.data.data.model,
+            color: res.data.data.color,
+          });
+        }
+      } catch (err) {
+        // No pasa nada si no existe
+      }
+    }
+  };
+const handleSubmit = async (e) => {
   e.preventDefault(); // prevent default form submission
 
   // Mensaje de confirmación
@@ -480,6 +536,8 @@ const formToSend = {
           {/* Incidencia a editar */}
         <div className="flex justify-center items-center">
           <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8">
+                <AddTeammate incident_code={code} team_mate_code={localStorage.getItem('username')} creator_user_code={creator_code} team_mate={ teammate}/>
+
             <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white rounded-md shadow-md space-y-6">
               {/* Datos de la incidencia */}
               <div>
@@ -599,6 +657,7 @@ const formToSend = {
                   <input
                     type="text"
                     name="dni"
+                    onBlur={handleDniBlur}
                     placeholder="DNI - NIE"
                     value={nuevaPersona.dni}
                     onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
@@ -686,6 +745,7 @@ const formToSend = {
                   <input
                     type="text"
                     placeholder="Matrícula"
+                    onBlur={handleMatriculaBlur}
                     value={nuevoVehiculo.license_plate}
                     onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
                     className="p-2 border rounded"

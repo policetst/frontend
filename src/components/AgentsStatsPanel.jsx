@@ -8,16 +8,17 @@ const TIPO_ACRONIMOS = {
   "Ruidos": "RDS",
   "Otras incidencias no clasificadas": "OTR",
   "Asistencia Colaboración Ciudadana": "ACC",
+  "Ilícito penal": "ILP"
 };
 
 function AgentsStatsPanel({ incidents }) {
-  // Todos los tipos únicos
+  // Todos los tipos únicos (puedes usar un array fijo si quieres)
   const tiposUnicos = useMemo(() => {
     const set = new Set(incidents.map(inc => inc.type));
     return Array.from(set);
   }, [incidents]);
 
-  // Estadísticas por agente (creador y cerrador)
+  // Estadísticas por agente (creador, team mate y cerrador)
   const agentStats = useMemo(() => {
     const stats = {};
     incidents.forEach(inc => {
@@ -28,6 +29,15 @@ function AgentsStatsPanel({ incidents }) {
       stats[creator].tipos[inc.type] = (stats[creator].tipos[inc.type] || 0) + 1;
       if (inc.brigade_field) stats[creator].conBrigada += 1;
 
+      // Team mate (si existe)
+      if (inc.team_mate) {
+        const teamMate = inc.team_mate;
+        if (!stats[teamMate]) stats[teamMate] = { creadas: 0, cerradas: 0, tipos: {}, conBrigada: 0 };
+        stats[teamMate].creadas += 1;
+        stats[teamMate].tipos[inc.type] = (stats[teamMate].tipos[inc.type] || 0) + 1;
+        if (inc.brigade_field) stats[teamMate].conBrigada += 1;
+      }
+
       // Cerrador
       if (inc.closure_user_code) {
         const closer = inc.closure_user_code;
@@ -35,7 +45,7 @@ function AgentsStatsPanel({ incidents }) {
         stats[closer].cerradas += 1;
       }
     });
-    // Convertir a array y ordenar por incidencias creadas (o cerradas si quieres)
+    // Convertir a array y ordenar por incidencias creadas
     return Object.entries(stats)
       .map(([name, st]) => ({ name, ...st }))
       .sort((a, b) => b.creadas - a.creadas);

@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { Plus, Pencil } from 'lucide-react';
 import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
 import AddUser from '../components/AddUser';
+import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
 
 export default function GestionUsuarios() {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    emailbrigada: ''
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,7 +25,11 @@ export default function GestionUsuarios() {
     try {
       const updatedUser = await changeCredentials(username, formData);
       console.log('User updated:', updatedUser);
- if (updatedUser) {
+      // Update email configuration if brigade email is provided
+      if (formData.emailbrigada) {
+        await updateEmailConfig({"email": formData.emailbrigada});
+      }
+      if (updatedUser) {
         alert('Usuario actualizado correctamente');
       }
     else {
@@ -34,6 +40,8 @@ export default function GestionUsuarios() {
     }
   };
   const [username, setUsername] = useState('');
+  const [emailconfig, setEmailConfig] = useState('');
+  const [userDetails, setUserDetails] = useState(null);
   const [userRole, setUserRole] = useState('Standard');
   const [temaClaro, setTemaClaro] = useState(true);
 
@@ -41,6 +49,17 @@ export default function GestionUsuarios() {
 
   useEffect(() => {
     const username = localStorage.getItem('username');
+const fetchUserDetails = async () => {
+      const details = await getUserDetails(username);
+    setUserDetails(details);
+    setFormData(prev => ({
+      ...prev,
+      email: details.user.email || ''
+    }));
+
+    console.log('User details:', details);
+  };
+    fetchUserDetails();
     setUsername(username || 'Usuario');
 
     const fetchUserRole = async () => {
@@ -53,9 +72,20 @@ export default function GestionUsuarios() {
       const allUsers = await getAllUsers();
       setUsuarios(allUsers);
     };
-    fetchUsuarios();
+    fetchUsuarios();    const fetchEmailConfig = async () => {
+      const emailConfig = await getEmailConfig();
+      console.log('Email config:', emailConfig.data.brigade_field);
+      
+      setEmailConfig(emailConfig.data.brigade_field);
+      setFormData(prev => ({
+        ...prev,
+        emailbrigada: emailConfig.data.brigade_field || ''
+      }));
+
+    };
+    fetchEmailConfig();
   }, []);
-  console.log(usuarios);
+  // console.log(usuarios);
   
 
   return (
@@ -92,7 +122,7 @@ export default function GestionUsuarios() {
 
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Contraseña
+                    Tu Contraseña
                   </label>
                   <input
                     type="password"
@@ -101,13 +131,13 @@ export default function GestionUsuarios() {
                     id="password"
                     name="password"
                     className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Ingrese su contraseña"
+                    placeholder="contraseña"
                   />
                 </div>
 
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Correo Electrónico
+                    Tu Correo Electrónico
                   </label>
                   <input
                     type="email"
@@ -116,24 +146,27 @@ export default function GestionUsuarios() {
                     id="email"
                     name="email"
                     className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Ingrese su correo electrónico"
+                    placeholder="correo electrónico"
                   />
                 </div>
 
-                {/* Tema & Brigada */}
-                <div className="flex justify-between">
+                {/* 
+                
+                * TODO:Tema & Brigada */}
+                <div className={`flex justify-between ${userRole === 'Administrator' ? 'flex' : 'hidden'} gap-4`}>
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Tema Predefinido</p>
-                    <div className="flex gap-4">
-                      <label className="flex items-center">
-                        <input type="radio" name="theme" value="light" className="form-radio text-indigo-600" />
-                        <span className="ml-2 text-gray-700">Claro</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="radio" name="theme" value="dark" className="form-radio text-indigo-600" />
-                        <span className="ml-2 text-gray-700">Oscuro</span>
-                      </label>
-                    </div>
+                    <label htmlFor="emailbrigada" className="block text-sm font-medium text-gray-700">
+                      Email Brigada
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.emailbrigada}
+                      onChange={handleChange}
+                      id="emailbrigada"
+                      name="emailbrigada"
+                      className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      placeholder="correo electrónico brigada"
+                    />
                   </div>
                 </div>
 
@@ -141,7 +174,7 @@ export default function GestionUsuarios() {
                   type="submit"
                   className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
                 >
-                  Guardar
+                  Actualizar
                 </button>
               </div>
             </form>
