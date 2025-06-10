@@ -40,7 +40,6 @@ const FormularioIncidencia = () => {
   const navigate = useNavigate();
   const [selectedImages, setSelectedImages] = useState([]);
 
-<<<<<<< HEAD
   // Estilo del botón para presetnar Añidr Persona
   const [active, setActive] = useState(false);
 
@@ -76,9 +75,6 @@ const FormularioIncidencia = () => {
   }
 };
 
-=======
-  // Cargar localización al iniciar
->>>>>>> dfa9253531bd59a81be2dde8bf59c57c79894b2c
   useEffect(() => {
     getLocation()
       .then((loc) => {
@@ -447,11 +443,6 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 my-4" />
 
         {/* Sección personas */}
-<<<<<<< HEAD
-        
-        <div className="flex flex-row justify-between mb-2">
-          <h3 className="text-xl font-bold">Personas</h3>
-=======
         <div>
           <h3 className="text-xl font-bold mb-2">Personas</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
@@ -497,7 +488,6 @@ const FormularioIncidencia = () => {
               className="p-2 border rounded"
             />
           </div>
->>>>>>> dfa9253531bd59a81be2dde8bf59c57c79894b2c
           <button
             type="button"
             onClick={() => setMostrarFormularioPersona(prev => !prev)}
@@ -597,10 +587,6 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 mt-2 mb-4" />
 
         {/* Sección vehículos */}
-<<<<<<< HEAD
-        <div className="flex flex-row justify-between mb-2">
-          <h3 className="text-xl font-bold">Vehículos</h3>
-=======
         <div>
           <h2 className="text-xl font-bold mb-2">Vehículos</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
@@ -634,7 +620,6 @@ const FormularioIncidencia = () => {
               className="p-2 border rounded"
             />
           </div>
->>>>>>> dfa9253531bd59a81be2dde8bf59c57c79894b2c
           <button
             type="button"
             onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
