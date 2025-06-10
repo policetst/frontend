@@ -29,12 +29,7 @@ export default function GestionUsuarios() {
       if (formData.emailbrigada) {
         await updateEmailConfig({"email": formData.emailbrigada});
       }
-      if (updatedUser) {
-        alert('Usuario actualizado correctamente');
-      }
-    else {
-        alert('Error al actualizar el usuario: complete todos los campos');
-      }
+   
     } catch (error) {
       console.error('Error updating user:', error);
     }

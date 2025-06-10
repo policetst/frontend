@@ -2,6 +2,7 @@ import { getTokenFromCookie } from "./Incidents";
 import bcrypt from "bcryptjs";
 const USERS_URL = import.meta.env.VITE_USERS_URL || 'http://localhost:4000/users';
 import axios from "axios";
+import Swal from "sweetalert2";
 
 /**
  * Function to get a user's role by their code
@@ -82,19 +83,38 @@ export const updateUserDetails = async (code, userData) => {
   }
 };
 export const changeCredentials = async (code, credentials) => {
-  credentials.password = bcrypt.hashSync(credentials.password, 10); // Hash the password before sending it
-  try {
-    const token = getTokenFromCookie();
-    const response = await axios.put(`${USERS_URL}/${code}/password`, credentials, {
-      headers: {
-        Authorization: `Bearer ${token}`
+  Swal.fire({
+    title: 'Cambiar credenciales',
+    text: '¿Estás seguro de que deseas cambiar tus credenciales?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, cambiar',
+    cancelButtonText: 'No, cancelar'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: 'Actualizando...',
+        text: 'Por favor espera mientras se actualizan tus credenciales.',
+        allowOutsideClick: false,
+        onBeforeOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      credentials.password = bcrypt.hashSync(credentials.password, 10); // Hash the password before sending it
+      try {
+        const token = getTokenFromCookie();
+        const response = await axios.put(`${USERS_URL}/${code}/password`, credentials, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        return response.data || null;
+      } catch (error) {
+        console.error("Error changing user credentials:", error);
+        return null;
       }
-    });
-    return response.data || null;
-  } catch (error) {
-    console.error("Error changing user credentials:", error);
-    return null;
-  }
+    }
+  });
 }
 /**
  * Function to create a new user

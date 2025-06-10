@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getUserDetails, updateUserDetails } from '../funcs/Users';
+import Swal from 'sweetalert2';
 
 function EditUser() {
   const { code } = useParams();
@@ -23,13 +24,24 @@ function EditUser() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¡Atención! Esta acción actualizará los datos del usuario.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, actualizar',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        Swal.fire('Actualizado', 'Los datos del usuario han sido actualizados.', 'success');
+      }
+    });
     // alert('¡Atención! Esta acción actualizará los datos del usuario.');
   
     console.log('Submitting form with data:', formData);
     try {
       const updated = await updateUserDetails(code, formData);
       console.log('User updated:', updated);
-      alert('Usuario actualizado correctamente');
     } catch (error) {
       console.error('Update failed:', error);
     }
