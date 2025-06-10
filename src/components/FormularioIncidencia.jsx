@@ -40,6 +40,7 @@ const FormularioIncidencia = () => {
   const navigate = useNavigate();
   const [selectedImages, setSelectedImages] = useState([]);
 
+<<<<<<< HEAD
   // Estilo del botón para presetnar Añidr Persona
   const [active, setActive] = useState(false);
 
@@ -75,6 +76,9 @@ const FormularioIncidencia = () => {
   }
 };
 
+=======
+  // Cargar localización al iniciar
+>>>>>>> 5dec36b458f2bd37ed8cc331598cddfe20ff66ce
   useEffect(() => {
     getLocation()
       .then((loc) => {

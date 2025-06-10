@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+const URL = import.meta.env.VITE_BASE_URL; // Asegúrate de que esta variable esté definida en tu .env
 import Swal from 'sweetalert2';
 import { PencilLine, CarFront, SwatchBook, Eye, EyeOff } from 'lucide-react';
 
@@ -33,7 +34,7 @@ function EditarVehiculo() {
     //   Relaciones 
     useEffect(() => {
     // Fetch personas relacionadas
-    fetch(`http://localhost:4000/related-people/${license_plate}`)
+    fetch(`${URL}/related-people/${license_plate}`)
         .then(res => res.json())
         .then(data => {
         if (data.ok) setPersonasRelacionadas(data.data);
@@ -42,7 +43,7 @@ function EditarVehiculo() {
         .finally(() => setLoadingPersonas(false));
 
     // Fetch vehículos relacionados
-    fetch(`http://localhost:4000/related-vehicles/${license_plate}`)
+    fetch(`${URL}/related-vehicles/${license_plate}`)
         .then(res => res.json())
         .then(data => {
         if (data.ok) setVehiculosRelacionados(data.data);
@@ -56,7 +57,7 @@ function EditarVehiculo() {
   useEffect(() => {
     const fetchVehiculo = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/vehicles/${license_plate}`);
+        const response = await axios.get(`${URL}/vehicles/${license_plate}`);
         if (response.data.ok) {
           setVehiculo(response.data.data);
         } else {
@@ -78,7 +79,7 @@ function EditarVehiculo() {
     e.preventDefault();
 
     try {
-      await axios.put(`http://localhost:4000/vehicles/${license_plate}`, vehiculo);
+      await axios.put(`${URL}/vehicles/${license_plate}`, vehiculo);
       Swal.fire('Vehículo actualizado correctamente', '', 'success');
     } catch (error) {
       Swal.fire('Error', 'No se pudo actualizar', 'error');

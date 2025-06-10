@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+const URL = import.meta.env.VITE_BASE_URL; // Asegúrate de que esta variable esté definida en tu .env
 import Swal from 'sweetalert2';
 import { PencilLine, IdCard, Phone, Eye, EyeOff } from 'lucide-react';
 
@@ -32,7 +33,7 @@ function EditarPersona() {
   //   Relaciones 
     useEffect(() => {
     // Fetch personas relacionadas
-    fetch(`http://localhost:4000/related-people/${dni}`)
+    fetch(`${URL}/related-people/${dni}`)
         .then(res => res.json())
         .then(data => {
         if (data.ok) setPersonasRelacionadas(data.data);
@@ -41,7 +42,7 @@ function EditarPersona() {
         .finally(() => setLoadingPersonas(false));
 
     // Fetch vehículos relacionados
-    fetch(`http://localhost:4000/related-vehicles/${dni}`)
+    fetch(`${URL}/related-vehicles/${dni}`)
         .then(res => res.json())
         .then(data => {
         if (data.ok) setVehiculosRelacionados(data.data);
@@ -55,7 +56,7 @@ function EditarPersona() {
     useEffect(() => {
     const fetchPersona = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/people/${dni}`);
+        const response = await axios.get(`${URL}/people/${dni}`);
         if (response.data.ok) {
           setPersona(response.data.data);
         } else {
@@ -76,7 +77,7 @@ function EditarPersona() {
     e.preventDefault();
 
     try {
-      await axios.put(`http://localhost:4000/people/${dni}`, persona);
+      await axios.put(`${URL}/people/${dni}`, persona);
       Swal.fire('Persona actualizada correctamente', '', 'success');
     } catch (error) {
       Swal.fire('Error', 'No se pudo actualizar', 'error');

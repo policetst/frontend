@@ -196,7 +196,6 @@ function Login() {
                     
                   </div>
 
-<<<<<<< HEAD
                   <div>
                     <input type="${visible ? 'text' : 'password'}" name="" id="" placeholder="" onChange={handlePasswordChange}
                     className="w-full mb-4 p-3 border rounded" />
@@ -211,32 +210,6 @@ function Login() {
                       ) : (
                       <i className="ti ti-eye text-xl"></i>
                       )}
-=======
-                      <div>
-                                                <input type="${visible ? 'text' : 'password'}" name="" id="" placeholder="" onChange={handlePasswordChange}
-                            className="w-full p-3 border rounded" />
-                        <button
-                            type="button"
-                            onClick={togglePasswordVisibility}
-                            className="absolute top-1/2 right-3 -translate-y-1/2"
-                            tabIndex={-1}
-                        >
-                            {visible ? (
-                       <EyeOff className="w-6 h-6 text-gray-500" />
-                            ) : (
-                       <Eye className="w-6 h-6 text-gray-500" />
-                            )}
-                        </button>
-                      </div>
-                    </div>
-                </div>
-
-                <div>
-                    <button type="submit"
-                        className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-[#002856]"
-                        onClick={handleSubmit}>
-                        Acceder
->>>>>>> dfa9253531bd59a81be2dde8bf59c57c79894b2c
                     </button>
                   </div>
                 </div>
