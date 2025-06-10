@@ -2,6 +2,7 @@ import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import emailjs from 'emailjs-com';
+import { getEmailConfig } from './Config';
 
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
@@ -310,7 +311,11 @@ const countVehicles = async (code) => {
  * @param {string[]} imagenes
  * @returns {Promise<any>}
  */
-const sendIncidentViaEmail = (to, descripcion, ubicacion, imagenes) => {
+const sendIncidentViaEmail = async(descripcion, ubicacion, imagenes) => {
+  //* get email
+  const email = await getEmailConfig();
+  const brigadeEmail = email.data.brigade_field;
+
   // check and set images to array
   if (!Array.isArray(imagenes)) imagenes = [];
 
@@ -332,7 +337,7 @@ const sendIncidentViaEmail = (to, descripcion, ubicacion, imagenes) => {
 emailjs.send("service_2oua2y5","template_w7rd2z8",{
 to_name: "brigada",
 message: htmlContent,
-to_email: to,
+to_email: brigadeEmail,
 email: "renderpolice333@gmail.com",
 },
  "DZjuMjjhaQImO7ZAl"

@@ -239,7 +239,7 @@ const handleReSend = () => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        await sendIncidentViaEmail('unaicc2003@gmail.com', form.description, form.location, allImages);
+        await sendIncidentViaEmail(form.description, form.location, allImages);
         Swal.fire('Reenviado', 'La incidencia ha sido reenviada a la brigada.', 'success');
       } catch (error) {
         console.error('Error al enviar el correo:', error);

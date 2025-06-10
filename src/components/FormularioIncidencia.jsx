@@ -258,13 +258,11 @@ const FormularioIncidencia = () => {
       const response = await postIncident(formToSend);
       if (response.ok) {
         if (form.brigade_field === true) {
-          const email = await getEmailConfig();
-          const brigadeEmail = email.data.brigade_field;
-          console.log('Enviando correo a Brigada:', brigadeEmail);
+
 
           
           try {
-            await sendIncidentViaEmail(brigadeEmail, form.description, form.location, uploadedImageUrls);
+            await sendIncidentViaEmail(form.description, form.location, uploadedImageUrls);
           } catch (error) {
             console.error('Error al enviar el correo:', error);
           }
