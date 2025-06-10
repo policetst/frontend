@@ -11,6 +11,7 @@ import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 import Mapview from './Map';
 import { getEmailConfig } from '../funcs/Config';
+import Swal from 'sweetalert2';
 
 const FormularioIncidencia = () => {
   const user_code = localStorage.getItem('username');
@@ -124,6 +125,9 @@ const FormularioIncidencia = () => {
   };
 
   const handleDniBlur = async (e) => {
+    Swal.fire({
+      title: 'Buscando persona...',
+    });
     const dni = e.target.value.trim();
     if (validarDniNif(dni)) {
       console.log(`Buscando persona con DNI/NIE: ${dni}`);
@@ -149,6 +153,9 @@ const FormularioIncidencia = () => {
 
  
   const handleMatriculaBlur = async (e) => {
+    Swal.fire({
+      title: 'Buscando vehículo...'
+    });
     const license_plate = e.target.value.trim();
     if (validarMatricula(license_plate)) {
       try {
@@ -251,9 +258,13 @@ const FormularioIncidencia = () => {
       const response = await postIncident(formToSend);
       if (response.ok) {
         if (form.brigade_field === true) {
-          const email = getEmailConfig();
+          const email = await getEmailConfig();
+          const brigadeEmail = email.data.brigade_field;
+          console.log('Enviando correo a Brigada:', brigadeEmail);
+
+          
           try {
-            await sendIncidentViaEmail(email, form.description, form.location, uploadedImageUrls);
+            await sendIncidentViaEmail(brigadeEmail, form.description, form.location, uploadedImageUrls);
           } catch (error) {
             console.error('Error al enviar el correo:', error);
           }
@@ -278,15 +289,7 @@ const FormularioIncidencia = () => {
         setPersonas([]);
         setVehiculos([]);
         setSelectedImages([]);
-      } else {
-        const Swal = (await import('sweetalert2')).default;
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: response.message || 'No se pudo registrar la incidencia.',
-          confirmButtonText: 'Aceptar'
-        });
-      }
+      } 
     } catch (error) {
       const Swal = (await import('sweetalert2')).default;
       Swal.fire({
@@ -445,49 +448,7 @@ const FormularioIncidencia = () => {
         {/* Sección personas */}
         <div>
           <h3 className="text-xl font-bold mb-2">Personas</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
-            <input
-              type="text"
-              name="dni"
-              placeholder="DNI - NIE"
-              value={nuevaPersona.dni}
-              onChange={handleChange}
-              onBlur={handleDniBlur}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              name="first_name"
-              placeholder="Nombre"
-              value={nuevaPersona.first_name}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              name="last_name1"
-              placeholder="1º Apellido"
-              value={nuevaPersona.last_name1}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              name="last_name2"
-              placeholder="2º Apellido"
-              value={nuevaPersona.last_name2}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              name="phone_number"
-              placeholder="Teléfono"
-              value={nuevaPersona.phone_number}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            />
-          </div>
+
           <button
             type="button"
             onClick={() => setMostrarFormularioPersona(prev => !prev)}
@@ -511,6 +472,7 @@ const FormularioIncidencia = () => {
                   value={nuevaPersona.dni}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
                   className="p-2 border rounded"
+                  onBlur={handleDniBlur}
                 />
                 <input
                   type="text"
@@ -589,37 +551,6 @@ const FormularioIncidencia = () => {
         {/* Sección vehículos */}
         <div>
           <h2 className="text-xl font-bold mb-2">Vehículos</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
-            <input
-              type="text"
-              placeholder="Matrícula"
-              value={nuevoVehiculo.license_plate}
-              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
-              onBlur={handleMatriculaBlur}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Marca"
-              value={nuevoVehiculo.brand}
-              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Modelo"
-              value={nuevoVehiculo.model}
-              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Color"
-              value={nuevoVehiculo.color}
-              onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-              className="p-2 border rounded"
-            />
-          </div>
           <button
             type="button"
             onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
@@ -642,6 +573,7 @@ const FormularioIncidencia = () => {
                 <input
                   type="text"
                   placeholder="Matrícula"
+                  onBlur={handleMatriculaBlur}
                   value={nuevoVehiculo.license_plate}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
                   className="p-2 border rounded"
