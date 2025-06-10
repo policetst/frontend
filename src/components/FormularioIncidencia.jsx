@@ -488,7 +488,7 @@ const FormularioIncidencia = () => {
               className="p-2 border rounded"
             />
           </div>
-          <button
+          {/* <button
             type="button"
             onClick={() => setMostrarFormularioPersona(prev => !prev)}
             className={`px-3 py-1 rounded text-white 
@@ -498,7 +498,7 @@ const FormularioIncidencia = () => {
             `}
           >
             {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
-          </button>
+          </button> */}
 
         </div>
         <div className="mt-4">
