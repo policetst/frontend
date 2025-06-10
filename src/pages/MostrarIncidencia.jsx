@@ -138,8 +138,7 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
                   <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>
                 </div>
                 <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
-                  <span>👥 {'...'}</span>
-                  <span>🚗 {'...'}</span>
+<div></div>
                   <span>{incidencia.brigade_field ? '🔧 Brigada' : '—'}</span>
                 </div>
                 <button

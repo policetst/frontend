@@ -255,7 +255,13 @@ const handleReSend = () => {
   };
 
     const handleDniBlur = async (e) => {
-    const dni = e.target.value.trim();
+      Swal.fire({
+        title: 'Buscando persona...',
+        text: 'Por favor, espera un momento.',
+        allowOutsideClick: false,
+   
+      });
+      const dni = e.target.value.trim();
     if (validarDniNif(dni)) {
       console.log(`Buscando persona con DNI/NIE: ${dni}`);
       
@@ -280,6 +286,12 @@ const handleReSend = () => {
     }
   };
     const handleMatriculaBlur = async (e) => {
+    Swal.fire({
+      title: 'Buscando vehículo...',
+      text: 'Por favor, espera un momento.',
+      allowOutsideClick: false,
+   
+    });
     const license_plate = e.target.value.trim();
     console.log(`Buscando vehículo con matrícula: ${license_plate}`);
     if (validarMatricula(license_plate)) {
