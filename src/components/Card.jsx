@@ -27,18 +27,3 @@ function Card({ textoboton, urlimagen, descripcion, navto, alt, title }) { //* d
 }
 
 export default Card;
-/* <div class="card">
-                        <img class="w-full h-auto rounded-t-xl" src="assets/images/small/img-4.jpg"
-                            alt="Image Description">
-                        <div class="card-body">
-                            <h3 class="text-lg font-bold text-default-800">Card title</h3>
-                            <p class="mt-1 text-default-500">
-                                Some quick example text to build on the card title and make up the bulk of the
-                                card's
-                                content.
-                            </p>
-                            <a class="mt-2 btn bg-primary text-white" href="#">
-                                Go somewhere
-                            </a>
-                        </div>
-                    </div>*/

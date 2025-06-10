@@ -8,7 +8,7 @@ import { PencilLine, IdCard, Phone, Eye, EyeOff } from 'lucide-react';
 function EditarPersona() {
   document.title = "SIL Tauste - Editar Persona";
   
-  const { license_plate } = useParams(); // obtener de la URL
+  const { dni } = useParams(); // obtener de la URL
 
   const [persona, setPersona] = useState({
     dni: '',
@@ -23,31 +23,65 @@ function EditarPersona() {
   const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState(false);
   const [mostrarVehiculosRelacionados, setMostrarVehiculosRelacionados] = useState(false);  
 
-useEffect(() => {
-  const fetchPersona = async () => {
+  const [personasRelacionadas, setPersonasRelacionadas] = useState([]);
+  const [vehiculosRelacionados, setVehiculosRelacionados] = useState([]);
+
+  const [loadingPersonas, setLoadingPersonas] = useState(true);
+  const [loadingVehiculos, setLoadingVehiculos] = useState(true);
+
+  //   Relaciones 
+    useEffect(() => {
+    // Fetch personas relacionadas
+    fetch(`http://localhost:4000/related-people/${dni}`)
+        .then(res => res.json())
+        .then(data => {
+        if (data.ok) setPersonasRelacionadas(data.data);
+        })
+        .catch(err => console.error('Error personas:', err))
+        .finally(() => setLoadingPersonas(false));
+
+    // Fetch vehículos relacionados
+    fetch(`http://localhost:4000/related-vehicles/${dni}`)
+        .then(res => res.json())
+        .then(data => {
+        if (data.ok) setVehiculosRelacionados(data.data);
+        })
+        .catch(err => console.error('Error vehículos:', err))
+        .finally(() => setLoadingVehiculos(false));
+    }, [dni]);
+
+
+    // Traer a la persona para editar
+    useEffect(() => {
+    const fetchPersona = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/people/${dni}`);
+        if (response.data.ok) {
+          setPersona(response.data.data);
+        } else {
+          Swal.fire('No encontrado', response.data.message, 'error');
+        }
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo cargar la persona', 'error');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPersona();
+  }, [dni]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     try {
-      const response = await axios.get(`https://arbadev-back-joq0.onrender.com/personas/${license_plate}`);
-      setPersona(response.data);
+      await axios.put(`http://localhost:4000/people/${dni}`, persona);
+      Swal.fire('Persona actualizada correctamente', '', 'success');
     } catch (error) {
-      console.error('Error al obtener la persona:', error);
+      Swal.fire('Error', 'No se pudo actualizar', 'error');
     }
   };
-
-  fetchPersona();
-}, [license_plate]);
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    await axios.put(`https://arbadev-back-joq0.onrender.com/personas/${license_plate}`, persona);
-    Swal.fire('Persona actualizada', '', 'success');
-  } catch (error) {
-    Swal.fire('Error', 'No se pudo actualizar la persona', 'error');
-  }
-};
-
-
 
   return (
     <div>
@@ -86,11 +120,10 @@ const handleSubmit = async (e) => {
                         <button
                         type="button"
                         onClick={() => setEditable((prev) => !prev)}
-                        className={`text-blue-600 hover:text-blue-800
-                            ${editable 
+                        className={editable 
                             ? "text-gray-500 hover:text-gray-700 p-1 border" 
                             : "text-blue-600 hover:text-blue-800"
-                            }`}
+                            }
                         >
                         <PencilLine className="w-4 h-4" />
                         </button>
@@ -105,7 +138,7 @@ const handleSubmit = async (e) => {
                             <span>{persona.phone_number || '---'}</span>
                         </p>
                         <p className="text-sm text-gray-700 flex items-center gap-2">
-                            <IdCard className="w-4 h-4 text-violet-700" />
+                            <IdCard className="w-4 h-4 text-gray-600" />
                             <span>{persona.dni || '---'}</span>
                         </p>
                     </div>
@@ -188,12 +221,19 @@ const handleSubmit = async (e) => {
                     <hr className="border-t border-gray-300 mt-2"/>
                     {mostrarPersonasRelacionadas && (
                         <div className="flex justify-center py-5">
-                            <ul>
-                                <li className='text-sm text-gray-700'>
-                                    nombre apellido1 apellido2 - INC12345
-                                    {/* {p.first_name}, {p.last_name1}, {p.last_name2} – {p.code_incident}  */}
-                                </li>
-                            </ul>
+                            {loadingPersonas ? (
+                                <p className="text-gray-500">Cargando personas...</p>
+                            ) : personasRelacionadas.length === 0 ? (
+                                <p className="text-gray-500 italic">No hay personas relacionadas</p>
+                            ) : (
+                                <ul className="space-y-2">
+                                {personasRelacionadas.map((p, idx) => (
+                                    <li key={idx} className="border p-2 rounded shadow-sm">
+                                    {p.first_name} {p.last_name1} ({p.dni}) - {p.incident_code}
+                                    </li>
+                                ))}
+                                </ul>
+                            )}
                         </div>
                     )}
                 </div>
@@ -215,20 +255,19 @@ const handleSubmit = async (e) => {
                     <hr className="border-t border-gray-300 mt-2"/>
                     {mostrarVehiculosRelacionados && (
                         <div className="flex justify-center p-5">
-                            <ul>
-                                <li>
-                                    <p>Marca Modelo Color - INC12345</p>
-                                </li>
-                                <li>
-                                    <p>Marca Modelo Color - INC12345</p>
-                                </li>
-                                <li>
-                                    <p>Marca Modelo Color - INC12345</p>
-                                </li>
-                                <li>
-                                    <p>Marca Modelo Color - INC12345</p>
-                                </li>
-                            </ul>
+                            {loadingVehiculos ? (
+                                <p className="text-gray-500">Cargando vehículos...</p>
+                            ) : vehiculosRelacionados.length === 0 ? (
+                                <p className="text-gray-500 italic">No hay vehículos relacionados</p>
+                            ) : (
+                                <ul className="space-y-2">
+                                {vehiculosRelacionados.map((v, idx) => (
+                                    <li key={idx} className="border p-2 rounded shadow-sm">
+                                    {v.brand} {v.model} ({v.license_plate}) - Incidencia: {v.incident_code}
+                                    </li>
+                                ))}
+                                </ul>
+                            )}
                         </div>
                     )}
                 </div>

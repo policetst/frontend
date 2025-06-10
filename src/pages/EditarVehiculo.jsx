@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { Link } from 'react-router-dom';
 import { PencilLine, CarFront, SwatchBook, Eye, EyeOff } from 'lucide-react';
 
 
-
 function EditarVehiculo() {
-  document.title = "SIL Tauste - Editar Vehiculo";
+    useEffect(() => {
+        document.title = "SIL Tauste - Editar Vehículo";
+    }, []);
   
   const { license_plate } = useParams(); // obtener de la URL
 
@@ -24,31 +24,66 @@ function EditarVehiculo() {
   const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState(false);
   const [mostrarVehiculosRelacionados, setMostrarVehiculosRelacionados] = useState(false);  
 
+  const [personasRelacionadas, setPersonasRelacionadas] = useState([]);
+  const [vehiculosRelacionados, setVehiculosRelacionados] = useState([]);
+
+  const [loadingPersonas, setLoadingPersonas] = useState(true);
+  const [loadingVehiculos, setLoadingVehiculos] = useState(true);
+
+    //   Relaciones 
+    useEffect(() => {
+    // Fetch personas relacionadas
+    fetch(`http://localhost:4000/related-people/${license_plate}`)
+        .then(res => res.json())
+        .then(data => {
+        if (data.ok) setPersonasRelacionadas(data.data);
+        })
+        .catch(err => console.error('Error personas:', err))
+        .finally(() => setLoadingPersonas(false));
+
+    // Fetch vehículos relacionados
+    fetch(`http://localhost:4000/related-vehicles/${license_plate}`)
+        .then(res => res.json())
+        .then(data => {
+        if (data.ok) setVehiculosRelacionados(data.data);
+        })
+        .catch(err => console.error('Error vehículos:', err))
+        .finally(() => setLoadingVehiculos(false));
+    }, [license_plate]);
+
+
+  // Traer un vehiculo para editar
   useEffect(() => {
     const fetchVehiculo = async () => {
       try {
-        const response = await axios.get(`https://arbadev-back-joq0.onrender.com/vehicles/${license_plate}`);
-        setVehiculo(response.data);
+        const response = await axios.get(`http://localhost:4000/vehicles/${license_plate}`);
+        if (response.data.ok) {
+          setVehiculo(response.data.data);
+        } else {
+          Swal.fire('No encontrado', response.data.message, 'error');
+        }
       } catch (error) {
-        console.error('Error al obtener vehículo:', error);
+        Swal.fire('Error', 'No se pudo cargar el vehículo', 'error');
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchVehiculo();
   }, [license_plate]);
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await axios.put(`/vehicles/${license_plate}`, vehiculo);
-      Swal.fire('Vehículo actualizado', '', 'success');
+      await axios.put(`http://localhost:4000/vehicles/${license_plate}`, vehiculo);
+      Swal.fire('Vehículo actualizado correctamente', '', 'success');
     } catch (error) {
-      Swal.fire('Error', 'No se pudo actualizar el vehículo', 'error');
+      Swal.fire('Error', 'No se pudo actualizar', 'error');
     }
   };
-
-
 
   return (
     <div>
@@ -86,11 +121,10 @@ function EditarVehiculo() {
                         <button
                         type="button"
                         onClick={() => setEditable((prev) => !prev)}
-                        className={`text-blue-600 hover:text-blue-800
-                            ${editable 
+                        className={editable 
                             ? "text-gray-500 hover:text-gray-700 p-1 border" 
                             : "text-blue-600 hover:text-blue-800"
-                            }`}
+                            }
                         >
                         <PencilLine className="w-4 h-4" />
                         </button>
@@ -180,12 +214,19 @@ function EditarVehiculo() {
                     <hr className="border-t border-gray-300 mt-2"/>
                     {mostrarPersonasRelacionadas && (
                         <div className="flex justify-center py-5">
-                            <ul>
-                                <li className='text-sm text-gray-700'>
-                                    nombre apellido1 apellido2 - INC12345
-                                    {/* {p.first_name}, {p.last_name1}, {p.last_name2} – {p.code_incident}  */}
-                                </li>
-                            </ul>
+                            {loadingPersonas ? (
+                                <p className="text-gray-500">Cargando personas...</p>
+                            ) : personasRelacionadas.length === 0 ? (
+                                <p className="text-gray-500 italic">No hay personas relacionadas</p>
+                            ) : (
+                                <ul className="space-y-2">
+                                {personasRelacionadas.map((p, idx) => (
+                                    <li key={idx} className="border p-2 rounded shadow-sm">
+                                    {p.first_name} {p.last_name1} ({p.dni}) - {p.incident_code}
+                                    </li>
+                                ))}
+                                </ul>
+                            )}
                         </div>
                     )}
                 </div>
@@ -207,20 +248,19 @@ function EditarVehiculo() {
                     <hr className="border-t border-gray-300 mt-2"/>
                     {mostrarVehiculosRelacionados && (
                         <div className="flex justify-center p-5">
-                            <ul>
-                                <li>
-                                    <p>Marca Modelo Color - INC12345</p>
-                                </li>
-                                <li>
-                                    <p>Marca Modelo Color - INC12345</p>
-                                </li>
-                                <li>
-                                    <p>Marca Modelo Color - INC12345</p>
-                                </li>
-                                <li>
-                                    <p>Marca Modelo Color - INC12345</p>
-                                </li>
-                            </ul>
+                            {loadingVehiculos ? (
+                                <p className="text-gray-500">Cargando vehículos...</p>
+                            ) : vehiculosRelacionados.length === 0 ? (
+                                <p className="text-gray-500 italic">No hay vehículos relacionados</p>
+                            ) : (
+                                <ul className="space-y-2">
+                                {vehiculosRelacionados.map((v, idx) => (
+                                    <li key={idx} className="border p-2 rounded shadow-sm">
+                                    {v.brand} {v.model} ({v.license_plate}) - Incidencia: {v.incident_code}
+                                    </li>
+                                ))}
+                                </ul>
+                            )}
                         </div>
                     )}
                 </div>
