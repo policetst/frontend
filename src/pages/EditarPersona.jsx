@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams,Link } from 'react-router-dom';
 import axios from 'axios';
 const URL = import.meta.env.VITE_BASE_URL; // Asegúrate de que esta variable esté definida en tu .env
 import Swal from 'sweetalert2';
@@ -230,7 +230,7 @@ function EditarPersona() {
                                 <ul className="space-y-2">
                                 {personasRelacionadas.map((p, idx) => (
                                     <li key={idx} className="border p-2 rounded shadow-sm">
-                                    {p.first_name} {p.last_name1} ({p.dni}) - {p.incident_code}
+                                    {p.first_name} {p.last_name1} ({<Link to={`/editarpersona/${p.dni}`} className='text-blue-600 hover:text-blue-700'>{p.dni}</Link>}) - <Link to={`/editincident/${p.incident_code}`} className='text-blue-600 hover:text-blue-700'>{p.incident_code}</Link>
                                     </li>
                                 ))}
                                 </ul>
@@ -264,7 +264,7 @@ function EditarPersona() {
                                 <ul className="space-y-2">
                                 {vehiculosRelacionados.map((v, idx) => (
                                     <li key={idx} className="border p-2 rounded shadow-sm">
-                                    {v.brand} {v.model} ({v.license_plate}) - Incidencia: {v.incident_code}
+                                    {v.brand} {v.model} ({<Link to={`/editarvehiculo/${v.license_plate}`} className='text-blue-600 hover:text-blue-700'>{v.license_plate}</Link>}) - Incidencia: <Link to={`/editincident/${v.incident_code}`} className='text-blue-600 hover:text-blue-700'>{v.incident_code}</Link>
                                     </li>
                                 ))}
                                 </ul>
