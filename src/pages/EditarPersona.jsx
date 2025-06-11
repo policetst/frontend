@@ -21,17 +21,29 @@ function EditarPersona() {
 
 //   Controles para editar vehiculo y mostar sus relaciones
   const [editable, setEditable] = useState(false);
+  const [mostrarIncidenciasRelacionadas, setMostrarIncidenciasRelacionadas] = useState(false);  
   const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState(false);
   const [mostrarVehiculosRelacionados, setMostrarVehiculosRelacionados] = useState(false);  
 
+  const [incidenciasRelacionadas, setIncidenciasRelacionadas] = useState([]);
   const [personasRelacionadas, setPersonasRelacionadas] = useState([]);
   const [vehiculosRelacionados, setVehiculosRelacionados] = useState([]);
 
   const [loadingPersonas, setLoadingPersonas] = useState(true);
   const [loadingVehiculos, setLoadingVehiculos] = useState(true);
 
-  //   Relaciones 
+    // Relaciones 
     useEffect(() => {
+
+    // Fetch incidencias relacionadas 
+    fetch(`${URL}/incident-person/${dni}`)
+        .then(res => res.json())
+        .then(data => {
+        if (data.ok) setIncidenciasRelacionadas(data.data);
+        })
+        .catch(err => console.error('Error incidencias de persona:', err))
+        .finally(() => setLoadingPersonas(false));
+
     // Fetch personas relacionadas
     fetch(`${URL}/related-people/${dni}`)
         .then(res => res.json())
@@ -156,44 +168,48 @@ function EditarPersona() {
                     {/* Contenedor que centra el formulario */}
                     <div className="flex justify-center my-4">
                     <form onSubmit={handleSubmit} className="w-[80%] max-w-[600px] space-y-4 bg-white p-4 rounded shadow-md">
-                        <input
-                        type="text"
-                        value={persona.first_name}
-                        onChange={(e) => setPersona({ ...persona, first_name: e.target.value })}
-                        readOnly={!editable}
-                        placeholder="Nombre"
-                        className={`w-full p-2 border rounded ${editable ? '' : 'bg-gray-100'}`}
-                        />
-                        <input
-                        type="text"
-                        value={persona.last_name1}
-                        onChange={(e) => setPersona({ ...persona, last_name1: e.target.value })}
-                        readOnly={!editable}
-                        placeholder="Apellido 1"
-                        className={`w-full p-2 border rounded ${editable ? '' : 'bg-gray-100'}`}
-                        />
-                        <input
-                        type="text"
-                        value={persona.last_name2}
-                        onChange={(e) => setPersona({ ...persona, last_name2: e.target.value })}
-                        readOnly={!editable}
-                        placeholder="Apellido 2"
-                        className={`w-full p-2 border rounded ${editable ? '' : 'bg-gray-100'}`}
-                        />
-                        <input
-                        type="text"
-                        value={persona.phone_number}
-                        onChange={(e) => setPersona({ ...persona, phone_number: e.target.value })}
-                        readOnly={!editable}
-                        placeholder="Número de contacto"
-                        className={`w-full p-2 border rounded ${editable ? '' : 'bg-gray-100'}`}
-                        />
-                        <button
-                        type="submit"
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        >
-                        Guardar cambios
-                        </button>
+                      <label>Nombre:</label>
+                      <input
+                      type="text"
+                      value={persona.first_name}
+                      onChange={(e) => setPersona({ ...persona, first_name: e.target.value })}
+                      readOnly={!editable}
+                      placeholder="Nombre"
+                      className={`w-full p-2 border border-gray-400 rounded ${editable ? '' : 'bg-gray-100'}`}
+                      />
+                      <label>Primer apellido:</label>
+                      <input
+                      type="text"
+                      value={persona.last_name1}
+                      onChange={(e) => setPersona({ ...persona, last_name1: e.target.value })}
+                      readOnly={!editable}
+                      placeholder="Apellido 1"
+                      className={`w-full p-2 border border-gray-400 rounded ${editable ? '' : 'bg-gray-100'}`}
+                      />
+                      <label>Segundo apellido:</label>
+                      <input
+                      type="text"
+                      value={persona.last_name2}
+                      onChange={(e) => setPersona({ ...persona, last_name2: e.target.value })}
+                      readOnly={!editable}
+                      placeholder="Apellido 2"
+                      className={`w-full p-2 border border-gray-400 rounded ${editable ? '' : 'bg-gray-100'}`}
+                      />
+                      <label>Teléfono de contacto:</label>
+                      <input
+                      type="text"
+                      value={persona.phone_number}
+                      onChange={(e) => setPersona({ ...persona, phone_number: e.target.value })}
+                      readOnly={!editable}
+                      placeholder="Número de contacto"
+                      className={`w-full p-2 border border-gray-400 rounded ${editable ? '' : 'bg-gray-100'}`}
+                      />
+                      <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                      Guardar cambios
+                      </button>
                     </form>
                     </div>
                 </div>
@@ -203,6 +219,41 @@ function EditarPersona() {
 
             {/* Columna 2 */}
             <div className="flex-1 bg-gray-50 px-4">
+              {/* Mostrar incidencias relacionadas */}
+                <div className="border border-gray-300 border-sm rounded mb-4">
+                    <div className="flex justify-between px-5 pt-2">
+                        <h3 className="text-lg font-bold">Incidencias relacionadas</h3>
+                        <button
+                            type="button"
+                            onClick={() => setMostrarIncidenciasRelacionadas((prev) => !prev)}
+                            className="text-blue-600 hover:text-blue-700"
+                            >
+                            {mostrarIncidenciasRelacionadas 
+                                ? <EyeOff className="w-4 h-4" />
+                                : <Eye className="w-4 h-4" />
+                            }
+                        </button>
+                        
+                    </div>
+                    <hr className="border-t border-gray-300 mt-2"/>
+                    {mostrarIncidenciasRelacionadas && (
+                        <div className="flex justify-center py-5">
+                            {loadingPersonas ? (
+                                <p className="text-gray-500">Cargando incidencias...</p>
+                            ) : incidenciasRelacionadas.length === 0 ? (
+                                <p className="text-gray-500 italic">No hay incidencias relacionadas</p>
+                            ) : (
+                                <ul className="space-y-2">
+                                {incidenciasRelacionadas.map((p, idx) => (
+                                    <li key={idx} className="border p-2 rounded shadow-sm">
+                                    {p.first_name} {p.last_name1} ({p.dni}) - {p.incident_code}
+                                    </li>
+                                ))}
+                                </ul>
+                            )}
+                        </div>
+                    )}
+                </div>
                 {/* Mostrar personas relacionadas */}
                 <div className="border border-gray-300 border-sm rounded ">
                     <div className="flex justify-between px-5 pt-2">

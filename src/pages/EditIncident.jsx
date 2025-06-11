@@ -57,6 +57,9 @@ const EditIncident = () => {
     });
   };
 
+  const [mostrarFormularioPersona, setMostrarFormularioPersona] = useState(false);
+  const [mostrarFormularioVehiculo, setMostrarFormularioVehiculo] = useState(false);
+
   const Navigate = useNavigate();
   console.log('code: '+ code);
   
@@ -664,55 +667,76 @@ const formToSend = {
 
               {/* Sección personas */}
               <div>
-                <h2 className="text-xl font-bold mb-2">Personas ({personas.length})</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
-                  <input
-                    type="text"
-                    name="dni"
-                    onBlur={handleDniBlur}
-                    placeholder="DNI - NIE"
-                    value={nuevaPersona.dni}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Nombre"
-                    value={nuevaPersona.first_name}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="1º Apellido"
-                    value={nuevaPersona.last_name1}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="2º Apellido"
-                    value={nuevaPersona.last_name2}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Teléfono"
-                    value={nuevaPersona.phone_number}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                </div>
+                <h3 className="text-xl font-bold mb-2">Personas</h3>
+                
                 <button
                   type="button"
-                  onClick={agregarPersona}
-                  className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                  disabled={form.status === 'Closed' ? true : false}
-                  >
-                  Añadir persona
+                  onClick={() => setMostrarFormularioPersona(prev => !prev)}
+                  className={`px-3 py-1 rounded text-white 
+                    ${mostrarFormularioPersona 
+                      ? 'bg-gray-400 hover:bg-gray-700' 
+                      : 'bg-[#002856] hover:bg-cyan-600'}
+                  `}
+                >
+                  {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
                 </button>
 
+              </div>
+              <div className="mt-4">
+                {mostrarFormularioPersona && (
+                  <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+                      <input
+                        type="text"
+                        name="dni"
+                        onBlur={handleDniBlur}
+                        placeholder="DNI - NIE"
+                        value={nuevaPersona.dni}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Nombre"
+                        value={nuevaPersona.first_name}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="1º Apellido"
+                        value={nuevaPersona.last_name1}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="2º Apellido"
+                        value={nuevaPersona.last_name2}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Teléfono"
+                        value={nuevaPersona.phone_number}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={agregarPersona}
+                      className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={form.status === 'Closed' ? true : false}
+                      >
+                      Añadir persona
+                    </button>
+                </div>
+                )}
+              </div>
+              
+              <div>
                 {personas.length > 0 && (
                   <ul className="list-disc list-inside text-sm">
                     {personas.map((p, i) => (
@@ -725,7 +749,7 @@ const formToSend = {
                             <span className="text-sm">{p.dni} - {p.phone_number}</span>
                           </span>
                           
-                          {/* Boton para retirar la persona. Version escritorio o tablet */}
+                          {/* Boton para retirar la persona. Version movil */}
                           <button
                             type="button"
                             onClick={() => handleDeletePerson(i)}
@@ -734,7 +758,7 @@ const formToSend = {
                             X
                           </button>
                           
-                          {/* Boton para retirar la persona. Version movil */}
+                          {/* Boton para retirar la persona. Version escritorio o tablet */}
                           <button
                             type="button"
                             onClick={() => handleDeletePerson(i)}
@@ -753,47 +777,67 @@ const formToSend = {
               {/* Sección vehículos */}
               <div>
                 <h2 className="text-xl font-bold mb-2">Vehículos{/*({vehiculos.length})*/}</h2> 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
-                  <input
-                    type="text"
-                    placeholder="Matrícula"
-                    onBlur={handleMatriculaBlur}
-                    value={nuevoVehiculo.license_plate}
-                    onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Marca"
-                    value={nuevoVehiculo.brand}
-                    onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Modelo"
-                    value={nuevoVehiculo.model}
-                    onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Color"
-                    value={nuevoVehiculo.color}
-                    onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                </div>
-                
                 <button
                   type="button"
-                  onClick={agregarVehiculo}
-                  className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                  disabled={form.status === 'Closed' ? true : false}
+                  onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
+                  className={`px-3 py-1 rounded text-white 
+                    ${mostrarFormularioVehiculo 
+                      ? 'bg-gray-400 hover:bg-gray-700' 
+                      : 'bg-[#002856] hover:bg-cyan-600'}
+                  `}
                 >
-                  Añadir vehículo
+                  {mostrarFormularioVehiculo ? 'Ocultar' : 'Nuevo vehículo'}
                 </button>
+              </div>
+                
+              <div className="mt-4">
+                {mostrarFormularioVehiculo && (
+                <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+                    <input
+                      type="text"
+                      placeholder="Matrícula"
+                      onBlur={handleMatriculaBlur}
+                      value={nuevoVehiculo.license_plate}
+                      onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
+                      className="p-2 border rounded"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Marca"
+                      value={nuevoVehiculo.brand}
+                      onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
+                      className="p-2 border rounded"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Modelo"
+                      value={nuevoVehiculo.model}
+                      onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
+                      className="p-2 border rounded"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Color"
+                      value={nuevoVehiculo.color}
+                      onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
+                      className="p-2 border rounded"
+                    />
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={agregarVehiculo}
+                    className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                    disabled={form.status === 'Closed' ? true : false}
+                  >
+                    Añadir vehículo
+                  </button>
+                </div>
+                )}
+              </div>
 
+              <div>
                 {vehiculos.length > 0 && (
                   <ul className="list-disc list-inside text-sm">
                     {vehiculos.map((v, i) => (
