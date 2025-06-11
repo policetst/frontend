@@ -136,3 +136,17 @@ export const createUser = async (userData) => {
     return null;
   }
 };
+export const checkLoginStatus = async (code) => {
+  try {
+    const token = getTokenFromCookie();
+    const response = await axios.post(`${USERS_URL}/loginstate`, { code }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data || null;
+  } catch (error) {
+    console.error("Error checking login stats:", error);
+    return null;
+  }
+}

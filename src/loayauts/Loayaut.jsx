@@ -3,6 +3,7 @@
   import { useCookies } from 'react-cookie';
   import '../index.css';
   import Notifications from '../components/Notifications';
+  import { checkLoginStatus } from '../funcs/Users';
   import {
     Menu,
     X,
@@ -52,6 +53,16 @@
         setIsSidebarOpen(false);
       }
     };
+useEffect(() => {
+      const checkUserStatus = async () => {
+        const isLoggedIn = await checkLoginStatus(user_code);
+console.log('Estado de inicio de sesión:', isLoggedIn.must_change_password);
+        if (isLoggedIn.must_change_password) {
+          navigate(`/reset-password/${user_code}`);
+        }
+      };
+      checkUserStatus();
+    }, [navigate, user_code]);
 
     return (
       <div className="flex h-screen bg-gray-50 overflow-hidden dark">
