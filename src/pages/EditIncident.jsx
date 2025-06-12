@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   getIncident,
   updateIncident,
@@ -648,7 +648,7 @@ const handleMatriculaBlur = async (e) => {
                         <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-4">
                           <span className="flex flex-col flex-1 min-w-0">
                             <span className="truncate text-lg font-medium">{p.first_name} {p.last_name1} {p.last_name2}</span>
-                            <span className="text-sm">{p.dni} - {p.phone_number}</span>
+                            <span className="text-sm"><Link to={`/editarpersona/${p.dni}`} className="text-blue-600 hover:text-blue-700">{p.dni}</Link> - {p.phone_number}</span>
                           </span>
                           <button
                             type="button"
@@ -713,7 +713,7 @@ const handleMatriculaBlur = async (e) => {
                         <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-2">
                           <span className="flex flex-col flex-1 min-w-0">
                             <span className="truncate text-lg font-medium">{v.brand} {v.model}</span>
-                            <span className="text-sm">{v.license_plate} - {v.color}</span>
+                            <span className="text-sm"><Link to={`/editarvehiculo/${v.license_plate}`} className="text-blue-600 hover:text-blue-700">{v.license_plate}</Link> - {v.color}</span>
                           </span>
                           <button
                             type="button"
