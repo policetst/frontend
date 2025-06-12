@@ -50,8 +50,33 @@ function Login() {
           const token = response.data.token;
           //* save the cookie with the token
           setCookie('token', token, { path: '/', maxAge: 3600 }); // 1 hour
-          localStorage.setItem('username', username); // * save the username in local storage     
-          //* navigate to the incident page
+     //! set user in local storage 1 hour
+     function setUserWithExpiry(username) {
+      Swal.fire({
+        title: '¡Acceso concedido!',
+        text: `Bienvenido, ${username} la sesion expirará en 1 hora.`,
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      });
+  const expiry = Date.now() + 3600 * 1000; // 1 hour in milliseconds
+  localStorage.setItem('username', username);
+
+// Set a timeout to remove the user after 1 hour
+  setTimeout(() => {
+    localStorage.removeItem('username');
+    setCookie('token', '', { path: '/' }); // Clear the cookie
+    Swal.fire({
+      title: 'Sesión expirada',
+      text: 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.',
+      icon: 'warning',
+      confirmButtonText: 'Aceptar'
+    });
+    navigate('/login');
+  }, 3600 * 1000); // 1 hora en ms
+}
+  setUserWithExpiry(username);
+
+          //* navigate to the main page
           navigate('/');
       
         } catch (error) {
@@ -206,9 +231,9 @@ function Login() {
                       tabIndex={-1}
                       >
                       {visible ? (
-                      <i className="ti ti-eye-off text-xl"></i>
+                      <EyeOff className=""></EyeOff>
                       ) : (
-                      <i className="ti ti-eye text-xl"></i>
+                      <Eye className=""></Eye>
                       )}
                     </button>
                   </div>

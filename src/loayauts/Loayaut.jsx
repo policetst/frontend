@@ -31,7 +31,7 @@
     const navigate = useNavigate();
     useEffect(() => {      
       if (cookies.token == "" || user_code == "") {
-        // navigate('/login');
+         navigate('/login');
       }
     }, [cookies, navigate]);
     
