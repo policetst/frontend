@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-function ImageUpload({ onImagesChange }) {
+function ImageUpload({ onImagesChange, disable }) {
   const fileInputRef = useRef(null); //* Ref for the file input element
   const [images, setImages] = useState([]);
 
@@ -47,6 +47,7 @@ function ImageUpload({ onImagesChange }) {
     <div>
       {/* Campo para subir la imagen */}
       <input
+      disabled={disable}
         type="file"
         accept="image/*"
         multiple

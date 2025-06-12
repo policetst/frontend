@@ -601,6 +601,7 @@ const handleMatriculaBlur = async (e) => {
                     name="dni"
                     onBlur={handleDniBlur}
                     placeholder="DNI - NIE"
+                    disabled={form.status === 'Closed'}
                     value={nuevaPersona.dni}
                     onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
                     className="p-2 border rounded"
@@ -637,7 +638,8 @@ const handleMatriculaBlur = async (e) => {
                 <button
                   type="button"
                   onClick={agregarPersona}
-                  className="mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+                  className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                  disabled={form.status === 'Closed'}
                 >
                   Añadir persona
                 </button>
@@ -672,6 +674,7 @@ const handleMatriculaBlur = async (e) => {
                   <input
                     type="text"
                     placeholder="Matrícula"
+                    disabled={form.status === 'Closed'}
                     onBlur={handleMatriculaBlur}
                     value={nuevoVehiculo.license_plate}
                     onChange={e => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
@@ -702,7 +705,8 @@ const handleMatriculaBlur = async (e) => {
                 <button
                   type="button"
                   onClick={agregarVehiculo}
-                  className="mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+                  className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                  disabled={form.status === 'Closed'}
                 >
                   Añadir vehículo
                 </button>
@@ -763,7 +767,7 @@ const handleMatriculaBlur = async (e) => {
                     </div>
                   </div>
                 )}
-                <ImageUpload onImagesChange={handleImagesChange} />
+                <ImageUpload onImagesChange={handleImagesChange} disabled={form.status} />
               </div>
               <button
                 type="submit"
