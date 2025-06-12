@@ -24,6 +24,7 @@ function EditarVehiculo() {
   const [editable, setEditable] = useState(false);
   const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState(false);
   const [mostrarVehiculosRelacionados, setMostrarVehiculosRelacionados] = useState(false);  
+console.log('license_plate:', v);
 
   const [personasRelacionadas, setPersonasRelacionadas] = useState([]);
   const [vehiculosRelacionados, setVehiculosRelacionados] = useState([]);
@@ -43,7 +44,7 @@ function EditarVehiculo() {
         .finally(() => setLoadingPersonas(false));
 
     // Fetch vehículos relacionados
-    fetch(`${URL}/related-vehiclesp/${license_plate}`)
+    fetch(`${URL}/related-vehicles/${license_plate}`)
         .then(res => res.json())
         .then(data => {
         if (data.ok) setVehiculosRelacionados(data.data);
