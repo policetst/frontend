@@ -43,7 +43,7 @@ function EditarVehiculo() {
         .finally(() => setLoadingPersonas(false));
 
     // Fetch vehículos relacionados
-    fetch(`${URL}/related-vehicles/${license_plate}`)
+    fetch(`${URL}/related-vehiclesp/${license_plate}`)
         .then(res => res.json())
         .then(data => {
         if (data.ok) setVehiculosRelacionados(data.data);
