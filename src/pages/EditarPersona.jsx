@@ -33,7 +33,7 @@ function EditarPersona() {
   //   Relaciones 
     useEffect(() => {
     // Fetch personas relacionadas
-    fetch(`${URL}/related-people/${dni}`)
+    fetch(`${URL}/related-peoplep/${dni}`)
         .then(res => res.json())
         .then(data => {
         if (data.ok) setPersonasRelacionadas(data.data);
