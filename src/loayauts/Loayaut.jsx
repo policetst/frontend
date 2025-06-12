@@ -29,7 +29,7 @@
     const user_code = localStorage.getItem('username');
     const [cookies, setCookie] = useCookies(['user']);
     const navigate = useNavigate();
-    useEffect(() => {      
+    useEffect(() => {
       if (cookies.token == "" || user_code == "") {
          navigate('/login');
       }
@@ -42,7 +42,7 @@
       window.location.href = '/#/login';
       console.log('User logged out');
     };
-        // window.addEventListener("beforeunload", handleLogout);
+       window.addEventListener("beforeunload", handleLogout);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const toggleSidebar = () => {
       setIsSidebarOpen(!isSidebarOpen);
