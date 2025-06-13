@@ -134,35 +134,6 @@ export default function GestionUsuarios() {
           </div>
         </div>
 
-<<<<<<< HEAD
-        <hr />
-
-        {/* Lista de usuarios */}
-        <div className={`space-y-4 ${userRole === 'Administrator' ? 'mt-8' : 'hidden'}`}>
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold pb-5">Gestionar usuarios</h2>
-            <AddUser />
-          </div>
-
-          {/* Tarjetas de usuarios */}
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
-            {usuarios.map((u, index) => (
-              <div
-                key={index}
-                className={`flex justify-between items-center border rounded px-3 py-2 ${
-                  u.status ? 'bg-white text-black' : 'bg-gray-100 text-gray-400'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`w-2 h-full mt-1 rounded-sm ${
-                      u.status ? 'bg-blue-500' : 'bg-gray-400'
-                    }`}
-                  ></div>
-                  <div className="flex flex-col">
-                    <span className={`font-bold ${u.status === 'Inactive' ? 'text-gray-400' : ''}`}>{u.code}</span>
-                    <span className="text-sm">{u.nombre} | {u.email}</span>
-=======
         {/* Formulario */}
         {showUserForm && (
           <div className='flex justify-center'>
@@ -183,7 +154,6 @@ export default function GestionUsuarios() {
                       name="email"
                       className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                     />
->>>>>>> 0da5831c8a491e75cc65ae683e18cbaf53af501c
                   </div>
 
                   <div>
