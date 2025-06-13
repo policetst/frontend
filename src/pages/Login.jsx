@@ -120,7 +120,7 @@ function Login() {
                     className="w-full p-3 border rounded" />
                   </div>
                   
-                  <div>
+                  <div className='mb-8'>
                     <div className="flex justify-between items-center">
                       <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
                       <Link 
@@ -145,7 +145,7 @@ function Login() {
                           type={visible ? "text" : "password"}
                           onChange={handlePasswordChange}
                           value={password}
-                          className="w-full p-3 pr-12 pl-10 border rounded"
+                          className="w-full p-3 border rounded"
                           placeholder=""
                         />
                         <button
@@ -216,9 +216,10 @@ function Login() {
                   </Link>
                 </div>
                 
-                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
+                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600 w-full mb-8">
+                  {/* Icono fingerprint a la izquierda */}
                   <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                    
+                    <i className="ti ti-fingerprint text-xl"></i>
                   </div>
 
                   <div>
@@ -237,6 +238,26 @@ function Login() {
                       )}
                     </button>
                   </div>
+                  {/* eye */}
+                  <input
+                    type={visible ? "text" : "password"}
+                    onChange={handlePasswordChange}
+                    value={password}
+                    className="w-full p-3 border rounded"
+                    placeholder=""
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute top-1/2 right-3 -translate-y-1/2"
+                    tabIndex={-1}
+                  >
+                  {visible ? (
+                  <EyeOff className="w-6 h-6 text-gray-500" />
+                    ) : (
+                  <Eye className="w-6 h-6 text-gray-500" />
+                  )}
+                  </button>
                 </div>
               </div>
 

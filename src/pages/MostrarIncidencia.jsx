@@ -42,6 +42,7 @@ function MostrarIncidencia() {
 
   // Filtro con el nuevo filtro de status
 const incidenciasFiltradas = incidencias.filter(incidencia => {
+  const isClosed = incidencia.status === 'Closed';
   const fechaOk = !filtroFecha || (incidencia.creation_date && incidencia.creation_date.startsWith(filtroFecha));
   const tipoOk = !filtroTipo || incidencia.type === filtroTipo;
   const statusOk = !filtroStatus || incidencia.status === filtroStatus;
@@ -81,81 +82,120 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
           </div>
           {/* Filtros */}
           <div className="flex flex-wrap gap-4 mb-6">
+            {/* Fecha */}
             <input
               type="date"
               value={filtroFecha}
               onChange={e => setFiltroFecha(e.target.value)}
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 
+                        w-full sm:w-full lg:w-1/2 xl:w-auto flex-1"
               placeholder="Filtrar por fecha"
             />
+
+            {/* Tipo */}
             <select
               value={filtroTipo}
               onChange={e => setFiltroTipo(e.target.value)}
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 
+                        w-full sm:w-full lg:w-1/2 xl:w-auto flex-1"
             >
-              <option value="">Todos los tipos</option>
+              <option value="">Tipos</option>
               {tiposUnicos.map(tipo => (
                 <option key={tipo} value={tipo}>{tipo}</option>
               ))}
             </select>
+
+            {/* Estado */}
             <select
               value={filtroStatus}
               onChange={e => setFiltroStatus(e.target.value)}
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 
+                        w-full sm:w-full xl:w-auto flex-1"
             >
-              <option value=""> estados</option>
-              <option value="Open">Abiertas</option>
-              <option value="Closed">Cerradas</option>
+              <option value="">Estado</option>
+              <option value="Open">Abierta</option>
+              <option value="Closed">Cerrada</option>
             </select>
+
+            {/* Búsqueda */}
             <input
               type="text"
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 
+                        w-full"
               placeholder="Buscar por palabras clave"
             />
           </div>
+
           {/* Lista de incidencias */}
           <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-4">
-            {incidenciasFiltradas.map((incidencia) => (
-              <div
-                key={incidencia.id}
-                className="bg-white shadow-md rounded-xl p-4 border hover:shadow-lg transition"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-500">
-                    {incidencia.creation_date ? incidencia.creation_date.split('T')[0] : ''}
-                  </span>
-                  <span className={`px-2 py-1 text-xs rounded-full font-semibold ${incidencia.status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                    {incidencia.status === 'Open' ? 'Abierta' : 'Cerrada'}
-                  </span>
-                </div>
-                <h4 className="text-lg font-semibold mb-1">Código: {incidencia.code}</h4>
-                <p className="text-sm text-gray-700 mb-2"><strong>Tipo:</strong> {incidencia.type}</p>
-                <p className="text-sm text-gray-700 mb-2" style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><strong>Descripción:</strong> {incidencia.description}</p>
-                <div className="text-sm text-gray-600 mb-2">
-                  <p><strong>Creado por:</strong> {incidencia.creator_user_code}</p>
-                  <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>
-                </div>
-                <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
-<div></div>
-                  <span>{incidencia.brigade_field ? '🔧 Brigada' : '—'}</span>
-                </div>
-                <button
-                  onClick={() => handleEdit(incidencia.code)}
-                  className="w-full mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]"
+            {incidenciasFiltradas.map((incidencia) => {
+              const isClosed = incidencia.status === 'Closed';
+
+              return (
+                <div
+                  key={incidencia.id}
+                  className={`rounded-xl shadow-md p-4 transition 
+                    ${isClosed 
+                      ? 'bg-gray-200 border border-gray-300 hover:shadow-lg' 
+                      : 'bg-white border border-gray-400 hover:shadow-lg'}
+                  `}
                 >
-                  Editar
-                </button>
-              </div>
-            ))}
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-500">
+                      {incidencia.creation_date ? incidencia.creation_date.split('T')[0] : ''}
+                    </span>
+                    <span className={`px-2 py-1 text-xs rounded-full font-semibold 
+                      ${isClosed 
+                        ? 'bg-gray-200 text-gray-600' 
+                        : 'bg-green-100 text-green-700'}
+                    `}>
+                      {isClosed ? 'Cerrada' : 'Abierta'}
+                    </span>
+                  </div>
+
+                  <h4 className="text-lg font-semibold mb-1">Código: {incidencia.code}</h4>
+                  <p className="text-sm text-gray-700 mb-2"><strong>Tipo:</strong> {incidencia.type}</p>
+                  <p 
+                    className="text-sm text-gray-700 mb-2" 
+                    style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <strong>Descripción:</strong> {incidencia.description}
+                  </p>
+                  <div className="text-sm text-gray-600 mb-2">
+                    <p><strong>Creado por:</strong> {incidencia.creator_user_code}</p>
+                    <p><strong>Cerrado por:</strong> {incidencia.closure_user_code || '—'}</p>
+                  </div>
+                  <div className="flex justify-end items-center text-sm text-gray-700 mb-2 pr-1">
+                    <span>{incidencia.brigade_field ? 'Enviado a Brigada' : 'No enviado'}</span>
+                  </div>
+
+                  <button
+                    onClick={() => handleEdit(incidencia.code)}
+                    className={`w-full mt-2 px-4 py-1 rounded 
+                      ${isClosed 
+                        ? 'bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white cursor-default' 
+                        : 'bg-[#002856] text-white hover:bg-[#0092CA] active:bg-[#3AAFA9]'}
+                    `}
+                  >
+                    {isClosed ? 'Ver incidencia' : 'Editar incidencia'}
+                  </button>
+                </div>
+              );
+            })}
+
             {incidenciasFiltradas.length === 0 && (
-              <div className="col-span-full text-center text-gray-400">No hay incidencias que coincidan.</div>
+              <div className="col-span-full text-center text-gray-400">
+                No hay incidencias que coincidan.
+              </div>
             )}
+          </div>
+
+
+
           </div>
         </div>
       </div>
-    </div>
   );
 }
 

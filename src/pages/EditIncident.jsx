@@ -28,7 +28,50 @@ const EditIncident = () => {
   const navigate = useNavigate();
   const [cookies] = useCookies(['user']);
 
-  // Estados principales
+  const [mostrarFormularioPersona, setMostrarFormularioPersona] = useState(false);
+  const [mostrarFormularioVehiculo, setMostrarFormularioVehiculo] = useState(false);
+
+  /*
+* Function to close an incident
+* @param {string} incident_code - The code of the incident to close
+* @param {string} agent_code - The code of the agent closing the incident
+* @returns {Promise<void>}
+*/
+  const closeINC = (incident_code, agent_code) => {
+    Swal.fire({
+      title: '¿Cerrar incidencia?',
+      text: "¿Estás seguro de que deseas cerrar esta incidencia?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cerrar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await closeIncident(incident_code, agent_code);
+        if (response.ok) {
+          Swal.fire(
+            'Incidencia cerrada',
+            'La incidencia ha sido cerrada correctamente.',
+            'success'
+          );
+        } else {
+          return;
+          Swal.fire(
+            'Error',
+            response.message || 'No se pudo cerrar la incidencia.',
+            'error'
+        
+          );
+        }
+      }
+    });
+  };
+
+  const Navigate = useNavigate();
+  console.log('code: '+ code);
+  
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     status: 'Open',
@@ -594,55 +637,76 @@ const handleMatriculaBlur = async (e) => {
 
               {/* Sección personas */}
               <div>
-                <h2 className="text-xl font-bold mb-2">Personas ({personas.length})</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
-                  <input
-                    type="text"
-                    name="dni"
-                    onBlur={handleDniBlur}
-                    placeholder="DNI - NIE"
-                    disabled={form.status === 'Closed'}
-                    value={nuevaPersona.dni}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Nombre"
-                    value={nuevaPersona.first_name}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="1º Apellido"
-                    value={nuevaPersona.last_name1}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="2º Apellido"
-                    value={nuevaPersona.last_name2}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Teléfono"
-                    value={nuevaPersona.phone_number}
-                    onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                </div>
+                <h3 className="text-xl font-bold mb-2">Personas</h3>
+                
                 <button
                   type="button"
-                  onClick={agregarPersona}
-                  className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                  disabled={form.status === 'Closed'}
+                  onClick={() => setMostrarFormularioPersona(prev => !prev)}
+                  className={`px-3 py-1 rounded text-white 
+                    ${mostrarFormularioPersona 
+                      ? 'bg-gray-400 hover:bg-gray-700' 
+                      : 'bg-[#002856] hover:bg-cyan-600'}
+                  `}
                 >
-                  Añadir persona
+                  {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
                 </button>
+
+              </div>
+              <div className="mt-4">
+                {mostrarFormularioPersona && (
+                  <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+                      <input
+                        type="text"
+                        name="dni"
+                        onBlur={handleDniBlur}
+                        placeholder="DNI - NIE"
+                        value={nuevaPersona.dni}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Nombre"
+                        value={nuevaPersona.first_name}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="1º Apellido"
+                        value={nuevaPersona.last_name1}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="2º Apellido"
+                        value={nuevaPersona.last_name2}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Teléfono"
+                        value={nuevaPersona.phone_number}
+                        onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
+                        className="p-2 border rounded"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={agregarPersona}
+                      className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={form.status === 'Closed' ? true : false}
+                      >
+                      Añadir persona
+                    </button>
+                </div>
+                )}
+              </div>
+              
+              <div>
                 {personas.length > 0 && (
                   <ul className="list-disc list-inside text-sm">
                     {personas.map((p, i) => (
@@ -652,10 +716,21 @@ const handleMatriculaBlur = async (e) => {
                             <span className="truncate text-lg font-medium">{p.first_name} {p.last_name1} {p.last_name2}</span>
                             <span className="text-sm"><Link to={`/editarpersona/${p.dni}`} className="text-blue-600 hover:text-blue-700">{p.dni}</Link> - {p.phone_number}</span>
                           </span>
+                          
+                          {/* Boton para retirar la persona. Version movil */}
                           <button
                             type="button"
                             onClick={() => handleDeletePerson(i)}
-                            className="ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                            className="block md:hidden ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            X
+                          </button>
+                          
+                          {/* Boton para retirar la persona. Version escritorio o tablet */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePerson(i)}
+                            className="hidden md:block ml-4 px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                           >
                             Eliminar
                           </button>
@@ -669,47 +744,68 @@ const handleMatriculaBlur = async (e) => {
 
               {/* Sección vehículos */}
               <div>
-                <h2 className="text-xl font-bold mb-2">Vehículos</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
-                  <input
-                    type="text"
-                    placeholder="Matrícula"
-                    disabled={form.status === 'Closed'}
-                    onBlur={handleMatriculaBlur}
-                    value={nuevoVehiculo.license_plate}
-                    onChange={e => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Marca"
-                    value={nuevoVehiculo.brand}
-                    onChange={e => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Modelo"
-                    value={nuevoVehiculo.model}
-                    onChange={e => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Color"
-                    value={nuevoVehiculo.color}
-                    onChange={e => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-                    className="p-2 border rounded"
-                  />
-                </div>
+                <h2 className="text-xl font-bold mb-2">Vehículos{/*({vehiculos.length})*/}</h2> 
                 <button
                   type="button"
-                  onClick={agregarVehiculo}
-                  className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                  disabled={form.status === 'Closed'}
+                  onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
+                  className={`px-3 py-1 rounded text-white 
+                    ${mostrarFormularioVehiculo 
+                      ? 'bg-gray-400 hover:bg-gray-700' 
+                      : 'bg-[#002856] hover:bg-cyan-600'}
+                  `}
                 >
-                  Añadir vehículo
+                  {mostrarFormularioVehiculo ? 'Ocultar' : 'Nuevo vehículo'}
                 </button>
+              </div>
+                
+              <div className="mt-4">
+                {mostrarFormularioVehiculo && (
+                <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
+                    <input
+                      type="text"
+                      placeholder="Matrícula"
+                      onBlur={handleMatriculaBlur}
+                      value={nuevoVehiculo.license_plate}
+                      onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
+                      className="p-2 border rounded"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Marca"
+                      value={nuevoVehiculo.brand}
+                      onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
+                      className="p-2 border rounded"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Modelo"
+                      value={nuevoVehiculo.model}
+                      onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
+                      className="p-2 border rounded"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Color"
+                      value={nuevoVehiculo.color}
+                      onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
+                      className="p-2 border rounded"
+                    />
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={agregarVehiculo}
+                    className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                    disabled={form.status === 'Closed' ? true : false}
+                  >
+                    Añadir vehículo
+                  </button>
+                </div>
+                )}
+              </div>
+
+              <div>
                 {vehiculos.length > 0 && (
                   <ul className="list-disc list-inside text-sm">
                     {vehiculos.map((v, i) => (

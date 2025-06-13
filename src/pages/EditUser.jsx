@@ -75,94 +75,107 @@ function EditUser() {
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        className="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md"
-        onSubmit={handleSubmit}
-      >
-        <span className="font-semibold mt-2 text-gray-700 underline block mb-2">
-          Código: {code}
-        </span>
-        <div className="space-y-4">
-          {/* Estado */}
-          <div>
-            <label htmlFor="status" className="block text-md font-medium text-gray-700">
-              Estado
-            </label>
-            <select
-              onChange={handleChange}
-              value={formData.status}
-              id="status"
-              name="status"
-              className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 md:text-md"
-            >
-              <option value="Active">Activo</option>
-              <option value="Inactive">Inactivo</option>
-            </select>
+      <div className="flex justify-center">
+        <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8 text-gray-800">
+          <div className="block text-center xl:text-left">
+            <h2 className="text-2xl font-bold">Editar usuario: <span className='font-medium'>{code}</span></h2>
+            <hr className="border-t border-gray-300 my-4" />
           </div>
+          <div className="flex justify-center">
+            <form className="bg-white p-6 rounded border border-gray-300 shadow-lg w-full md:max-w-md" onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="status" className="block text-md font-medium text-gray-700">Estado</label>
+                  <select
+                    onChange={handleChange}
+                    value={formData.status}
+                    id="status"
+                    name="status"
+                    className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                  >
+                    <option value="Active">Activo</option>
+                    <option value="Inactive">Inactivo</option>
+                  </select>
+                </div>
 
-            {/* Rol */}
-            <div>
-            <label htmlFor="role" className="block text-md font-medium text-gray-700">
-              Rol
-            </label>
-            <select
-              onChange={handleChange}
-              value={formData.role}
-              id="role"
-              name="role"
-              className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 md:text-md"
-            >
-              <option value="Administrator">Administrador</option>
-              <option value="Standard">Estándar</option>
-            </select>
-            </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Contraseña
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="contraseña"
-              autoComplete="new-password"
-            />
+                {/* Rol */}
+                <div>
+                  <label htmlFor="role" className="block text-md font-medium text-gray-700">
+                    Rol
+                  </label>
+                  <select
+                    onChange={handleChange}
+                    value={formData.role}
+                    id="role"
+                    name="role"
+                    className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                  >
+                    <option value="Administrator">Administrador</option>
+                    <option value="Standard">Estándar</option>
+                  </select>
+                </div>
+
+                {/* Contraseña */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Contraseña
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                    placeholder="Contraseña"
+                    autoComplete="new-password"
+                  />
+                </div>
+
+                {/* Repetir contraseña */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Confirmar contraseña
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                    placeholder="Repite contraseña"
+                    autoComplete="new-password"
+                  />
+                </div>
+
+                  {/* Correo de recuperación */}
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                      Correo de recuperación
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      id="email"
+                      name="email"
+                      className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                      placeholder="correoderecuperacion@dominio.ex"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+                  >
+                    Guardar
+                  </button>
+              </div>
+            </form>
           </div>
-
-          {/* Correo */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Correo Electrónico
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              id="email"
-              name="email"
-              className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="correo electrónico"
-            />
-          </div>
-
-          {/* Tema & Brigada (esto NO se guarda porque no está en formData, ojo) */}
-          <div className="flex justify-between">
-        
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            Guardar
-          </button>
         </div>
-      </form>
-    </div>
+      </div>
   );
 }
 

@@ -23,12 +23,12 @@ function Vehiculos() {
       .catch(err => console.error('Error de red al obtener personas:', err));
   }, []);
 
-  // 🔍 Filtrar vehículos
+  // Filtrar vehículos
   const filteredVehicles = vehicles.filter((v) =>
     `${v.brand} ${v.model} ${v.color} ${v.license_plate}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🔍 Filtrar personas
+  // Filtrar personas
   const filteredPeople = people.filter((p) =>
     `${p.first_name} ${p.last_name1} ${p.last_name2} ${p.dni} ${p.phone_number}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
