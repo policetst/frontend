@@ -50,8 +50,33 @@ function Login() {
           const token = response.data.token;
           //* save the cookie with the token
           setCookie('token', token, { path: '/', maxAge: 3600 }); // 1 hour
-          localStorage.setItem('username', username); // * save the username in local storage     
-          //* navigate to the incident page
+     //! set user in local storage 1 hour
+     function setUserWithExpiry(username) {
+      Swal.fire({
+        title: '¡Acceso concedido!',
+        text: `Bienvenido, ${username} la sesion expirará en 1 hora.`,
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      });
+  const expiry = Date.now() + 3600 * 1000; // 1 hour in milliseconds
+  localStorage.setItem('username', username);
+
+// Set a timeout to remove the user after 1 hour
+  setTimeout(() => {
+    localStorage.removeItem('username');
+    setCookie('token', '', { path: '/' }); // Clear the cookie
+    Swal.fire({
+      title: 'Sesión expirada',
+      text: 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.',
+      icon: 'warning',
+      confirmButtonText: 'Aceptar'
+    });
+    navigate('/login');
+  }, 3600 * 1000); // 1 hora en ms
+}
+  setUserWithExpiry(username);
+
+          //* navigate to the main page
           navigate('/');
       
         } catch (error) {
@@ -195,6 +220,23 @@ function Login() {
                   {/* Icono fingerprint a la izquierda */}
                   <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <i className="ti ti-fingerprint text-xl"></i>
+                  </div>
+
+                  <div>
+                    <input type="${visible ? 'text' : 'password'}" name="" id="" placeholder="" onChange={handlePasswordChange}
+                    className="w-full mb-4 p-3 border rounded" />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="absolute top-1/2 right-3 -translate-y-1/2"
+                      tabIndex={-1}
+                      >
+                      {visible ? (
+                      <EyeOff className=""></EyeOff>
+                      ) : (
+                      <Eye className=""></Eye>
+                      )}
+                    </button>
                   </div>
                   {/* eye */}
                   <input

@@ -1,0 +1,144 @@
+    import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { useParams, useNavigate } from "react-router-dom";
+import { checkLoginStatus } from "../funcs/Users";
+import { getTokenFromCookie } from "../funcs/Incidents";
+const USERS_URL = import.meta.env.VITE_USERS_URL; 
+
+const ResetPassword = ({ onSuccess }) => {
+  const navigate = useNavigate();
+  const { code } = useParams(); // Obtiene el código del usuario desde la URL
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMsg("");
+
+    if (!email) {
+      setMsg("Debes escribir tu correo electrónico.");
+      return;
+    }
+    if (password.length < 8) {
+      setMsg("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setMsg("Las contraseñas no coinciden.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await axios.put(
+        `${USERS_URL}/${code}/password`,
+        { email, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getTokenFromCookie()}`,
+          },
+        }
+      );
+      if (res.data.ok) {
+        Swal.fire({
+          title: "Éxito",
+          text: "¡Contraseña actualizada correctamente!",
+          icon: "success",
+        });
+        if (onSuccess) onSuccess();
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        setMsg("No se pudo cambiar la contraseña.");
+      }
+    } catch (err) {
+      setMsg("Error al cambiar la contraseña.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      const isLoggedIn = await checkLoginStatus(code);
+      if (!isLoggedIn) {
+        navigate("/login");
+      }
+    };
+    checkUserStatus();
+  }, [navigate, code]);
+
+  return (
+    <div style={{
+      maxWidth: 400,
+      margin: "0 auto",
+      padding: 32,
+      border: "1px solid #e3e3e3",
+      borderRadius: 16,
+      boxShadow: "0 2px 12px #0001"
+    }}>
+      <h2>Cambiar contraseña</h2>
+      <hr  className="border border-gray-300 my-4"/>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="email">Correo electrónico</label>
+        <input
+          className="border border-gray-300 rounded-md"
+          type="email"
+          id="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={{ width: "100%", margin: "12px 0", padding: 8 }}
+        />
+        <label htmlFor="password">Nueva contraseña</label>
+        <input
+          className="border border-gray-300 rounded-md"
+          type="password"
+          id="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          minLength={8}
+          style={{ width: "100%", margin: "12px 0", padding: 8 }}
+        />
+        <label htmlFor="confirm">Confirmar contraseña</label>
+        <input
+          className="border border-gray-300 rounded-md"
+          type="password"
+          id="confirm"
+          autoComplete="new-password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          minLength={8}
+          style={{ width: "100%", marginBottom: 16, padding: 8 }}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: "100%",
+            padding: 10,
+            background: "#2563eb",
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            cursor: "pointer"
+          }}
+        >
+          {loading ? "Actualizando..." : "Cambiar contraseña"}
+        </button>
+      </form>
+      {msg && <p style={{ color: msg.startsWith("¡") ? "green" : "red", marginTop: 12 }}>{msg}</p>}
+    </div>
+  );
+};
+
+export default ResetPassword;

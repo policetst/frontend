@@ -3,6 +3,7 @@
   import { useCookies } from 'react-cookie';
   import '../index.css';
   import Notifications from '../components/Notifications';
+  import { checkLoginStatus } from '../funcs/Users';
   import {
     Menu,
     X,
@@ -28,9 +29,9 @@
     const user_code = localStorage.getItem('username');
     const [cookies, setCookie] = useCookies(['user']);
     const navigate = useNavigate();
-    useEffect(() => {      
+    useEffect(() => {
       if (cookies.token == "" || user_code == "") {
-        // navigate('/login');
+         navigate('/login');
       }
     }, [cookies, navigate]);
     
@@ -41,7 +42,7 @@
       window.location.href = '/#/login';
       console.log('User logged out');
     };
-        // window.addEventListener("beforeunload", handleLogout);
+       window.addEventListener("beforeunload", handleLogout);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const toggleSidebar = () => {
       setIsSidebarOpen(!isSidebarOpen);
@@ -52,6 +53,16 @@
         setIsSidebarOpen(false);
       }
     };
+useEffect(() => {
+      const checkUserStatus = async () => {
+        const isLoggedIn = await checkLoginStatus(user_code);
+console.log('Estado de inicio de sesión:', isLoggedIn.must_change_password);
+        if (isLoggedIn.must_change_password) {
+          navigate(`/reset-password/${user_code}`);
+        }
+      };
+      checkUserStatus();
+    }, [navigate, user_code]);
 
     return (
       <div className="flex h-screen bg-gray-50 overflow-hidden dark">

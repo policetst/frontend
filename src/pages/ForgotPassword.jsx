@@ -1,12 +1,14 @@
 import React, {useState} from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 function ForgotPassword() {
 
     document.title = "Recuperar contraseña"
      const [email, setEmail] = useState('');
-     
+     const navigate = useNavigate();
+
      /**
       * resetPassword function to send a request to the backend to reset the password
       * @returns {Promise<void>}
@@ -14,7 +16,15 @@ function ForgotPassword() {
      const resetPassword = (email)=> {
   axios.post('https://arbadev-back-joq0.onrender.com/users/resetpassword', { email })
     .then(response => {
-      alert(response.data);
+      Swal.fire({
+        title: 'Éxito',
+        text: 'Se ha enviado un correo electrónico para restablecer tu contraseña.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      });
+    })
+    .then(() => {
+      navigate('/login');
     })
     .catch(error => {
       console.error(error);
@@ -37,7 +47,12 @@ function ForgotPassword() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (email.trim() === '') {
-            alert('Por favor, introduce un correo electrónico válido.');
+            Swal.fire({
+                title: 'Error',
+                text: 'Por favor, ingresa tu correo electrónico.',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
             return;
         }
         resetPassword(email);

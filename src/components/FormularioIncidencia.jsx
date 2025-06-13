@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail } from '../funcs/Incidents';
 import { validarDniNif, validarMatricula } from '../funcs/Incidents';
@@ -124,58 +124,67 @@ const FormularioIncidencia = () => {
     setSelectedImages(files);
   };
 
-  const handleDniBlur = async (e) => {
-    Swal.fire({
-      title: 'Buscando persona...',
-    });
-    const dni = e.target.value.trim();
-    if (validarDniNif(dni)) {
-      console.log(`Buscando persona con DNI/NIE: ${dni}`);
-      
-      try {
-        const token = cookies.user?.token || getTokenFromCookie();
-        const res = await axios.get(`${API_URL}/people/${dni}`, {
-          headers: { Authorization: `Bearer ${token}` }
+const handleDniBlur = async (e) => {
+  const dni = e.target.value.trim();
+  if (validarDniNif(dni)) {
+    try {
+      const token = cookies.user?.token || getTokenFromCookie();
+      const res = await axios.get(`${API_URL}/people/${dni}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.ok && res.data.data) {
+        const personaEncontrada = {
+          dni: res.data.data.dni,
+          first_name: res.data.data.first_name,
+          last_name1: res.data.data.last_name1,
+          last_name2: res.data.data.last_name2,
+          phone_number: res.data.data.phone_number
+        };
+        Swal.fire({
+          icon: 'warning',
+          title: 'Persona encontrada',
+          text: `Se ha encontrado una persona con DNI/NIE: ${dni}`,
+          confirmButtonText: 'Aceptar'
         });
-        if (res.data.ok && res.data.data) {
-          setNuevaPersona({
-            dni: res.data.data.dni,
-            first_name: res.data.data.first_name,
-            last_name1: res.data.data.last_name1,
-            last_name2: res.data.data.last_name2,
-            phone_number: res.data.data.phone_number
-          });
-        }
-      } catch (err) {
+        agregarPersona(personaEncontrada); // <-- pasa los datos directamente
       }
+    } catch (err) {
+      // Si no la encuentra, no hace nada
     }
-  };
+  }
+};
+
 
  
-  const handleMatriculaBlur = async (e) => {
-    Swal.fire({
-      title: 'Buscando vehículo...'
-    });
-    const license_plate = e.target.value.trim();
-    if (validarMatricula(license_plate)) {
-      try {
-        const token = cookies.user?.token || getTokenFromCookie();
-        const res = await axios.get(`${API_URL}/vehicles/${license_plate}`, {
-          headers: { Authorization: `Bearer ${token}` }
+const handleMatriculaBlur = async (e) => {
+  const license_plate = e.target.value.trim();
+  if (validarMatricula(license_plate)) {
+    try {
+      const token = cookies.user?.token || getTokenFromCookie();
+      const res = await axios.get(`${API_URL}/vehicles/${license_plate}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.ok && res.data.data) {
+        const vehiculoEncontrado = {
+          license_plate: res.data.data.license_plate,
+          brand: res.data.data.brand,
+          model: res.data.data.model,
+          color: res.data.data.color,
+        };
+        Swal.fire({
+          icon: 'warning',
+          title: 'Vehículo encontrado',
+          text: `Se ha encontrado un vehículo con matrícula: ${license_plate}`,
+          confirmButtonText: 'Aceptar'
         });
-        if (res.data.ok && res.data.data) {
-          setNuevoVehiculo({
-            license_plate: res.data.data.license_plate,
-            brand: res.data.data.brand,
-            model: res.data.data.model,
-            color: res.data.data.color,
-          });
-        }
-      } catch (err) {
-        // No pasa nada si no existe
+        agregarVehiculo(vehiculoEncontrado); // <-- pasa los datos directamente
       }
+    } catch (err) {
+      // Si no lo encuentra, no hace nada
     }
-  };
+  }
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -300,62 +309,54 @@ const FormularioIncidencia = () => {
   };
 
   // Añadir persona con validación
-  const agregarPersona = async () => {
-    if (!nuevaPersona.dni || !validarDniNif(nuevaPersona.dni)) {
-      const Swal = (await import('sweetalert2')).default;
-      Swal.fire({
-        icon: 'warning',
-        title: 'DNI/NIE inválido',
-        text: 'Introduce un DNI o NIE válido para la persona.',
-        confirmButtonText: 'Aceptar'
-      });
-      return;
-    }
-    if (!nuevaPersona.first_name || !nuevaPersona.last_name1) {
-      const Swal = (await import('sweetalert2')).default;
-      Swal.fire({
-        icon: 'warning',
-        title: 'Faltan campos obligatorios',
-        text: 'Introduce al menos nombre y primer apellido.',
-        confirmButtonText: 'Aceptar'
-      });
-      return;
-    }
-    setPersonas(prev => [...prev, nuevaPersona]);
-    setNuevaPersona({
-      dni: '',
-      first_name: '',
-      last_name1: '',
-      last_name2: '',
-      phone_number: ''
+// Acepta una persona como argumento opcional
+const agregarPersona = async (personaArg = nuevaPersona) => {
+  if (!personaArg.dni || !validarDniNif(personaArg.dni)) {
+    const Swal = (await import('sweetalert2')).default;
+    Swal.fire({
+      icon: 'warning',
+      title: 'DNI/NIE inválido',
+      text: 'Introduce un DNI o NIE válido para la persona.',
+      confirmButtonText: 'Aceptar'
     });
-  };
+    return;
+  }
+  setPersonas(prev => [...prev, personaArg]);
+  setNuevaPersona({
+    dni: '',
+    first_name: '',
+    last_name1: '',
+    last_name2: '',
+    phone_number: ''
+  });
+};
+
 
   // Añadir vehículo con validación
-  const agregarVehiculo = async () => {
-    if (!nuevoVehiculo.license_plate || !validarMatricula(nuevoVehiculo.license_plate)) {
-      const Swal = (await import('sweetalert2')).default;
-      Swal.fire({
-        icon: 'warning',
-        title: 'Matrícula inválida',
-        text: 'Introduce una matrícula válida.',
-        confirmButtonText: 'Aceptar'
-      });
-      return;
-    }
-    if (!nuevoVehiculo.brand || !nuevoVehiculo.model || !nuevoVehiculo.color) {
-      const Swal = (await import('sweetalert2')).default;
-      Swal.fire({
-        icon: 'warning',
-        title: 'Faltan campos obligatorios',
-        text: 'Completa todos los datos del vehículo.',
-        confirmButtonText: 'Aceptar'
-      });
-      return;
-    }
-    setVehiculos(prev => [...prev, nuevoVehiculo]);
-    setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
-  };
+const agregarVehiculo = async (vehiculoArg = nuevoVehiculo) => {
+  if (!vehiculoArg.license_plate || !validarMatricula(vehiculoArg.license_plate)) {
+    const Swal = (await import('sweetalert2')).default;
+    Swal.fire({
+      icon: 'warning',
+      title: 'Matrícula inválida',
+      text: 'Introduce una matrícula válida.',
+      confirmButtonText: 'Aceptar'
+    });
+    return;
+  }
+  if (!vehiculoArg.brand || !vehiculoArg.model || !vehiculoArg.color) {
+    const Swal = (await import('sweetalert2')).default;
+    Swal.fire({
+      icon: 'warning',
+      title: 'Faltan campos obligatorios',
+      text: 'Completa todos los datos del vehículo.',
+      confirmButtonText: 'Aceptar'
+    });
+    return;
+  }
+  setVehiculos(prev => [...prev, vehiculoArg]);
+  setNuevoVehiculo({ brand: '', model: '', color: '', license_plate: '' });
+};
 
   const eliminarPersona = (index) => {
     setPersonas(prev => prev.filter((_, i) => i !== index));
@@ -524,7 +525,7 @@ const FormularioIncidencia = () => {
                   <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-2">
                     <span className="flex flex-col flex-1 min-w-0">
                       <span className="truncate text-lg font-medium">{p.first_name} {p.last_name1} {p.last_name2}</span>
-                      <span className="text-sm">{p.dni} - {p.phone_number}</span>
+                      <span className="text-sm"><Link to={`/editarpersona/${p.dni}`} className="text-blue-600 hover:text-blue-700">{p.dni}</Link> - {p.phone_number}</span>
                     </span>
                     <button
                       onClick={() => eliminarPersona(i)}
@@ -616,7 +617,7 @@ const FormularioIncidencia = () => {
                   <div className="flex justify-between items-center bg-gray-100 p-3 rounded mt-2">
                     <span className="flex flex-col flex-1 min-w-0">
                       <span className="truncate text-lg font-medium">{v.brand} {v.model}</span>
-                      <span className="text-sm">{v.license_plate} - {v.color}</span>
+                      <span className="text-sm"><Link to={`/editarvehiculo/${v.license_plate}`} className="text-blue-600 hover:text-blue-700">{v.license_plate}</Link> - {v.color}</span>
                     </span>
                     <button
                       onClick={() => eliminarVehiculo(i)}
