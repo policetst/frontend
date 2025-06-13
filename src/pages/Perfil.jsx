@@ -149,10 +149,10 @@ export default function GestionUsuarios() {
                       type="email"
                       value={formData.email}
                       onChange={handleChange}
+                      placeholder="correoderecuperacion@dominio.ex"
                       id="email"
                       name="email"
                       className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                      placeholder="Correo de recuperación"
                     />
                   </div>
 
@@ -192,7 +192,7 @@ export default function GestionUsuarios() {
                         id="emailbrigada"
                         name="emailbrigada"
                         className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                        placeholder="Correo electrónico brigada"
+                        placeholder="correodebrigada@dominio.ex"
                       />
                     </div>
                   )}
@@ -214,8 +214,8 @@ export default function GestionUsuarios() {
         {/* Gestión de usuarios - Solo Administradores */}
         {userRole === 'Administrator' && (
           <div className="space-y-4 w-full">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold pb-5">Gestionar usuarios</h2>
+            <div className="block text-center xl:text-left">
+              <h3 className="text-xl font-semibold mb-6">Gestionar usuarios</h3>
             </div>
 
             <div className='flex justify-center'>

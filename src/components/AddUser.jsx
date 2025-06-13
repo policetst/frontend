@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil } from 'lucide-react';
+import { PencilLine } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createUser } from '../funcs/Users';
 
@@ -55,9 +55,9 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
   };
 
   return (
-    <div className="p-4">
+    <div className='w-356'>
       {/* Botones */}
-      <div className="flex justify-center gap-4 mt-6">
+      <div className="flex justify-center gap-4 mt-4">
         <button
           type="button"
           className={`flex items-center gap-2 px-4 py-2 rounded-md border transition ${
@@ -73,7 +73,7 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
 
         <button
           type="button"
-          className={`flex items-center gap-2 px-4 py-2 rounded-md border transition ${
+          className={`flex items-center gap-2 px-6 py-2 rounded-md border transition ${
             showList ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
           }`}
           onClick={() => {
@@ -87,64 +87,69 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
 
       {/* Formulario */}
       {showForm && (
-        <div className="items-center justify-center mt-6">
-          <h3 className="text-lg font-semibold mb-2">Crear usuario</h3>
+        <div className='flex justify-center'>
+          <div className="w-full max-w-[356px] bg-white border border-gray-300 
+                rounded shadow-sm hover:shadow-md transition gap-4 mt-5">
           <form
             onSubmit={handleSubmit}
-            className="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md mx-auto"
+            className="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md"
           >
             <div className="space-y-4">
               <div>
-                <label htmlFor="code" className="block text-md font-medium text-gray-700">Código</label>
+                <label htmlFor="code" className="block text-sm font-medium text-gray-700">Código</label>
                 <input
                   type="text"
                   id="code"
                   value={newUser.code}
+                  placeholder='AR54321'
                   onChange={(e) => setNewUser({ ...newUser, code: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
               </div>
 
               <div>
-                <label htmlFor="nombre" className="block text-md font-medium text-gray-700">Nombre</label>
+                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">Nombre</label>
                 <input
                   type="text"
                   id="nombre"
                   value={newUser.nombre}
+                  placeholder='Nombre'
                   onChange={(e) => setNewUser({ ...newUser, nombre: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-md font-medium text-gray-700">Email</label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo de recuperación</label>
                 <input
                   type="email"
                   id="email"
                   value={newUser.email}
+                  placeholder='correoderecuperacion@dominio.ex'
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-md font-medium text-gray-700">Contraseña</label>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
                 <input
                   type="password"
                   id="password"
                   value={newUser.password}
+                  placeholder='Contraseña'
                   onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
               </div>
 
               <div>
-                <label htmlFor="role" className="block text-md font-medium text-gray-700">Rol</label>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700">Rol</label>
                 <select
                   id="role"
                   value={newUser.role}
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 >
                   <option value="">Seleccione un rol</option>
                   <option value="Administrator">Administrador</option>
@@ -154,19 +159,20 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
 
               <button
                 type="submit"
-                className="mt-4 bg-blue-500 text-white rounded-md px-4 py-2 hover:bg-blue-600 transition"
+                className="mt-2 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-800 transition duration-200"
               >
-                Agregar Usuario
+                Crear usuario
               </button>
             </div>
           </form>
+          </div>
         </div>
       )}
 
       {/* Lista */}
       {showList && (
         <div className="mt-8 space-y-4">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {usuarios.map((u, index) => (
               <div
                 key={index}
@@ -175,14 +181,14 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-2 h-full mt-1 rounded-sm ${u.status === 'Active' ? 'bg-blue-500' : 'bg-gray-400'}`} />
+                  <div className={`w-2 h-full mt-1 rounded ${u.status === 'Active' ? 'bg-blue-500' : 'bg-gray-400'}`} />
                   <div className="flex flex-col">
                     <span className="font-bold">{u.code}</span>
-                    <span className="text-sm">{u.nombre || 'Sin nombre'} | {u.email}</span>
+                    <span className="text-sm">{u.email}</span>
                   </div>
                 </div>
                 <Link to={`/edituser/${u.code}`} className="text-blue-500 hover:text-blue-700">
-                  <Pencil className="w-4 h-4" />
+                  <PencilLine className="mr-3 w-5 h-5" />
                 </Link>
               </div>
             ))}
