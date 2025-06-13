@@ -499,8 +499,8 @@ const FormularioIncidencia = () => {
                   className="p-2 border rounded"
                 />
                 <input
-                  type="text"
-                  placeholder="Teléfono"
+                  type="number"
+                  placeholder="643 321 177 4"
                   value={nuevaPersona.phone_number}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
                   className="p-2 border rounded"
@@ -568,7 +568,7 @@ const FormularioIncidencia = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
                 <input
                   type="text"
-                  placeholder="Matrícula"
+                  placeholder="4704JBN"
                   onBlur={handleMatriculaBlur}
                   value={nuevoVehiculo.license_plate}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
