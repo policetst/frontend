@@ -500,7 +500,7 @@ const FormularioIncidencia = () => {
                 />
                 <input
                   type="number"
-                  placeholder="643 321 177 4"
+                  placeholder="643 321 177"
                   value={nuevaPersona.phone_number}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
                   className="p-2 border rounded"
