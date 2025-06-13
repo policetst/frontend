@@ -5,6 +5,10 @@ import AddUser from '../components/AddUser';
 import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
 
 export default function GestionUsuarios() {
+  useEffect(() => {
+    document.title = "SIL Tauste - Gestion de usuario";
+  }, []);
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',

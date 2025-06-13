@@ -159,7 +159,7 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
 
               <button
                 type="submit"
-                className="mt-2 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-800 transition duration-200"
+                className="pt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-800 transition duration-200"
               >
                 Crear usuario
               </button>

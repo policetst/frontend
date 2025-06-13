@@ -20,16 +20,16 @@ function EditarVehiculo() {
     color: ''
   });
 
-//   Controles para editar vehiculo y mostar sus relaciones
+  // Controles para editar vehiculo y mostar sus relaciones
   const [editable, setEditable] = useState(false);
-  const [mostrarIncidenciasRelacionadas, setMostrarIncidenciasRelacionadas] = useState(false);
-  const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState([]);
-  const [mostrarVehiculosRelacionados, setMostrarVehiculosRelacionados] = useState([]);  
+  const [mostrarIncidenciasRelacionadas, setMostrarIncidenciasRelacionadas] = useState([]);
+  const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState(false);
+  const [mostrarVehiculosRelacionados, setMostrarVehiculosRelacionados] = useState(false);  
     
   const [incidenciasRelacionadas, setIncidenciasRelacionadas] = useState([]);
   const [personasRelacionadas, setPersonasRelacionadas] = useState([]);
   const [vehiculosRelacionados, setVehiculosRelacionados] = useState([]);
-console.log('license_plate:', vehiculosRelacionados);
+  console.log('license_plate:', vehiculosRelacionados);
 
 
   const [loadingPersonas, setLoadingPersonas] = useState(true);
@@ -47,7 +47,7 @@ console.log('license_plate:', vehiculosRelacionados);
         .catch(err => console.error('Error incidencias de persona:', err))
         .finally(() => setLoadingPersonas(false));
 
-    // Fetch incidencias relacionadas
+    // Fetch personas relacionadas
     fetch(`${URL}/related-people/${license_plate}`)
         .then(res => res.json())
         .then(data => {

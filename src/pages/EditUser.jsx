@@ -4,6 +4,10 @@ import { getUserDetails, updateUserDetails } from '../funcs/Users';
 import Swal from 'sweetalert2';
 
 function EditUser() {
+  useEffect(() => {
+        document.title = "SIL Tauste - Editar Usuario";
+  }, []);
+
   const { code } = useParams();
   console.log('Editing user with code:', code);
 
@@ -83,7 +87,7 @@ function EditUser() {
             <form className="bg-white p-6 rounded border border-gray-300 shadow-lg w-full md:max-w-md" onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="status" className="block text-md font-medium text-gray-700">Estado</label>
+                  <label htmlFor="status" className="block text-sm font-medium text-gray-700">Estado</label>
                   <select
                     onChange={handleChange}
                     value={formData.status}
@@ -98,7 +102,7 @@ function EditUser() {
 
                 {/* Rol */}
                 <div>
-                  <label htmlFor="role" className="block text-md font-medium text-gray-700">
+                  <label htmlFor="role" className="block text-sm font-medium text-gray-700">
                     Rol
                   </label>
                   <select
@@ -165,7 +169,7 @@ function EditUser() {
 
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+                    className="w-full bg-blue-600 text-white py-2 mt-3 rounded hover:bg-blue-700 transition duration-200"
                   >
                     Guardar
                   </button>
