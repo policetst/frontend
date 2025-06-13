@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getUserDetails, updateUserDetails } from '../funcs/Users';
 import Swal from 'sweetalert2';
 
 function EditUser() {
+  const navigate = useNavigate();
   const { code } = useParams();
   console.log('Editing user with code:', code);
 
@@ -42,6 +43,7 @@ function EditUser() {
     try {
       const updated = await updateUserDetails(code, formData);
       console.log('User updated:', updated);
+      navigate(`/perfil`);
     } catch (error) {
       console.error('Update failed:', error);
     }

@@ -201,7 +201,7 @@ const fetchUserDetails = async () => {
                     }`}
                   ></div>
                   <div className="flex flex-col">
-                    <span className={`font-bold ${!u.status && 'text-gray-400'}`}>{u.code}</span>
+                    <span className={`font-bold ${u.status === 'Inactive' ? 'text-gray-400' : ''}`}>{u.code}</span>
                     <span className="text-sm">{u.nombre} | {u.email}</span>
                   </div>
                 </div>
