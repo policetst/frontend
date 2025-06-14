@@ -688,6 +688,8 @@ const handleMatriculaBlur = async (e) => {
                       />
                       <input
                         type="number"
+                                   pattern='[0-9]*'
+                  errorMessage="Número de teléfono no válido"
                         placeholder="643 321 177 4"
                         value={nuevaPersona.phone_number}
                         onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}

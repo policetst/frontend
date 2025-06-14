@@ -246,7 +246,7 @@ function EditarPersona() {
                                 <ul className="space-y-2">
                                 {incidenciasRelacionadas.map((p, idx) => (
                                     <li key={idx} className="border p-2 rounded shadow-sm">
-                                    {p.first_name} {p.last_name1} ({p.dni}) - {p.incident_code}
+                                     <Link to={`/editincident/${p.incident_code}`} className='text-blue-600 hover:text-blue-700'>{p.incident_code}</Link> 
                                     </li>
                                 ))}
                                 </ul>
