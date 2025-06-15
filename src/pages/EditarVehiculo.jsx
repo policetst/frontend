@@ -21,7 +21,7 @@ function EditarVehiculo() {
   });
 
   // Controles para editar vehiculo y mostar sus relaciones
-  const [editable, setEditable] = useState(false);
+  const [editable, setEditable] = useState(true);
   const [mostrarIncidenciasRelacionadas, setMostrarIncidenciasRelacionadas] = useState(false);
   const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState(false);
   const [mostrarVehiculosRelacionados, setMostrarVehiculosRelacionados] = useState(false);  

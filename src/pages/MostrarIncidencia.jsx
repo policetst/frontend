@@ -129,7 +129,7 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
           </div>
 
           {/* Lista de incidencias */}
-          <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-4">
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-4">
             {incidenciasFiltradas.map((incidencia) => {
               const isClosed = incidencia.status === 'Closed';
 
