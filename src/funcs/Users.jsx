@@ -95,6 +95,7 @@ export const changeCredentials = async (code, credentials) => {
       Swal.fire({
         title: 'Actualizando...',
         text: 'Por favor espera mientras se actualizan tus credenciales.',
+
         allowOutsideClick: false,
         onBeforeOpen: () => {
           Swal.showLoading();
@@ -103,7 +104,7 @@ export const changeCredentials = async (code, credentials) => {
       credentials.password = bcrypt.hashSync(credentials.password, 10); // Hash the password before sending it
       try {
         const token = getTokenFromCookie();
-        const response = await axios.put(`${USERS_URL}/${code}/password`, credentials, {
+        const response = await axios.put(`${USERS_URL}/${code}/passwordd`, credentials, {
           headers: {
             Authorization: `Bearer ${token}`
           }
