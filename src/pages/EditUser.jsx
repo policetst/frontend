@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 function EditUser() {
   const navigate = useNavigate();
   const { code } = useParams();
+  const [confirmPassword, setConfirmPassword] = useState('');
   console.log('Editing user with code:', code);
 
   const [formData, setFormData] = useState({
@@ -24,6 +25,15 @@ function EditUser() {
   };
 
   const handleSubmit = async (e) => {
+    if  (formData.password !== confirmPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Contraseñas no coinciden',
+        text: 'Por favor, verifica que las contraseñas sean iguales.',
+      });
+      return;
+    }
+    
     e.preventDefault();
     Swal.fire({
       title: '¿Estás seguro?',
@@ -141,8 +151,8 @@ function EditUser() {
                     type="password"
                     id="password"
                     name="password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                     placeholder="Repite contraseña"
                     autoComplete="new-password"
