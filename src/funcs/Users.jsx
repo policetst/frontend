@@ -82,41 +82,68 @@ export const updateUserDetails = async (code, userData) => {
     return null;
   }
 };
+
 export const changeCredentials = async (code, credentials) => {
-  Swal.fire({
+  const { isConfirmed } = await Swal.fire({
     title: 'Cambiar credenciales',
     text: '¿Estás seguro de que deseas cambiar tus credenciales?',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Sí, cambiar',
     cancelButtonText: 'No, cancelar'
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      Swal.fire({
-        title: 'Actualizando...',
-        text: 'Por favor espera mientras se actualizan tus credenciales.',
+  });
 
-        allowOutsideClick: false,
-        onBeforeOpen: () => {
-          Swal.showLoading();
-        }
-      });
-      credentials.password = bcrypt.hashSync(credentials.password, 10); // Hash the password before sending it
-      try {
-        const token = getTokenFromCookie();
-        const response = await axios.put(`${USERS_URL}/${code}/passwordd`, credentials, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        return response.data || null;
-      } catch (error) {
-        console.error("Error changing user credentials:", error);
-        return null;
-      }
+  if (!isConfirmed) return null;
+
+  Swal.fire({
+    title: 'Actualizando...',
+    text: 'Por favor espera mientras se actualizan tus credenciales.',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
     }
   });
-}
+
+  // ¡Ojo! El hash del password debe hacerse preferentemente en el backend.
+  credentials.password = bcrypt.hashSync(credentials.password, 10);
+
+  try {
+    const token = getTokenFromCookie();
+    const response = await axios.put(
+      `${USERS_URL}/${code}/passwordd`,
+      credentials,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    Swal.close();
+
+    await Swal.fire({
+      title: '¡Credenciales actualizadas!',
+      icon: 'success',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+    return response.data || null;
+  } catch (error) {
+    Swal.close();
+
+    await Swal.fire({
+      title: 'Error al cambiar credenciales',
+      text: error.response?.data?.message || 'Ha ocurrido un error inesperado.',
+      icon: 'error',
+      confirmButtonText: 'Cerrar'
+    });
+
+    return null;
+  }
+};
+
 /**
  * Function to create a new user
  * @param {Object} userData - The data for the new user
