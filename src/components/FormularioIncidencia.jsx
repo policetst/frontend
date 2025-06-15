@@ -401,7 +401,7 @@ const FormularioIncidencia = () => {
               name="location"
               value={form.location}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full p-2 border border-gray-200 rounded bg-gray-50"
               placeholder="Latitud, Longitud"
             />
             <Mapview chords={form.location} />
@@ -413,7 +413,7 @@ const FormularioIncidencia = () => {
               name="type"
               value={form.type}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full p-2 border border-gray-200 rounded bg-gray-50"
             >
               <option value="">-- Selecciona un tipo --</option>
               {tipos.map((tipo, idx) => (
@@ -431,7 +431,7 @@ const FormularioIncidencia = () => {
               value={form.description}
               onChange={handleChange}
               rows={4}
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full p-2 border border-gray-200 rounded bg-gray-50"
               placeholder="Escribe una descripción detallada..."
             />
           </div>
@@ -450,8 +450,8 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 my-4" />
 
         {/* Sección personas */}
-        <div>
-          <h3 className="text-xl font-bold mb-2">Personas</h3>
+        <div className='flex justify-between items-center'>
+          <h3 className="text-xl font-bold">Personas</h3>
 
           <button
             type="button"
@@ -459,7 +459,7 @@ const FormularioIncidencia = () => {
             className={`px-3 py-1 rounded text-white 
               ${mostrarFormularioPersona 
                 ? 'bg-gray-400 hover:bg-gray-700' 
-                : 'bg-[#002856] hover:bg-cyan-600'}
+                : 'bg-blue-600 hover:bg-blue-700'}
             `}
           >
             {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
@@ -474,7 +474,7 @@ const FormularioIncidencia = () => {
                   placeholder="DNI - NIE"
                   value={nuevaPersona.dni}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                   onBlur={handleDniBlur}
                 />
                 <input
@@ -482,35 +482,35 @@ const FormularioIncidencia = () => {
                   placeholder="Nombre"
                   value={nuevaPersona.first_name}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
                 <input
                   type="text"
                   placeholder="1º Apellido"
                   value={nuevaPersona.last_name1}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
                 <input
                   type="text"
                   placeholder="2º Apellido"
                   value={nuevaPersona.last_name2}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
                 <input
                   type="number"
-                  placeholder="643 321 177"
+                  placeholder="666333777"
                   value={nuevaPersona.phone_number}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={agregarPersona}
-                className="mt-1 px-3 py-2 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
+                className="mt-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-gray-400"
               >
                 Agregar persona
               </button>
@@ -548,7 +548,7 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 mt-2 mb-4" />
 
         {/* Sección vehículos */}
-        <div>
+        <div className='flex justify-between items-center'>
           <h2 className="text-xl font-bold mb-2">Vehículos</h2>
           <button
             type="button"
@@ -556,7 +556,7 @@ const FormularioIncidencia = () => {
             className={`px-3 py-1 rounded text-white 
               ${mostrarFormularioVehiculo 
                 ? 'bg-gray-400 hover:bg-gray-700' 
-                : 'bg-[#002856] hover:bg-cyan-600'}
+                : 'bg-blue-600 hover:bg-blue-700'}
             `}
           >
             {mostrarFormularioVehiculo ? 'Ocultar' : 'Nuevo vehículo'}
@@ -572,34 +572,34 @@ const FormularioIncidencia = () => {
                   onBlur={handleMatriculaBlur}
                   value={nuevoVehiculo.license_plate}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
                 <input
                   type="text"
                   placeholder="Marca"
                   value={nuevoVehiculo.brand}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
                 <input
                   type="text"
                   placeholder="Modelo"
                   value={nuevoVehiculo.model}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
                 <input
                   type="text"
                   placeholder="Color"
                   value={nuevoVehiculo.color}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-                  className="p-2 border rounded"
+                  className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                 />
               </div>
               <button
                 type="button"
                 onClick={agregarVehiculo}
-                className="mt-2 px-3 py-2 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
+                className="mt-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-gray-400"
               >
                 Agregar vehículo
               </button>
@@ -644,7 +644,7 @@ const FormularioIncidencia = () => {
         <div className="flex justify-center">
           <button
             type="submit"
-            className="mb-2 mt-2 px-4 py-2 w-40 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
+            className="mb-2 mt-2 px-4 py-2 w-40 bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-gray-400"
           >
             Crear incidencia
           </button>

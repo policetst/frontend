@@ -22,7 +22,7 @@ function EditarVehiculo() {
 
   // Controles para editar vehiculo y mostar sus relaciones
   const [editable, setEditable] = useState(false);
-  const [mostrarIncidenciasRelacionadas, setMostrarIncidenciasRelacionadas] = useState([]);
+  const [mostrarIncidenciasRelacionadas, setMostrarIncidenciasRelacionadas] = useState(false);
   const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState(false);
   const [mostrarVehiculosRelacionados, setMostrarVehiculosRelacionados] = useState(false);  
     
@@ -138,7 +138,7 @@ function EditarVehiculo() {
                         onClick={() => setEditable((prev) => !prev)}
                         className={editable 
                             ? "text-gray-500 hover:text-gray-700 p-1 border" 
-                            : "text-blue-600 hover:text-blue-800"
+                            : "text-blue-600 hover:text-blue-700"
                             }
                         >
                         <PencilLine className="w-4 h-4" />

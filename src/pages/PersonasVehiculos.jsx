@@ -118,7 +118,6 @@ function Vehiculos() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

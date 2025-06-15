@@ -84,12 +84,12 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
           <div className="flex flex-wrap gap-4 mb-6">
             {/* Fecha */}
             <input
+              id="fecha"
               type="date"
               value={filtroFecha}
               onChange={e => setFiltroFecha(e.target.value)}
               className="border rounded px-2 py-1 
                         w-full sm:w-full lg:w-1/2 xl:w-auto flex-1"
-              placeholder="Filtrar por fecha"
             />
 
             {/* Tipo */}

@@ -13,8 +13,7 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
     nombre: '',
   });
 
-  const [showForm, setShowForm] = useState(false);
-  const [showList, setShowList] = useState(false);
+  const [showList, setShowList] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,22 +54,9 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
   };
 
   return (
-    <div className='w-356'>
-      {/* Botones */}
-      <div className="flex justify-center gap-4 mt-4">
-        <button
-          type="button"
-          className={`flex items-center gap-2 px-4 py-2 rounded-md border transition ${
-            showForm ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
-          }`}
-          onClick={() => {
-            setShowForm(true);
-            setShowList(false);
-          }}
-        >
-          Crear nuevo agente
-        </button>
-
+    <div className='w-80 lg:w-356'>
+      {/* Botones de conmutacion */}
+      <div className="flex justify-center gap-4">
         <button
           type="button"
           className={`flex items-center gap-2 px-6 py-2 rounded-md border transition ${
@@ -78,15 +64,54 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
           }`}
           onClick={() => {
             setShowList(true);
-            setShowForm(false);
           }}
         >
           Mostrar agentes
         </button>
+        <button
+          type="button"
+          className={`flex items-center gap-2 px-4 py-2 rounded-md border transition ${
+            !showList ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+          }`}
+          onClick={() => {
+            setShowList(false);
+          }}
+        >
+          Crear nuevo agente
+        </button>
       </div>
 
-      {/* Formulario */}
-      {showForm && (
+      {/* Lista de usuarios */}
+      {showList && (
+        <div className="mt-8 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {usuarios.map((u, index) => (
+              <div
+                key={index}
+                className={`flex justify-between items-center text-gray-800 border border-gray-300 rounded px-3 py-2 ${
+                  u.status === 'Active' ? 'bg-white text-black' : 'bg-gray-300 text-white border-gray-300'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-2 h-full mt-1 rounded ${u.status === 'Active' ? 'bg-blue-500' : 'bg-gray-400'}`} />
+                  <div className="flex flex-col">
+                    <span className="font-bold">{u.code}</span>
+                    <span className="text-sm truncate max-w-[140px]">{u.email}</span>
+                  </div>
+                </div>
+                <Link to={`/edituser/${u.code}`} className={`text-blue-500 hover:text-blue-700 ${
+                  u.status === 'Active' ? 'text-blue-500 hover:text-blue-700' : 'text-white hover:text-cyan-100'
+                }`}>
+                  <PencilLine className="mr-3 w-5 h-5" />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Agregar usuario */}
+      {!showList && (
         <div className='flex justify-center'>
           <div className="w-full max-w-[356px] bg-white border border-gray-300 
                 rounded shadow-sm hover:shadow-md transition gap-4 mt-5">
@@ -159,7 +184,7 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
 
               <button
                 type="submit"
-                className="pt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-800 transition duration-200"
+                className="mt-4 py-2 w-full bg-blue-600 text-white rounded hover:bg-blue-800 transition duration-200"
               >
                 Crear usuario
               </button>
@@ -169,32 +194,6 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
         </div>
       )}
 
-      {/* Lista */}
-      {showList && (
-        <div className="mt-8 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {usuarios.map((u, index) => (
-              <div
-                key={index}
-                className={`flex justify-between items-center border rounded px-3 py-2 ${
-                  u.status === 'Active' ? 'bg-white text-black' : 'bg-gray-100 text-gray-400'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={`w-2 h-full mt-1 rounded ${u.status === 'Active' ? 'bg-blue-500' : 'bg-gray-400'}`} />
-                  <div className="flex flex-col">
-                    <span className="font-bold">{u.code}</span>
-                    <span className="text-sm">{u.email}</span>
-                  </div>
-                </div>
-                <Link to={`/edituser/${u.code}`} className="text-blue-500 hover:text-blue-700">
-                  <PencilLine className="mr-3 w-5 h-5" />
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
