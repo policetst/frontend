@@ -479,6 +479,7 @@ const FormularioIncidencia = () => {
                 />
                 <input
                   type="text"
+                  name='Nombre'
                   placeholder="Nombre"
                   value={nuevaPersona.first_name}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
@@ -486,6 +487,7 @@ const FormularioIncidencia = () => {
                 />
                 <input
                   type="text"
+                  name='1º Apellido'
                   placeholder="1º Apellido"
                   value={nuevaPersona.last_name1}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
@@ -493,6 +495,7 @@ const FormularioIncidencia = () => {
                 />
                 <input
                   type="text"
+                  name='2º Apellido'
                   placeholder="2º Apellido"
                   value={nuevaPersona.last_name2}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}

@@ -3,6 +3,7 @@ import { CircleUserRound, PencilLine } from 'lucide-react';
 import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
 import AddUser from '../components/AddUser';
 import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
+import Swal from 'sweetalert2';
 
 export default function GestionUsuarios() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ export default function GestionUsuarios() {
 
   const [username, setUsername] = useState('');
   const [emailconfig, setEmailConfig] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [userDetails, setUserDetails] = useState(null);
   const [userRole, setUserRole] = useState('Administrator');
   const [usuarios, setUsuarios] = useState([]);
@@ -28,9 +30,21 @@ export default function GestionUsuarios() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== confirmPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Contraseñas no coinciden',
+        text: 'Por favor, verifica que las contraseñas sean iguales.'
+      });
+      return;
+    }
 
     if (!formData.email || !formData.password) {
-      alert('Por favor completa los campos obligatorios.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Campos incompletos',
+        text: 'Por favor completa los campos obligatorios.'
+      });
       return;
     }
 
@@ -47,7 +61,6 @@ export default function GestionUsuarios() {
         await updateEmailConfig({ email: formData.emailbrigada });
       }
 
-      alert("Credenciales actualizadas con éxito.");
       setShowUserForm(false);
 
     } catch (error) {
@@ -173,8 +186,8 @@ export default function GestionUsuarios() {
                     <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
                     <input
                       type="password"
-                      value={formData.password}
-                      onChange={handleChange}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       id="confirmPassword"
                       name="confirmPassword"
                       className="w-full p-2 border border-gray-200 rounded bg-gray-50"
