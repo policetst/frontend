@@ -82,8 +82,8 @@ export const updateUserDetails = async (code, userData) => {
     return null;
   }
 };
-
 export const changeCredentials = async (code, credentials) => {
+  // Paso 1: Confirmación
   const { isConfirmed } = await Swal.fire({
     title: 'Cambiar credenciales',
     text: '¿Estás seguro de que deseas cambiar tus credenciales?',
@@ -93,8 +93,10 @@ export const changeCredentials = async (code, credentials) => {
     cancelButtonText: 'No, cancelar'
   });
 
+  // Si cancela, cortamos aquí.
   if (!isConfirmed) return null;
 
+  // Paso 2: Loading mientras procesa
   Swal.fire({
     title: 'Actualizando...',
     text: 'Por favor espera mientras se actualizan tus credenciales.',
@@ -104,7 +106,7 @@ export const changeCredentials = async (code, credentials) => {
     }
   });
 
-  // ¡Ojo! El hash del password debe hacerse preferentemente en el backend.
+  // Paso 3: Hasheamos la contraseña (si es necesario)
   credentials.password = bcrypt.hashSync(credentials.password, 10);
 
   try {
@@ -120,8 +122,10 @@ export const changeCredentials = async (code, credentials) => {
       }
     );
 
+    // Cerramos el loading
     Swal.close();
 
+    // Feedback éxito
     await Swal.fire({
       title: '¡Credenciales actualizadas!',
       icon: 'success',
@@ -131,8 +135,10 @@ export const changeCredentials = async (code, credentials) => {
 
     return response.data || null;
   } catch (error) {
+    // Cerramos el loading en caso de error
     Swal.close();
 
+    // Feedback error
     await Swal.fire({
       title: 'Error al cambiar credenciales',
       text: error.response?.data?.message || 'Ha ocurrido un error inesperado.',
