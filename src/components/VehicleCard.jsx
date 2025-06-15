@@ -4,7 +4,7 @@ import { CarFront, PencilLine, SwatchBook, IdCard } from 'lucide-react';
 
 function VehicleCard({ brand, model, color, license_plate }) {
   return (
-    <div className="max-w-[350px] bg-white border border-gray-300 rounded px-4 py-2 shadow-sm hover:shadow-md transition gap-4">
+    <div className="max-w-[350px] bg-white border border-gray-300 rounded px-4 ml-2 py-2 shadow-sm hover:shadow-md transition gap-4">
 
       {/* Marca, modelo y botón */}
       <div className="flex flex-grow">
