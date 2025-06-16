@@ -24,10 +24,7 @@ const ResetPassword = ({ onSuccess }) => {
       setMsg("Debes escribir tu correo electrónico.");
       return;
     }
-    if (password.length < 8) {
-      setMsg("La contraseña debe tener al menos 8 caracteres.");
-      return;
-    }
+  
     if (password !== confirmPassword) {
       setMsg("Las contraseñas no coinciden.");
       return;
@@ -36,7 +33,7 @@ const ResetPassword = ({ onSuccess }) => {
     setLoading(true);
     try {
       const res = await axios.put(
-        `${USERS_URL}/${code}/password`,
+        `${USERS_URL}/${code}/passwordd`,
         { email, password },
         {
           headers: {
