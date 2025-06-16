@@ -107,8 +107,6 @@ export const changeCredentials = async (code, credentials) => {
   });
 
   // Paso 3: Hasheamos la contraseña (si es necesario)
-  credentials.password = bcrypt.hashSync(credentials.password, 10);
-
   try {
     const token = getTokenFromCookie();
     const response = await axios.put(
