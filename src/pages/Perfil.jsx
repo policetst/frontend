@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CircleUserRound, PencilLine } from 'lucide-react';
+import { CircleUserRound, PencilLine, Eye, EyeOff } from 'lucide-react';
 import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
 import AddUser from '../components/AddUser';
 import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
@@ -13,6 +13,10 @@ export default function GestionUsuarios() {
   });
 
   const [username, setUsername] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
   const [emailconfig, setEmailConfig] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userDetails, setUserDetails] = useState(null);
@@ -169,18 +173,29 @@ export default function GestionUsuarios() {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input
-                      type="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      id="password"
-                      name="password"
-                      className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                      placeholder="Contraseña"
-                    />
-                  </div>
+<div>
+  <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
+  <div className="relative">
+    <input
+      type={showPassword ? 'text' : 'password'}
+      value={formData.password}
+      onChange={handleChange}
+      id="password"
+      name="password"
+      className="w-full p-2 pr-10 border border-gray-200 rounded bg-gray-50"
+      placeholder="Contraseña"
+    />
+    <button
+      type="button"
+      onClick={togglePasswordVisibility}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+      tabIndex={-1}
+    >
+      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+    </button>
+  </div>
+</div>
+
 
                   <div>
                     <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
