@@ -83,12 +83,26 @@ function EditarPersona() {
     };
 
     fetchPersona();
+    
+
   }, [dni]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      //check phone ^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$
+      const phoneRegex = /^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$/;
+      if (!phoneRegex.test(persona.phone_number)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Teléfono inválido',
+          text: 'Introduce un número de teléfono válido.',
+          confirmButtonText: 'Aceptar'
+        });
+        return;
+      }
+
       await axios.put(`${URL}/people/${dni}`, persona);
       Swal.fire('Persona actualizada correctamente', '', 'success');
     } catch (error) {

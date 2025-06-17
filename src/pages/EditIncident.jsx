@@ -264,6 +264,17 @@ const handleMatriculaBlur = async (e) => {
       });
       return;
     }
+    //check phone ^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$
+    const phoneRegex = /^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$/;
+    if (!phoneRegex.test(nuevaPersona.phone_number)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Teléfono inválido',
+        text: 'Introduce un número de teléfono válido.',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
     if (personas.some(p => p.dni === nuevaPersona.dni)) {
       Swal.fire({
         icon: 'info',
@@ -604,6 +615,7 @@ const handleMatriculaBlur = async (e) => {
                   <textarea
                     name="description"
                     value={form.description}
+                    disabled={form.status === 'Closed'}
                     onChange={e => setForm({ ...form, description: e.target.value })}
                     rows={4}
                     className="w-full mt-1 p-2 border rounded-md"
@@ -687,10 +699,8 @@ const handleMatriculaBlur = async (e) => {
                         className="p-2 border rounded"
                       />
                       <input
-                        type="number"
-                                   pattern='[0-9]*'
-                  errorMessage="Número de teléfono no válido"
-                        placeholder="643 321 177 4"
+                        type="text"
+                        placeholder="Número de contacto"
                         value={nuevaPersona.phone_number}
                         onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
                         className="p-2 border rounded"
@@ -831,42 +841,47 @@ const handleMatriculaBlur = async (e) => {
                 )}
               </div>
               <hr className="border-t border-gray-300 mt-2 mb-4" />
-              {/* Sección de imágenes */}
-              <div>
-                <h2 className="text-xl font-bold mb-2">
-                  Imágenes ({existingImages.length + selectedImages.length})
-                </h2>
-                {/* Mostrar imágenes existentes */}
-                {existingImages.length > 0 && (
-                  <div className="mb-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      {existingImages.map((image, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={image}
-                            alt={`Imagen ${index + 1}`}
-                            className="w-full h-40 object-cover rounded-md border border-gray-300 cursor-pointer"
-                            onClick={() => openLightbox(image)}
-                          />
-                          <div className="absolute top-2 right-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setExistingImages(existingImages.filter((_, i) => i !== index));
-                                try { deleteImage(image); } catch (err) {}
-                              }}
-                              className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <XIcon className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <ImageUpload onImagesChange={handleImagesChange} disabled={form.status} />
-              </div>
+           {/* Sección de imágenes */}
+<div>
+  <h2 className="text-xl font-bold mb-2">
+    Imágenes ({existingImages.length + selectedImages.length})
+  </h2>
+  {/* Mostrar imágenes existentes */}
+  {existingImages.length > 0 && (
+    <div className="mb-4">
+      <div className="grid grid-cols-3 gap-4">
+        {existingImages.map((image, index) => (
+          <div key={index} className="relative group">
+            <img
+              src={image}
+              alt={`Imagen ${index + 1}`}
+              className="w-full h-40 object-cover rounded-md border border-gray-300 cursor-pointer"
+              onClick={() => openLightbox(image)}
+            />
+            <div className="absolute top-2 right-2">
+              <button
+                type="button"
+                disabled={form.status === 'Closed'}
+                onClick={() => {
+                  if (form.status === 'Closed') return;
+                  setExistingImages(existingImages.filter((_, i) => i !== index));
+                  try { deleteImage(image); } catch (err) {}
+                }}
+                className={`bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity
+                  ${form.status === 'Closed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <XIcon className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+  {/* Añadir imágenes nuevas */}
+  <ImageUpload onImagesChange={handleImagesChange} disabled={form.status === 'Closed'} />
+</div>
+
               <button
                 type="submit"
                 className={`w-full py-2 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}

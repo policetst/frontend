@@ -8,12 +8,18 @@ function Notifications() {  const [showTasks, setShowTasks] = useState(false);
 
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    const fetchOpenIncidents = async () => {
-        const incidents = await getOpenIncidents();
-        setOpenIncidents(incidents);
-        setCount(incidents.length);
-    };
+useEffect(() => {
+  const fetchOpenIncidents = async () => {
+    const incidents = await getOpenIncidents();
+    // Ordenar por fecha
+    const sortedIncidents = [...incidents].sort(
+      (a, b) => new Date(b.creation_date) - new Date(a.creation_date)
+    );
+    setOpenIncidents(sortedIncidents);
+    setCount(sortedIncidents.length);
+  };
+  fetchOpenIncidents();
+
     fetchOpenIncidents();
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

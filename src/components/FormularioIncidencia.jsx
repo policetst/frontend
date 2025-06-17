@@ -192,6 +192,17 @@ const FormularioIncidencia = () => {
       });
       return;
     }
+    
+    const phoneRegex = /^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$/;
+    if (!phoneRegex.test(nuevaPersona.phone_number)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Teléfono inválido',
+        text: 'Introduce un número de teléfono válido.',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
     if (personas.some(p => p.dni === dniInput)) {
       Swal.fire({
         icon: 'info',
@@ -502,10 +513,9 @@ const FormularioIncidencia = () => {
                   className="p-2 border rounded"
                 />
                 <input
-                  type="number"
-                  pattern='[0-9]*'
-                  errorMessage="Número de teléfono no válido"
-                  placeholder="643 321 177 4"
+                  type="text"
+
+                  placeholder="Número de contacto"
                   value={nuevaPersona.phone_number}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
                   className="p-2 border rounded"
