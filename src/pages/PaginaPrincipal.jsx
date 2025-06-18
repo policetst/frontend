@@ -51,7 +51,7 @@ function PaginaPrincipal() {
 
 
         <Card 
-        descripcion={"Cambia tus credenciales y elige un avatar"} 
+        descripcion={"Cambia tus credenciales"} 
         urlimagen={"gestion-de-usuario.jpeg"} 
         textoboton={"Gestion de usuario"}
         navto={"/perfil"} 

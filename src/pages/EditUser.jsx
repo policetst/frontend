@@ -163,7 +163,7 @@ const handleSubmit = async (e) => {
                     Confirmar contraseña
                   </label>
                   <input
-                    type="password"
+                    type={`${showPassword ? 'text' : 'password'}`}
                     id="password"
                     name="password"
                     value={confirmPassword}

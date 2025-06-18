@@ -200,8 +200,9 @@ export default function GestionUsuarios() {
                   <div>
                     <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
                     <input
-                      type="password"
+                      type={`${showPassword ? 'text' : 'password'}`}
                       value={confirmPassword}
+
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       id="confirmPassword"
                       name="confirmPassword"
