@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useParams,Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-const URL = import.meta.env.VITE_BASE_URL; // Asegúrate de que esta variable esté definida en tu .env
+const URL = import.meta.env.VITE_BASE_URL;
 import Swal from 'sweetalert2';
 import { PencilLine, IdCard, Phone, Eye, EyeOff } from 'lucide-react';
 
+// Importa tu función de token, ajusta la ruta según tu proyecto
+import { getTokenFromCookie } from '../funcs/Incidents.jsx';
 
 function EditarPersona() {
   document.title = "SIL Tauste - Editar Persona";
   
-  const { dni } = useParams(); // obtener de la URL
+  const { dni } = useParams();
 
   const [persona, setPersona] = useState({
     dni: '',
@@ -19,7 +21,6 @@ function EditarPersona() {
     phone_number: ''
   });
 
-//   Controles para editar vehiculo y mostar sus relaciones
   const [editable, setEditable] = useState(false);
   const [mostrarIncidenciasRelacionadas, setMostrarIncidenciasRelacionadas] = useState(false);  
   const [mostrarPersonasRelacionadas, setMostrarPersonasRelacionadas] = useState(false);
@@ -31,44 +32,59 @@ function EditarPersona() {
 
   const [loadingPersonas, setLoadingPersonas] = useState(true);
   const [loadingVehiculos, setLoadingVehiculos] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-    // Relaciones 
-    useEffect(() => {
-
-    // Fetch incidencias relacionadas 
-    fetch(`${URL}/incident-person/${dni}`)
-        .then(res => res.json())
-        .then(data => {
+  // Relaciones 
+  useEffect(() => {
+    // Incidencias relacionadas 
+    fetch(`${URL}/incident-person/${dni}`, {
+      headers: {
+        'Authorization': 'Bearer ' + getTokenFromCookie()
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
         if (data.ok) setIncidenciasRelacionadas(data.data);
-        })
-        .catch(err => console.error('Error incidencias de persona:', err))
-        .finally(() => setLoadingPersonas(false));
+      })
+      .catch(err => console.error('Error incidencias de persona:', err))
+      .finally(() => setLoadingPersonas(false));
 
-    // Fetch personas relacionadas
-    fetch(`${URL}/related-peoplep/${dni}`)
-        .then(res => res.json())
-        .then(data => {
+    // Personas relacionadas
+    fetch(`${URL}/related-peoplep/${dni}`, {
+      headers: {
+        'Authorization': 'Bearer ' + getTokenFromCookie()
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
         if (data.ok) setPersonasRelacionadas(data.data);
-        })
-        .catch(err => console.error('Error personas:', err))
-        .finally(() => setLoadingPersonas(false));
+      })
+      .catch(err => console.error('Error personas:', err))
+      .finally(() => setLoadingPersonas(false));
 
-    // Fetch vehículos relacionados
-    fetch(`${URL}/related-vehiclesp/${dni}`)
-        .then(res => res.json())
-        .then(data => {
+    // Vehículos relacionados
+    fetch(`${URL}/related-vehiclesp/${dni}`, {
+      headers: {
+        'Authorization': 'Bearer ' + getTokenFromCookie()
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
         if (data.ok) setVehiculosRelacionados(data.data);
-        })
-        .catch(err => console.error('Error vehículos:', err))
-        .finally(() => setLoadingVehiculos(false));
-    }, [dni]);
+      })
+      .catch(err => console.error('Error vehículos:', err))
+      .finally(() => setLoadingVehiculos(false));
+  }, [dni]);
 
-
-    // Traer a la persona para editar
-    useEffect(() => {
+  // Traer a la persona para editar
+  useEffect(() => {
     const fetchPersona = async () => {
       try {
-        const response = await axios.get(`${URL}/people/${dni}`);
+        const response = await axios.get(`${URL}/people/${dni}`, {
+          headers: {
+            'Authorization': 'Bearer ' + getTokenFromCookie()
+          }
+        });
         if (response.data.ok) {
           setPersona(response.data.data);
         } else {
@@ -83,15 +99,12 @@ function EditarPersona() {
     };
 
     fetchPersona();
-    
-
   }, [dni]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      //check phone ^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$
       const phoneRegex = /^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$/;
       if (!phoneRegex.test(persona.phone_number)) {
         Swal.fire({
@@ -103,7 +116,11 @@ function EditarPersona() {
         return;
       }
 
-      await axios.put(`${URL}/people/${dni}`, persona);
+      await axios.put(`${URL}/people/${dni}`, persona, {
+        headers: {
+          'Authorization': 'Bearer ' + getTokenFromCookie()
+        }
+      });
       Swal.fire('Persona actualizada correctamente', '', 'success');
     } catch (error) {
       Swal.fire('Error', 'No se pudo actualizar', 'error');
@@ -345,4 +362,4 @@ function EditarPersona() {
   );
 }
 
-export default EditarPersona
+export default EditarPersona;

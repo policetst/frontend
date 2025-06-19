@@ -6,6 +6,9 @@ import { PencilLine, CarFront, SwatchBook, Eye, EyeOff } from 'lucide-react';
 
 const URL = import.meta.env.VITE_BASE_URL;
 
+// Ajusta la ruta según donde tengas la función
+import { getTokenFromCookie } from '../funcs/Incidents.jsx';
+
 function EditarVehiculo() {
   const { license_plate } = useParams();
 
@@ -36,7 +39,11 @@ function EditarVehiculo() {
 
   // Traer relaciones
   useEffect(() => {
-    fetch(`${URL}/incident-vehicle/${license_plate}`)
+    fetch(`${URL}/incident-vehicle/${license_plate}`, {
+      headers: {
+        'Authorization': 'Bearer ' + getTokenFromCookie()
+      }
+    })
       .then(res => res.json())
       .then(data => {
         if (data.ok) setIncidenciasRelacionadas(data.data);
@@ -44,7 +51,11 @@ function EditarVehiculo() {
       .catch(err => console.error('Error al cargar incidencias relacionadas:', err))
       .finally(() => setLoadingIncidencias(false));
 
-    fetch(`${URL}/related-people/${license_plate}`)
+    fetch(`${URL}/related-people/${license_plate}`, {
+      headers: {
+        'Authorization': 'Bearer ' + getTokenFromCookie()
+      }
+    })
       .then(res => res.json())
       .then(data => {
         if (data.ok) setPersonasRelacionadas(data.data);
@@ -52,7 +63,11 @@ function EditarVehiculo() {
       .catch(err => console.error('Error al cargar personas relacionadas:', err))
       .finally(() => setLoadingPersonas(false));
 
-    fetch(`${URL}/related-vehicles/${license_plate}`)
+    fetch(`${URL}/related-vehicles/${license_plate}`, {
+      headers: {
+        'Authorization': 'Bearer ' + getTokenFromCookie()
+      }
+    })
       .then(res => res.json())
       .then(data => {
         if (data.ok) setVehiculosRelacionados(data.data);
@@ -65,7 +80,11 @@ function EditarVehiculo() {
   useEffect(() => {
     const fetchVehiculo = async () => {
       try {
-        const response = await axios.get(`${URL}/vehicles/${license_plate}`);
+        const response = await axios.get(`${URL}/vehicles/${license_plate}`, {
+          headers: {
+            'Authorization': 'Bearer ' + getTokenFromCookie()
+          }
+        });
         if (response.data.ok) {
           setVehiculo(response.data.data);
         } else {
@@ -85,7 +104,11 @@ function EditarVehiculo() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${URL}/vehicles/${license_plate}`, vehiculo);
+      await axios.put(`${URL}/vehicles/${license_plate}`, vehiculo, {
+        headers: {
+          'Authorization': 'Bearer ' + getTokenFromCookie()
+        }
+      });
       Swal.fire('Vehículo actualizado correctamente', '', 'success');
     } catch (error) {
       Swal.fire('Error', 'No se pudo actualizar', 'error');
