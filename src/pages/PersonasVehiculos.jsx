@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import VehicleCard from '../components/VehicleCard';
 import PeopleCard from '../components/PeopleCard'; 
 import { CarFront, Users, Search } from 'lucide-react';
+import { getTokenFromCookie } from '../funcs/Incidents';
 
 function Vehiculos() {
   document.title = "SIL Tauste - Vehículos";
@@ -12,12 +13,22 @@ function Vehiculos() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetch('https://arbadev-back-joq0.onrender.com/vehicles') 
+    fetch('https://arbadev-back-joq0.onrender.com/vehicles', {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${getTokenFromCookie()}`
+      }
+    })
       .then(res => res.json())
       .then(data => data.ok ? setVehicles(data.data) : console.error('Error al obtener vehículos:', data.message))
       .catch(err => console.error('Error de red al obtener vehículos:', err));
 
-    fetch('https://arbadev-back-joq0.onrender.com/people') 
+    fetch('https://arbadev-back-joq0.onrender.com/people', {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${getTokenFromCookie()}`
+      }
+    })
       .then(res => res.json())
       .then(data => data.ok ? setPeople(data.data) : console.error('Error al obtener personas:', data.message))
       .catch(err => console.error('Error de red al obtener personas:', err));
