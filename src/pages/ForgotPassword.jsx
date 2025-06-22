@@ -15,7 +15,7 @@ function ForgotPassword() {
       * @returns {Promise<void>}
       */
      const resetPassword = (email)=> {
-  axios.post('https://arbadev-back-joq0.onrender.com/users/resetpassword', { email })
+  axios.post(`${API_URL}/users/resetpassword`, { email })
     .then(response => {
       Swal.fire({
         title: 'Éxito',
