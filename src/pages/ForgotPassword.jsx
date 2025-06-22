@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios';
 import Swal from 'sweetalert2';
+const API_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
 
 function ForgotPassword() {
 
