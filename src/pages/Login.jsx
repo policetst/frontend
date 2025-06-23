@@ -223,8 +223,6 @@ function Login() {
                   </div>
 
                   <div>
-                    <input type="${visible ? 'text' : 'password'}" name="" id="" placeholder="" onChange={handlePasswordChange}
-                    className="w-full mb-4 p-3 border rounded" />
                     <button
                       type="button"
                       onClick={togglePasswordVisibility}

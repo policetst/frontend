@@ -85,7 +85,7 @@ function Vehiculos() {
           <div>
             <h2 className="text-2xl font-bold text-center xl:text-left">Personas</h2>
             <hr className="border-t border-gray-300 mt-4 mb-6" />
-            <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-1 gap-6">
+            <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-1 gap-6 ml-2.5 sm:ml-0">
               {filteredPeople.map((persona) => (
                 <PeopleCard
                   key={persona.dni}
@@ -105,7 +105,7 @@ function Vehiculos() {
           <div>
             <h2 className="text-2xl font-bold text-center xl:text-left">Vehículos</h2>
             <hr className="border-t border-gray-300 mt-4 mb-6"/>
-            <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-1 gap-6">
+            <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-1 gap-6 ml-2.5 sm:ml-0">
               {filteredVehicles.map((vehicle) => (
                 <VehicleCard
                   key={vehicle.license_plate}
