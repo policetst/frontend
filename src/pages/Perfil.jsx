@@ -3,9 +3,12 @@ import { CircleUserRound, PencilLine } from 'lucide-react';
 import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
 import AddUser from '../components/AddUser';
 import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
-import Swal from 'sweetalert2';
 
 export default function GestionUsuarios() {
+  useEffect(() => {
+    document.title = "SIL Tauste - Gestion de usuario";
+  }, []);
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -14,11 +17,10 @@ export default function GestionUsuarios() {
 
   const [username, setUsername] = useState('');
   const [emailconfig, setEmailConfig] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [userDetails, setUserDetails] = useState(null);
   const [userRole, setUserRole] = useState('Administrator');
   const [usuarios, setUsuarios] = useState([]);
-  const [showUserForm, setShowUserForm] = useState(false); // CORREGIDO typo
+  const [showUserForm, setShowUserForm] = useState(true); // CORREGIDO typo
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,21 +32,9 @@ export default function GestionUsuarios() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== confirmPassword) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Contraseñas no coinciden',
-        text: 'Por favor, verifica que las contraseñas sean iguales.'
-      });
-      return;
-    }
 
     if (!formData.email || !formData.password) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Campos incompletos',
-        text: 'Por favor completa los campos obligatorios.'
-      });
+      alert('Por favor completa los campos obligatorios.');
       return;
     }
 
@@ -61,6 +51,7 @@ export default function GestionUsuarios() {
         await updateEmailConfig({ email: formData.emailbrigada });
       }
 
+      alert("Credenciales actualizadas con éxito.");
       setShowUserForm(false);
 
     } catch (error) {
@@ -109,15 +100,17 @@ export default function GestionUsuarios() {
   return (
     <div className="flex justify-center">
       <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8 text-gray-800">
-
         {/* Título */}
         <div className="block text-center xl:text-left">
           <h2 className="text-2xl font-bold">Gestión de usuario</h2>
           <hr className="border-t border-gray-300 my-4" />
         </div>
-
-        {/* Tarjeta de usuario */}
-        <div className="flex justify-center">
+        {/* Estructura principal */}
+        <div className='grid sm:grid-cols-2 gap-4'>
+          {/* Columna 1 */}
+          <div> 
+            {/* Tarjeta de usuario */}
+            <div className="flex justify-center mb-8">
           <div className="
             w-full max-w-[356px] bg-white border border-gray-300 
             rounded px-4 py-3 shadow-sm hover:shadow-md transition gap-4
@@ -145,101 +138,107 @@ export default function GestionUsuarios() {
               </div>
             </div>
           </div>
-        </div>
+            </div>
+            {/* Formulario */}
+            {showUserForm && (
+              <div className='flex justify-center'>
+                <div className="
+                  w-full max-w-[356px] bg-white border border-gray-300 
+                  rounded shadow-sm hover:shadow-md transition gap-4 mt-1
+                ">
+                  <form className="bg-white p-4 rounded-lg shadow-lg w-full md:max-w-md" onSubmit={handleSubmit}>
+                    <div className="space-y-4">
+                      <div className="flex justify-center">
+                        <h3 className="text-lg">Editar usuario: {username}</h3>
+                      </div>
+                        <hr className="border-t border-gray-300 pb-4" />
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo de recuperación</label>
+                        <input
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="correoderecuperacion@dominio.ex"
+                          id="email"
+                          name="email"
+                          className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                        />
+                      </div>
 
-        {/* Formulario */}
-        {showUserForm && (
-          <div className='flex justify-center'>
-            <div className="
-              w-full max-w-[356px] bg-white border border-gray-300 
-              rounded shadow-sm hover:shadow-md transition gap-4 mt-5
-            ">
-              <form className="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md" onSubmit={handleSubmit}>
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo de recuperación</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="correoderecuperacion@dominio.ex"
-                      id="email"
-                      name="email"
-                      className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                    />
-                  </div>
+                      <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input
+                          type="password"
+                          value={formData.password}
+                          onChange={handleChange}
+                          id="password"
+                          name="password"
+                          className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                          placeholder="Contraseña"
+                        />
+                      </div>
 
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input
-                      type="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      id="password"
-                      name="password"
-                      className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                      placeholder="Contraseña"
-                    />
-                  </div>
+                      <div>
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+                        <input
+                          type="password"
+                          value={formData.password}
+                          onChange={handleChange}
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                          placeholder="Confirmar contraseña"
+                        />
+                      </div>
 
-                  <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                      placeholder="Confirmar contraseña"
-                    />
-                  </div>
+                      {userRole === 'Administrator' && (
+                        <div>
+                          <label htmlFor="emailbrigada" className="block text-sm font-medium text-gray-700">Correo Brigada</label>
+                          <input
+                            type="email"
+                            value={formData.emailbrigada}
+                            onChange={handleChange}
+                            id="emailbrigada"
+                            name="emailbrigada"
+                            className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                            placeholder="correodebrigada@dominio.ex"
+                          />
+                        </div>
+                      )}
 
-                  {userRole === 'Administrator' && (
-                    <div>
-                      <label htmlFor="emailbrigada" className="block text-sm font-medium text-gray-700">Correo Brigada</label>
-                      <input
-                        type="email"
-                        value={formData.emailbrigada}
-                        onChange={handleChange}
-                        id="emailbrigada"
-                        name="emailbrigada"
-                        className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                        placeholder="correodebrigada@dominio.ex"
-                      />
+                      <button
+                        type="submit"
+                        className="mt-2 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-800 transition duration-200"
+                      >
+                        Actualizar
+                      </button>
                     </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    className="mt-2 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-800 transition duration-200"
-                  >
-                    Actualizar
-                  </button>
+                  </form>
                 </div>
-              </form>
-            </div>
+              </div>
+            )}
           </div>
-        )}
+          {/* Columna 2 */}
+          <div>
+            {/* Gestión de usuarios - Solo Administradores */}
+            {userRole === 'Administrator' && (
+              <div className="space-y-4 w-full">
+                <div className="text-center mt-15 md:mt-0">
+                  <h3 className="text-xl font-semibold">Gestionar usuarios</h3>
+                  <hr className="block md:hidden border-t border-gray-300 my-6" />
+                </div>
 
-        <hr className="border-t border-gray-300 my-8" />
-
-        {/* Gestión de usuarios - Solo Administradores */}
-        {userRole === 'Administrator' && (
-          <div className="space-y-4 w-full">
-            <div className="block text-center xl:text-left">
-              <h3 className="text-xl font-semibold mb-6">Gestionar usuarios</h3>
-            </div>
-
-            <div className='flex justify-center'>
-              <AddUser
-                userRole={userRole}
-                usuarios={usuarios}
-                refetchUsuarios={fetchAllData}
-              />
-            </div>
+                <div className='flex justify-center'>
+                  <AddUser
+                    userRole={userRole}
+                    usuarios={usuarios}
+                    refetchUsuarios={fetchAllData}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
