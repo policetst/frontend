@@ -413,7 +413,7 @@ const handleMatriculaBlur = async (e) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await sendIncidentViaEmail(form.description, form.location, allImages);
+          await sendIncidentViaEmail(form.description, form.location, allImages, code);
           Swal.fire('Reenviado', 'La incidencia ha sido reenviada a la brigada.', 'success');
         } catch (error) {
           Swal.fire('Error', 'No se pudo reenviar la incidencia a la brigada.', 'error');
