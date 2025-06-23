@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail } from '../funcs/Incidents';
+import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail, capitalize } from '../funcs/Incidents';
 import { validarDniNif, validarMatricula } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL || 'http://localhost:4000/upload';
@@ -174,6 +174,9 @@ const FormularioIncidencia = () => {
 
   const agregarPersona = async () => {
     const dniInput = nuevaPersona.dni.trim().toUpperCase();
+    nuevaPersona.first_name = capitalize(nuevaPersona.first_name.trim());
+    nuevaPersona.last_name1 = capitalize(nuevaPersona.last_name1.trim());
+    nuevaPersona.last_name2 = capitalize(nuevaPersona.last_name2.trim());
     if (!dniInput || !validarDniNif(dniInput)) {
       Swal.fire({
         icon: 'warning',
@@ -224,6 +227,9 @@ const FormularioIncidencia = () => {
 
   const agregarVehiculo = async () => {
     const license_plate = nuevoVehiculo.license_plate.trim().toUpperCase();
+    nuevoVehiculo.brand = capitalize(nuevoVehiculo.brand.trim());
+    nuevoVehiculo.model = capitalize(nuevoVehiculo.model.trim());
+    nuevoVehiculo.color = capitalize(nuevoVehiculo.color.trim());
     if (!license_plate || !validarMatricula(license_plate)) {
       Swal.fire({
         icon: 'warning',

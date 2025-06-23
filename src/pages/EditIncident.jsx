@@ -8,7 +8,8 @@ import {
   closeIncident,
   getTokenFromCookie,
   validarDniNif,
-  validarMatricula
+  validarMatricula,
+  capitalize
 } from '../funcs/Incidents';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
@@ -246,6 +247,9 @@ const handleMatriculaBlur = async (e) => {
 
   // --- AÑADIR PERSONA ---
   const agregarPersona = async () => {
+    nuevaPersona.first_name = capitalize(nuevaPersona.first_name.trim());
+    nuevaPersona.last_name1 = capitalize(nuevaPersona.last_name1.trim());
+    nuevaPersona.last_name2 = capitalize(nuevaPersona.last_name2.trim());
     if (!nuevaPersona.dni || !validarDniNif(nuevaPersona.dni)) {
       Swal.fire({
         icon: 'warning',
@@ -296,6 +300,9 @@ const handleMatriculaBlur = async (e) => {
 
   // --- AÑADIR VEHÍCULO ---
   const agregarVehiculo = async () => {
+    nuevoVehiculo.brand = capitalize(nuevoVehiculo.brand.trim());
+    nuevoVehiculo.model = capitalize(nuevoVehiculo.model.trim());
+    nuevoVehiculo.color = capitalize(nuevoVehiculo.color.trim());
     if (!nuevoVehiculo.license_plate || !validarMatricula(nuevoVehiculo.license_plate)) {
       Swal.fire({
         icon: 'warning',

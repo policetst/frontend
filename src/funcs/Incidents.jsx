@@ -12,6 +12,16 @@ const getTokenFromCookie = () => {
   const match = document.cookie.match(/(^| )token=([^;]+)/);
   return match ? match[2] : '';
 };
+/**
+ * Function to capitalize the first letter of each word in a string
+ * @param {String} texto
+ * @returns {String}
+ */
+function capitalize(texto) {
+  return texto
+    .toLowerCase()
+    .replace(/\b\w/g, letra => letra.toUpperCase());
+}
 
 /**
  * Function to validate DNI/NIF
@@ -407,5 +417,6 @@ export {
   countPeople,
   countVehicles,
   closeIncident,
-  getTokenFromCookie
+  getTokenFromCookie,
+  capitalize
 };
