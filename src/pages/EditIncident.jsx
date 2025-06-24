@@ -9,7 +9,8 @@ import {
   getTokenFromCookie,
   validarDniNif,
   validarMatricula,
-  capitalize
+  capitalize,
+  UpdateBrigadeField
 } from '../funcs/Incidents';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
@@ -414,6 +415,7 @@ const handleMatriculaBlur = async (e) => {
       if (result.isConfirmed) {
         try {
           await sendIncidentViaEmail(form.description, form.location, allImages, code);
+          UpdateBrigadeField(code, true);
           Swal.fire('Reenviado', 'La incidencia ha sido reenviada a la brigada.', 'success');
         } catch (error) {
           Swal.fire('Error', 'No se pudo reenviar la incidencia a la brigada.', 'error');
