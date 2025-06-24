@@ -8,7 +8,7 @@ function Personas() {
 
   
   useEffect(() => {
-    fetch('https://arbadev-back-joq0.onrender.com/people') 
+    fetch('https://arbadev-back-1.onrender.com/people') 
       .then(res => res.json())
       .then(data => {
         if (data.ok) {
