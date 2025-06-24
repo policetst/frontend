@@ -76,7 +76,7 @@ function Login() {
       <div className="hidden lg:grid grid-cols-2 min-h-screen">
         <div className="flex flex-col items-center justify-center p-8 bg-white">
           <div className="w-2/3 flex justify-center items-center">
-            <div className="w-full p-6 rounded bg-white shadow">
+            <div className="w-full p-6 rounded border border-gray-400 shadow-xl">
               <div className="flex justify-center p-8 bg-[#002856] rounded-t-lg">
                 <img src="/SIL-logo-tech.png" alt="Logo" className="mb-6 w-50" />
               </div>
@@ -92,7 +92,8 @@ function Login() {
                       name="username"
                       type="text"
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full p-3 border rounded"
+                      className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                      border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
                     />
                   </div>
 
@@ -113,7 +114,8 @@ function Login() {
                         type={visible ? 'text' : 'password'}
                         onChange={(e) => setPassword(e.target.value)}
                         value={password}
-                        className="w-full p-3 border rounded"
+                        className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                        border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
                       />
                       <button
                         type="button"
@@ -156,7 +158,7 @@ function Login() {
         </div>
 
         <div className="flex justify-center items-center">
-          <div className="w-3/4 p-7 rounded bg-white shadow mt-[10%]">
+          <div className="w-3/4 p-7 mt-[10%] rounded border border-gray-400 bg-white shadow-xl">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <h2 className="text-xl font-semibold text-center">Iniciar sesión</h2>
               <hr className="border-t border-gray-300 my-4" />
@@ -171,7 +173,8 @@ function Login() {
                   name="username"
                   type="text"
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full p-3 border rounded"
+                  className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                  border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
                 />
               </div>
 
@@ -186,7 +189,8 @@ function Login() {
                   type={visible ? 'text' : 'password'}
                   onChange={(e) => setPassword(e.target.value)}
                   value={password}
-                  className="w-full p-3 border rounded"
+                  className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                  border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
                 />
                 <button
                   type="button"

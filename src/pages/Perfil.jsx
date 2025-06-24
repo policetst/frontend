@@ -12,6 +12,7 @@ export default function GestionUsuarios() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    confirmpassword: '',
     emailbrigada: ''
   });
 
@@ -33,13 +34,18 @@ export default function GestionUsuarios() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password) {
+    if (!formData.email || !formData.password || !formData.confirmpassword) {
       alert('Por favor completa los campos obligatorios.');
       return;
     }
 
     if (!username) {
       console.error('Username no disponible');
+      return;
+    }
+
+    if (formData.password !== formData.confirmpassword) {
+      console.error('Contraseña no confirmada');
       return;
     }
 
@@ -179,13 +185,13 @@ export default function GestionUsuarios() {
                       </div>
 
                       <div>
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
                         <input
                           type="password"
-                          value={formData.password}
+                          value={formData.confirmpassword}
                           onChange={handleChange}
-                          id="confirmPassword"
-                          name="confirmPassword"
+                          id="confirmpassword"
+                          name="confirmpassword"
                           className="w-full p-2 border border-gray-200 rounded bg-gray-50"
                           placeholder="Confirmar contraseña"
                         />

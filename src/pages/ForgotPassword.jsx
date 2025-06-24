@@ -64,10 +64,11 @@ function ForgotPassword() {
         <div class="grid grid-cols-1 lg:grid-cols-2">
             <div class="flex items-center justify-center bg-white px-6 py-16 lg:px-8 lg:py-24 ">
                 
-                <div class="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto">
+                <div class="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto mt-[10%] p-6 rounded border border-gray-400 shadow-xl">
                     <a href="#"
                         class="text-3xl font-bold text-gray-900 mb-6 block">¿Olvidaste tu contraseña?</a>
-                    <Link class="text-sm font-medium text-sky-500 underline" to="/login"> Acceso
+                    <Link class="text-sm font-medium text-sky-500 underline" to="/login">
+                        Acceso
                     </Link>
 
                     <form class="mt-8">
@@ -80,17 +81,15 @@ function ForgotPassword() {
                                     </div>
 
                                     <input type="email" name="" id="" placeholder="" onChange={handleEmailChange}
-                                        class="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 
-                                        border border-gray-200 rounded-md 
-                                        bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
+                                        class="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                                        border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
+                                    />
                                 </div>
                             </div>
 
                             <div>
                                 <button type="submit" onClick={handleSubmit}
-                                    class="inline-flex items-center justify-center 
-                                    w-full px-4 py-4 text-base font-semibold transition-all duration-200 
-                                    border border-transparent bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]">
+                                    class="w-full px-4 py-4 font-semibold text-white bg-[#002856] rounded-md transition-all hover:opacity-80">
                                     Recuperar contraseña
                                 </button>
                             </div>
