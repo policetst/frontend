@@ -3,8 +3,7 @@ import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import emailjs from 'emailjs-com';
-import { getEmailConfig } from './Config';
-import pool from '../../../arbadev_Back/db/db';
+import { getEmailConfig } from './Config'
 
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
@@ -328,15 +327,7 @@ const sendIncidentViaEmail = async(descripcion, ubicacion, imagenes, code) => {
   const email = await getEmailConfig();
   const brigadeEmail = email.data.brigade_field;
   //change brigade field value to !upgrade(esta mal puesto)
-  pool.query(
-    'UPDATE incidents SET brigade_field = ? WHERE code = ?',
-    [brigadeEmail, code],
-    (error, results) => {
-      if (error) {
-        console.error("Error updating incident:", error);
-      }
-    }
-  );
+
 
   // check and set images to array
   if (!Array.isArray(imagenes)) imagenes = [];
