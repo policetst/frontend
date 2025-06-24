@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail } from '../funcs/Incidents';
 import { validarDniNif, validarMatricula } from '../funcs/Incidents';
-const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
-const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL || 'http://localhost:4000/upload';
-const API_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
+const INCIDENTS_URL = 'https://arbadev-back-1.onrender.com/incidents';
+const INCIDENTS_IMAGES_URL = 'https://arbadev-back-1.onrender.com/upload';
+const API_URL = 'https://arbadev-back-1.onrender.com';
 import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
@@ -188,6 +188,17 @@ const FormularioIncidencia = () => {
         icon: 'warning',
         title: 'Faltan campos',
         text: 'Completa todos los datos de la persona.',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+    
+    const phoneRegex = /^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$/;
+    if (!phoneRegex.test(nuevaPersona.phone_number)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Teléfono inválido',
+        text: 'Introduce un número de teléfono válido.',
         confirmButtonText: 'Aceptar'
       });
       return;
@@ -502,10 +513,9 @@ const FormularioIncidencia = () => {
                   className="p-2 border rounded"
                 />
                 <input
-                  type="number"
-                  pattern='[0-9]*'
-                  errorMessage="Número de teléfono no válido"
-                  placeholder="643 321 177 4"
+                  type="text"
+
+                  placeholder="Número de contacto"
                   value={nuevaPersona.phone_number}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
                   className="p-2 border rounded"

@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   resolve: {
   alias: {
-    'leaflet/dist/leaflet.css': '/cypress/support/mockStyles.js',
+    // 'leaflet/dist/leaflet.css': '/cypress/support/mockStyles.js',
   }
 },
   component: {

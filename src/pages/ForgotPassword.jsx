@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios';
 import Swal from 'sweetalert2';
+const API_URL = 'https://arbadev-back-1.onrender.com';
 
 function ForgotPassword() {
 
@@ -14,7 +15,7 @@ function ForgotPassword() {
       * @returns {Promise<void>}
       */
      const resetPassword = (email)=> {
-  axios.post('https://arbadev-back-joq0.onrender.com/users/resetpassword', { email })
+  axios.post(`${API_URL}/users/resetpassword`, { email })
     .then(response => {
       Swal.fire({
         title: 'Éxito',

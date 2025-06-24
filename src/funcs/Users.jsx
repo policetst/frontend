@@ -1,6 +1,6 @@
 import { getTokenFromCookie } from "./Incidents";
 import bcrypt from "bcryptjs";
-const USERS_URL = import.meta.env.VITE_USERS_URL || 'http://localhost:4000/users';
+const USERS_URL = "https://arbadev-back-1.onrender.com/users";
 import axios from "axios";
 import Swal from "sweetalert2";
 

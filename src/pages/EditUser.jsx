@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Eye, EyeOff } from "lucide-react";
 import { getUserDetails, updateUserDetails } from '../funcs/Users';
 import Swal from 'sweetalert2';
 
 function EditUser() {
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { code } = useParams();
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,40 +26,42 @@ function EditUser() {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    if  (formData.password !== confirmPassword) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Contraseñas no coinciden',
-        text: 'Por favor, verifica que las contraseñas sean iguales.',
-      });
-      return;
-    }
-    
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (formData.password !== confirmPassword) {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¡Atención! Esta acción actualizará los datos del usuario.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, actualizar',
-      cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        Swal.fire('Actualizado', 'Los datos del usuario han sido actualizados.', 'success');
-      }
+      icon: 'error',
+      title: 'Contraseñas no coinciden',
+      text: 'Por favor, verifica que las contraseñas sean iguales.',
     });
-    // alert('¡Atención! Esta acción actualizará los datos del usuario.');
-  
-    console.log('Submitting form with data:', formData);
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: '¿Estás seguro?',
+    text: '¡Atención! Esta acción actualizará los datos del usuario.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, actualizar',
+    cancelButtonText: 'Cancelar',
+  });
+
+  if (result.isConfirmed) {
     try {
       const updated = await updateUserDetails(code, formData);
+      Swal.fire('Actualizado', 'Los datos del usuario han sido actualizados.', 'success');
       console.log('User updated:', updated);
       navigate(`/perfil`);
     } catch (error) {
       console.error('Update failed:', error);
     }
-  };
+  } else {
+    // Cancelado, no se actualiza nada
+    console.log('Actualización cancelada');
+  }
+};
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -126,21 +130,32 @@ function EditUser() {
                 </div>
 
                 {/* Contraseña */}
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                    placeholder="Contraseña"
-                    autoComplete="new-password"
-                  />
-                </div>
+        <div>
+  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+    Contraseña
+  </label>
+  <div className="relative">
+    <input
+    required
+      type={showPassword ? 'text' : 'password'}
+      id="password"
+      name="password"
+      value={formData.password}
+      onChange={handleChange}
+      className="w-full p-2 pr-10 border border-gray-200 rounded bg-gray-50"
+      placeholder="Contraseña"
+      autoComplete="new-password"
+    />
+    <button
+      type="button"
+      onClick={() => setShowPassword((v) => !v)}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+      tabIndex={-1}
+    >
+      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+    </button>
+  </div>
+</div>
 
                 {/* Repetir contraseña */}
                 <div>
@@ -148,7 +163,7 @@ function EditUser() {
                     Confirmar contraseña
                   </label>
                   <input
-                    type="password"
+                    type={`${showPassword ? 'text' : 'password'}`}
                     id="password"
                     name="password"
                     value={confirmPassword}

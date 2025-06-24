@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CircleUserRound, PencilLine } from 'lucide-react';
+import { CircleUserRound, PencilLine, Eye, EyeOff } from 'lucide-react';
 import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
 import AddUser from '../components/AddUser';
 import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
@@ -17,6 +17,10 @@ export default function GestionUsuarios() {
   });
 
   const [username, setUsername] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
   const [emailconfig, setEmailConfig] = useState('');
   const [userDetails, setUserDetails] = useState(null);
   const [userRole, setUserRole] = useState('Administrator');
