@@ -646,8 +646,8 @@ const handleMatriculaBlur = async (e) => {
                     <button
                       type="button"
                       onClick={handleReSend}
-                      className={`px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                      disabled={form.status === 'Closed'}
+                      className={`px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' || form.brigade_field ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={form.status === 'Closed' || form.brigade_field}
                     >
                       Reenviar
                     </button>
