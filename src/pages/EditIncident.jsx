@@ -9,7 +9,8 @@ import {
   getTokenFromCookie,
   validarDniNif,
   validarMatricula,
-  capitalize
+  capitalize,
+  UpdateBrigadeField
 } from '../funcs/Incidents';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
@@ -414,6 +415,7 @@ const handleMatriculaBlur = async (e) => {
       if (result.isConfirmed) {
         try {
           await sendIncidentViaEmail(form.description, form.location, allImages, code);
+          UpdateBrigadeField(code, true);
           Swal.fire('Reenviado', 'La incidencia ha sido reenviada a la brigada.', 'success');
         } catch (error) {
           Swal.fire('Error', 'No se pudo reenviar la incidencia a la brigada.', 'error');
@@ -644,8 +646,8 @@ const handleMatriculaBlur = async (e) => {
                     <button
                       type="button"
                       onClick={handleReSend}
-                      className={`px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                      disabled={form.status === 'Closed'}
+                      className={`px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' || form.brigade_field ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={form.status === 'Closed' || form.brigade_field}
                     >
                       Reenviar
                     </button>

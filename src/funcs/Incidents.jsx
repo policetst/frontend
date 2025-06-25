@@ -8,6 +8,21 @@ import { getEmailConfig } from './Config'
 const INCIDENTS_URL = 'https://arbadev-back-1.onrender.com/incidents';
 const BASE_URL = 'https://arbadev-back-1.onrender.com';
 
+const UpdateBrigadeField = async (code, value) => {
+  const token = getTokenFromCookie();
+  try {
+    const res = await axios.put(`${INCIDENTS_URL}/${code}/brigade_field`, { brigade_field: value }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating brigade field:", error);
+    return { ok: false, message: 'Error al actualizar el campo de brigada' };
+  }
+};
+
 //*Function to get the user's token from the cookie (sin hooks)
 const getTokenFromCookie = () => {
   const match = document.cookie.match(/(^| )token=([^;]+)/);
@@ -421,5 +436,6 @@ export {
   countVehicles,
   closeIncident,
   getTokenFromCookie,
-  capitalize
+  capitalize,
+  UpdateBrigadeField
 };
