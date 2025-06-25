@@ -38,6 +38,19 @@ const tipos = [
   "Otras incidencias no clasificadas"
 ];
 
+const datos = [
+  { siglas: 'OTR', significado: 'Otras incidencias no clasificadas' },
+  { siglas: 'URB', significado: 'Incidencias urbanísticas' },
+  { siglas: 'ILP', significado: 'Ilícito penal' },
+  { siglas: 'ACC', significado: 'Asistencia colaboración ciudadana' },
+  { siglas: 'RDS', significado: 'Ruidos' },
+  { siglas: 'TRF', significado: 'Tráfico' },
+  { siglas: 'SC', significado: 'Seguridad ciudadana' },
+  { siglas: 'ANI', significado: 'Animales' },
+];
+
+
+
 const getYear = dateStr => (new Date(dateStr)).getFullYear();
 const getMonth = dateStr => {
   const d = new Date(dateStr);
@@ -48,6 +61,7 @@ function AgentEstadistic({ data, user_code }) {
   const [view, setView] = useState("mensual");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroAnio, setFiltroAnio] = useState("");
+  const [leyend, setLeyend] = useState();
 
   // Solo incidencias donde el usuario es creador o compañero (normalizado)
   const userIncidents = useMemo(() => {
@@ -111,32 +125,34 @@ function AgentEstadistic({ data, user_code }) {
         .sort((a, b) => a - b);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">
+    <div className="w-full mx-auto">
+      {/* <h2 className="text-2xl font-bold mb-6 text-center">
         Incidencias individuales ({view === "mensual" ? "mensual" : "anual"})
-      </h2>
+      </h2> */}
       {/* Filtros */}
       <div className="flex flex-wrap gap-3 mb-5 justify-center items-center">
         <select
-          className="rounded-xl border px-3 py-1"
+          className="rounded border px-3 py-1 w-38"
           value={view}
           onChange={e => setView(e.target.value)}
         >
-          <option value="mensual">Mensual</option>
-          <option value="anual">Anual</option>
+          <option value="mensual">Todos los meses</option>
+          <option value="anual">Enero</option>
+          <option>Febrero</option>
+          <option>Marzo</option>
+          <option>Abril</option>
+          <option>Mayo</option>
+          <option>Junio</option>
+          <option>Julio</option>
+          <option>Agosto</option>
+          <option>Septiembre</option>
+          <option>Octubre</option>
+          <option>Noviembre</option>
+          <option>Diciembre</option>
         </select>
+        
         <select
-          className="rounded-xl border px-3 py-1"
-          value={filtroTipo}
-          onChange={e => setFiltroTipo(e.target.value)}
-        >
-          <option value="">Todos los tipos</option>
-          {tipos.map(tipo => (
-            <option key={tipo} value={tipo}>{tipo}</option>
-          ))}
-        </select>
-        <select
-          className="rounded-xl border px-3 py-1"
+          className="rounded border px-3 py-1 w-39"
           value={filtroAnio}
           onChange={e => setFiltroAnio(e.target.value)}
         >
@@ -145,9 +161,19 @@ function AgentEstadistic({ data, user_code }) {
             <option key={y} value={y}>{y}</option>
           ))}
         </select>
+        <select
+          className="rounded border px-3 py-1 w-80"
+          value={filtroTipo}
+          onChange={e => setFiltroTipo(e.target.value)}
+        >
+          <option value="">Todos los tipos</option>
+          {tipos.map(tipo => (
+            <option key={tipo} value={tipo}>{tipo}</option>
+          ))}
+        </select>
       </div>
 
-      <div className="bg-white rounded-2xl shadow p-4 flex flex-col items-center justify-center">
+      <div className="bg-white rounded shadow p-4 flex flex-col items-center justify-center">
         {scatterData.length === 0 || legendInfo.length === 0 ? (
           <div className="text-gray-500">No hay datos para mostrar.</div>
         ) : (
@@ -155,7 +181,7 @@ function AgentEstadistic({ data, user_code }) {
             <div style={{ width: "100%", height: 380 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart
-                  margin={{ top: 10, right: 30, bottom: 20, left: 30 }}
+                  margin={{ top: 5, right: 5, bottom: 20, left: 0 }}
                 >
                   <CartesianGrid />
                   <XAxis
@@ -195,13 +221,45 @@ function AgentEstadistic({ data, user_code }) {
                   ))}
                 </ScatterChart>
               </ResponsiveContainer>
+              
             </div>
+            <button 
+                onClick={() => setLeyend(prev => !prev)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md border transition ${
+                  leyend ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                }`}
+              >
+                {leyend ? 'Ocultar leyenda' : 'Ver leyenda'}
+              </button>
+            <div className="flex justify-center mt-5">
+              {leyend && (
+                <div>
+                  <table className="table-auto border-collapse border border-gray-300">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="border border-gray-300 px-4 py-2 text-left">Siglas</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Significado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {datos.map((item, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="border border-gray-300 px-4 py-2">{item.siglas}</td>
+                          <td className="border border-gray-300 px-4 py-2">{item.significado}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+            
             {/* Legend Tailwind */}
             <div className="mt-6 w-full flex flex-wrap justify-center gap-4">
               {legendInfo.map((entry) => (
                 <div
                   key={entry.name}
-                  className="flex items-center bg-gray-50 rounded-lg px-3 py-1 shadow-sm"
+                  className="flex items-center bg-gray-50 rounded-md px-3 py-1 shadow-sm"
                 >
                   <span
                     className="inline-block w-4 h-4 rounded-full mr-2"
@@ -224,6 +282,7 @@ function AgentEstadistic({ data, user_code }) {
           Total de incidencias: <span className="text-blue-700">{total}</span>
         </div>
       )}
+
     </div>
   );
 }

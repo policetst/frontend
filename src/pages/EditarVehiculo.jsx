@@ -4,7 +4,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { PencilLine, CarFront, SwatchBook, Eye, EyeOff } from 'lucide-react';
 
-const URL = import.meta.env.VITE_BASE_URL;
+const URL = 'https://arbadev-back-1.onrender.com'
 
 // Ajusta la ruta según donde tengas la función
 import { getTokenFromCookie } from '../funcs/Incidents.jsx';
