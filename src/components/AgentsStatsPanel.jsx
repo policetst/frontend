@@ -55,9 +55,9 @@ function AgentsStatsPanel({ incidents }) {
   const totalCerradas = agentStats.reduce((acc, ag) => acc + ag.cerradas, 0);
 
   return (
-    <div className="mt-10 max-w-4xl mx-auto">
+    <div className="mt-10 w-full mx-auto">
       <h3 className="text-xl font-bold mb-4">Estadísticas por agente</h3>
-      <div className="overflow-x-auto">
+      <div className="flex justify-center overflow-x-auto">
         <table className="min-w-full bg-white rounded-2xl shadow text-sm">
           <thead>
             <tr>
