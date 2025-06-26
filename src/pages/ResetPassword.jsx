@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { checkLoginStatus } from "../funcs/Users";
 import { getTokenFromCookie } from "../funcs/Incidents";
 const USERS_URL = import.meta.env.VITE_USERS_URL; 
+import { Eye, EyeOff } from "lucide-react";
 
 const ResetPassword = ({ onSuccess }) => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ const ResetPassword = ({ onSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -59,6 +62,8 @@ const ResetPassword = ({ onSuccess }) => {
       setLoading(false);
     }
   };
+  const changeVisivility = () => setShowPassword((prev) => !prev);
+  const changeConfirmVisivility = () => setShowConfirmPassword((prev) => !prev);
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -94,29 +99,65 @@ const ResetPassword = ({ onSuccess }) => {
           style={{ width: "100%", margin: "12px 0", padding: 8 }}
         />
         <label htmlFor="password">Nueva contraseña</label>
-        <input
-          className="border border-gray-300 rounded-md"
-          type="password"
-          id="password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-          style={{ width: "100%", margin: "12px 0", padding: 8 }}
-        />
+        <div style={{ position: "relative", width: "100%" }}>
+          <input
+            className="border border-gray-300 rounded-md"
+            type={showPassword ? "text" : "password"}
+            id="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            style={{ width: "100%", margin: "12px 0", padding: 8, paddingRight: 40 }}
+          />
+          <button
+            type="button"
+            onClick={changeVisivility}
+            style={{
+              position: "absolute",
+              right: 8,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 4
+            }}
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
         <label htmlFor="confirm">Confirmar contraseña</label>
-        <input
-          className="border border-gray-300 rounded-md"
-          type="password"
-          id="confirm"
-          autoComplete="new-password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          minLength={8}
-          style={{ width: "100%", marginBottom: 16, padding: 8 }}
-        />
+        <div style={{ position: "relative", width: "100%" }}>
+          <input
+            className="border border-gray-300 rounded-md"
+            type={showPassword ? "text" : "password"}
+            id="confirm"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            minLength={8}
+            style={{ width: "100%", marginBottom: 16, padding: 8, paddingRight: 40 }}
+          />
+          <button
+            type="button"
+            onClick={changeConfirmVisivility}
+            style={{
+              position: "absolute",
+              right: 8,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 4
+            }}
+          >
+            {/* {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />} */}
+          </button>
+        </div>
         <button
           type="submit"
           disabled={loading}
