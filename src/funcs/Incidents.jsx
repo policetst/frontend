@@ -5,8 +5,8 @@ import Swal from 'sweetalert2';
 import emailjs from 'emailjs-com';
 import { getEmailConfig } from './Config'
 
-const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
+const INCIDENTS_URL = 'https://arbadev-back-1.onrender.com/incidents';
+const BASE_URL = 'https://arbadev-back-1.onrender.com';
 
 const UpdateBrigadeField = async (code, value) => {
   const token = getTokenFromCookie();

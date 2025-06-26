@@ -3,7 +3,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import { getTokenFromCookie } from '../funcs/Incidents'
 
-const API_URL = import.meta.env.VITE_BASE_URL
+const API_URL = 'https://arbadev-back-1.onrender.com'
 
 // El compañero que se añade SIEMPRE es el user logueado (team_mate_code)
 // El creador es creator_user_code
