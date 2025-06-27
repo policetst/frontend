@@ -75,14 +75,18 @@ function validarDniNif(texto) {
  * @returns {Boolean}
  */
 function validarMatricula(texto) {
-  if (!texto) return false;
-  // Eliminar espacios y pasar a mayúsculas
-  const value = texto.toUpperCase().replace(/\s+/g, '');
+  if (!texto || typeof texto !== 'string') return false;
+  
+  // Eliminar espacios, guiones y pasar a mayúsculas
+  const value = texto.toUpperCase().replace(/[\s-]+/g, '');
 
-  // Patrón: 4 números + 3 letras (sin vocales, Ñ, Q)
-  const matriculaPattern = /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/;
+  // Formato nuevo: 4 números + 3 consonantes (sin vocales, Ñ, Q)
+  const formatoNuevo = /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/;
+  
+  // Formato antiguo: 1-2 letras + 4 números + 1-2 letras (sin vocales, Ñ, Q)
+  const formatoAntiguo = /^[BCDFGHJKLMNPRSTVWXYZ]{1,2}[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{1,2}$/;
 
-  return matriculaPattern.test(value);
+  return formatoNuevo.test(value) || formatoAntiguo.test(value);
 }
 
 
@@ -92,7 +96,7 @@ function validarMatricula(texto) {
  * @returns {any}
  */
 async function deleteImage(imageUrl){
-  await axios.post(IMAGESD_URL, { url: imageUrl }, {
+  await axios.post(`https://arbadev-back-joq0.onrender.com/imagesd`, { url: imageUrl }, {
     headers: {
       Authorization: `Bearer ${getTokenFromCookie()}`,
     }
