@@ -5,8 +5,9 @@ import Swal from 'sweetalert2';
 import emailjs from 'emailjs-com';
 import { getEmailConfig } from './Config'
 
-const INCIDENTS_URL = 'https://arbadev-back-1.onrender.com/incidents';
-const BASE_URL = 'https://arbadev-back-1.onrender.com';
+const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+const IMAGESD_URL = import.meta.env.VITE_IMAGESD_URL;
 
 const UpdateBrigadeField = async (code, value) => {
   const token = getTokenFromCookie();
@@ -91,7 +92,7 @@ function validarMatricula(texto) {
  * @returns {any}
  */
 async function deleteImage(imageUrl){
-  await axios.post(`https://arbadev-back-joq0.onrender.com/imagesd`, { url: imageUrl }, {
+  await axios.post(IMAGESD_URL, { url: imageUrl }, {
     headers: {
       Authorization: `Bearer ${getTokenFromCookie()}`,
     }

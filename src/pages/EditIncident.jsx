@@ -20,8 +20,8 @@ import Mapview from '../components/Map';
 import ImageUpload from '../components/ImageUpload';
 import AddTeammate from '../components/AddTeammate';
 
-const INCIDENTS_IMAGES_URL = 'https://arbadev-back-1.onrender.com/upload';
-const API_URL = 'https://arbadev-back-1.onrender.com';
+const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
+const API_URL = import.meta.env.VITE_BASE_URL;
 
 const EditIncident = () => {
   document.title = "SIL Tauste - Editar Incidencia";
