@@ -68,6 +68,7 @@ const FormularioIncidencia = () => {
     'Asistencia Colaboración Ciudadana',
     'Ilícito penal',
     'Incidencias Urbanísticas',
+    'Juzgados',
     'Otras incidencias no clasificadas',
   ];
 

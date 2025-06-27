@@ -8,7 +8,8 @@ const TIPO_ACRONIMOS = {
   "Ruidos": "RDS",
   "Otras incidencias no clasificadas": "OTR",
   "Asistencia Colaboración Ciudadana": "ACC",
-  "Ilícito penal": "ILP"
+  "Ilícito penal": "ILP",
+  "Juzgados": "JUZ"
 };
 
 function AgentsStatsPanel({ incidents }) {

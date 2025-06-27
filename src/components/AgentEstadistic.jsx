@@ -12,6 +12,7 @@ const COLORS = {
   "Otras incidencias no clasificadas": "#8884d8",
   "Asistencia Colaboración Ciudadana": "#00897B",
   "Ilícito penal": "#AB47BC",
+  "Juzgados": "#9C27B0",
   "default": "#AAAAAA"
 };
 
@@ -23,7 +24,8 @@ const TIPO_ACRONIMOS = {
   "Ruidos": "RDS",
   "Otras incidencias no clasificadas": "OTR",
   "Asistencia Colaboración Ciudadana": "ACC",
-  "Ilícito penal": "ILP"
+  "Ilícito penal": "ILP",
+  "Juzgados": "JUZ"
 };
 
 // Lista fija de tipos, SIEMPRE aparece en el filtro:
@@ -35,6 +37,7 @@ const tipos = [
   "Asistencia Colaboración Ciudadana",
   "Ilícito penal",
   "Incidencias Urbanísticas",
+  "Juzgados",
   "Otras incidencias no clasificadas"
 ];
 
@@ -46,6 +49,8 @@ const datos = [
   { siglas: 'RDS', significado: 'Ruidos' },
   { siglas: 'TRF', significado: 'Tráfico' },
   { siglas: 'SC', significado: 'Seguridad ciudadana' },
+  { siglas: 'ANI', significado: 'Animales' },
+  { siglas: 'JUZ', significado: 'Juzgados' },
   { siglas: 'ANI', significado: 'Animales' },
 ];
 
