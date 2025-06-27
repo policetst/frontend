@@ -18,14 +18,11 @@ export default function GestionUsuarios() {
 
   const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
   const [emailconfig, setEmailConfig] = useState('');
   const [userDetails, setUserDetails] = useState(null);
   const [userRole, setUserRole] = useState('Administrator');
   const [usuarios, setUsuarios] = useState([]);
-  const [showUserForm, setShowUserForm] = useState(true); // CORREGIDO typo
+  const [showUserForm, setShowUserForm] = useState(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,7 +46,7 @@ export default function GestionUsuarios() {
     }
 
     if (formData.password !== formData.confirmpassword) {
-      console.error('Contraseña no confirmada');
+      alert('Las contraseñas no coinciden');
       return;
     }
 
@@ -115,55 +112,54 @@ export default function GestionUsuarios() {
           <h2 className="text-2xl font-bold">Gestión de usuario</h2>
           <hr className="border-t border-gray-300 my-4" />
         </div>
+        
         {/* Estructura principal */}
         <div className='grid sm:grid-cols-2 gap-4'>
           {/* Columna 1 */}
           <div> 
             {/* Tarjeta de usuario */}
             <div className="flex justify-center mb-8">
-          <div className="
-            w-full max-w-[356px] bg-white border border-gray-300 
-            rounded px-4 py-3 shadow-sm hover:shadow-md transition gap-4
-          ">
-            <div className="flex flex-grow items-center gap-4">
-              <CircleUserRound className='h-12 w-12 stroke-[1.8] text-gray-800' />
-              <div className='flex flex-col'>
-                <h3 className="text-lg font-semibold">{username}</h3>
-                <hr className="border-t border-gray-300" />
-                <span className="text-sm">
-                  {userRole !== "Standard" ? "Administrador" : "Estándar"}
-                </span>
-              </div>
-              <div className="ml-auto flex items-end">
-                <button
-                  type="button"
-                  onClick={() => setShowUserForm((prev) => !prev)}
-                  className={showUserForm
-                    ? "text-gray-500 hover:text-gray-700 p-1 border"
-                    : "text-blue-600 hover:text-blue-800"
-                  }
-                >
-                  <PencilLine className='w-5 h-5' />
-                </button>
+              <div className="w-full max-w-[356px] bg-white border border-gray-300 rounded px-4 py-3 shadow-sm hover:shadow-md transition gap-4">
+                <div className="flex flex-grow items-center gap-4">
+                  <CircleUserRound className='h-12 w-12 stroke-[1.8] text-gray-800' />
+                  <div className='flex flex-col'>
+                    <h3 className="text-lg font-semibold">{username}</h3>
+                    <hr className="border-t border-gray-300" />
+                    <span className="text-sm">
+                      {userRole !== "Standard" ? "Administrador" : "Estándar"}
+                    </span>
+                  </div>
+                  <div className="ml-auto flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => setShowUserForm((prev) => !prev)}
+                      className={showUserForm
+                        ? "text-gray-500 hover:text-gray-700 p-1 border"
+                        : "text-blue-600 hover:text-blue-800"
+                      }
+                    >
+                      <PencilLine className='w-5 h-5' />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-            </div>
+
             {/* Formulario */}
             {showUserForm && (
               <div className='flex justify-center'>
-                <div className="
-                  w-full max-w-[356px] bg-white border border-gray-300 
-                  rounded shadow-sm hover:shadow-md transition gap-4 mt-1
-                ">
+                <div className="w-full max-w-[356px] bg-white border border-gray-300 rounded shadow-sm hover:shadow-md transition gap-4 mt-1">
                   <form className="bg-white p-4 rounded-lg shadow-lg w-full md:max-w-md" onSubmit={handleSubmit}>
                     <div className="space-y-4">
                       <div className="flex justify-center">
                         <h3 className="text-lg">Editar usuario: {username}</h3>
                       </div>
-                        <hr className="border-t border-gray-300 pb-4" />
+                      <hr className="border-t border-gray-300 pb-4" />
+                      
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo de recuperación</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                          Correo de recuperación
+                        </label>
                         <input
                           type="email"
                           value={formData.email}
@@ -176,22 +172,40 @@ export default function GestionUsuarios() {
                       </div>
 
                       <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
-                        <input
-                          type="password"
-                          value={formData.password}
-                          onChange={handleChange}
-                          id="password"
-                          name="password"
-                          className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                          placeholder="Contraseña"
-                        />
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                          Contraseña
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={handleChange}
+                            id="password"
+                            name="password"
+                            className="w-full p-2 pr-10 border border-gray-200 rounded bg-gray-50"
+                            placeholder="Contraseña"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600"
+                            tabIndex={-1}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-gray-400" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-400" />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+                        <label htmlFor="confirmpassword" className="block text-sm font-medium text-gray-700">
+                          Confirmar contraseña
+                        </label>
                         <input
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           value={formData.confirmpassword}
                           onChange={handleChange}
                           id="confirmpassword"
@@ -203,7 +217,9 @@ export default function GestionUsuarios() {
 
                       {userRole === 'Administrator' && (
                         <div>
-                          <label htmlFor="emailbrigada" className="block text-sm font-medium text-gray-700">Correo Brigada</label>
+                          <label htmlFor="emailbrigada" className="block text-sm font-medium text-gray-700">
+                            Correo Brigada
+                          </label>
                           <input
                             type="email"
                             value={formData.emailbrigada}
@@ -228,6 +244,7 @@ export default function GestionUsuarios() {
               </div>
             )}
           </div>
+
           {/* Columna 2 */}
           <div>
             {/* Gestión de usuarios - Solo Administradores */}
