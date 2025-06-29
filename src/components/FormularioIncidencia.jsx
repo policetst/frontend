@@ -41,6 +41,7 @@ const FormularioIncidencia = () => {
 
   const [mostrarFormularioPersona, setMostrarFormularioPersona] = useState(false);
   const [mostrarFormularioVehiculo, setMostrarFormularioVehiculo] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     getLocation()
@@ -190,7 +191,7 @@ const FormularioIncidencia = () => {
         text: 'Completa todos los datos de la persona.',
         confirmButtonText: 'Aceptar'
       });
-      return;
+      setIsSubmitting(true);
     }
     
     const phoneRegex = /^(\+34|0034)?[\s\-]?([6|7|8|9]{1}[0-9]{2})[\s\-]?[0-9]{3}[\s\-]?[0-9]{3}$/;
@@ -206,7 +207,7 @@ const FormularioIncidencia = () => {
     if (personas.some(p => p.dni === dniInput)) {
       Swal.fire({
         icon: 'info',
-        title: 'Ya añadida',
+        title: 'Persona encontrada',
         text: 'Esta persona ya está en la incidencia.',
         confirmButtonText: 'Aceptar'
       });
@@ -240,12 +241,12 @@ const FormularioIncidencia = () => {
         text: 'Completa todos los datos del vehículo.',
         confirmButtonText: 'Aceptar'
       });
-      return;
+      setIsSubmitting(true);
     }
     if (vehiculos.some(v => v.license_plate === license_plate)) {
       Swal.fire({
         icon: 'info',
-        title: 'Ya añadido',
+        title: 'Vehículo encontrado',
         text: 'Este vehículo ya está en la incidencia.',
         confirmButtonText: 'Aceptar'
       });
@@ -264,7 +265,9 @@ const FormularioIncidencia = () => {
   };
 
   const handleSubmit = async (e) => {
+    if (isSubmitting) return;
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Validación de campos obligatorios
     const camposObligatorios = [
@@ -274,21 +277,20 @@ const FormularioIncidencia = () => {
     ];
     const campoFaltante = camposObligatorios.find(c => !form[c.campo] || form[c.campo].toString().trim() === '');
     if (campoFaltante) {
-      const Swal = (await import('sweetalert2')).default;
+
       Swal.fire({
         icon: 'warning',
         title: 'Falta un campo obligatorio',
         text: `Por favor, completa el campo: ${campoFaltante.label}`,
         confirmButtonText: 'Aceptar'
       });
-      return;
+      setIsSubmitting(true);
     }
 
     // Validación personas
     for (let i = 0; i < personas.length; i++) {
       const p = personas[i];
       if (!p.dni || !p.first_name || !p.last_name1 || !p.last_name2 || !p.phone_number || !validarDniNif(p.dni)) {
-        const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'warning',
           title: 'Faltan o son inválidos los datos de una persona',
@@ -302,7 +304,6 @@ const FormularioIncidencia = () => {
     for (let i = 0; i < vehiculos.length; i++) {
       const v = vehiculos[i];
       if (!v.brand || !v.model || !v.color || !v.license_plate || !validarMatricula(v.license_plate)) {
-        const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'warning',
           title: 'Faltan o son inválidos los datos de un vehículo',
@@ -341,8 +342,10 @@ const FormularioIncidencia = () => {
     };
 
     try {
+      console.log("Enviando incidencia...");
       const response = await postIncident(formToSend);
       if (response.ok) {
+        console.log("Incidencia creada correctamente");
         if (form.brigade_field === true) {
           try {
             await sendIncidentViaEmail(form.description, form.location, uploadedImageUrls);
@@ -350,7 +353,6 @@ const FormularioIncidencia = () => {
             console.error('Error al enviar el correo:', error);
           }
         }
-        const Swal = (await import('sweetalert2')).default;
         Swal.fire({
           icon: 'success',
           title: 'Incidencia creada',
@@ -367,18 +369,22 @@ const FormularioIncidencia = () => {
           brigade_field: false,
           creator_user_code: user_code || 'AR00001',
         });
+        
         setPersonas([]);
         setVehiculos([]);
         setSelectedImages([]);
       } 
     } catch (error) {
-      const Swal = (await import('sweetalert2')).default;
       Swal.fire({
         icon: 'error',
         title: 'Error',
         text: error.response?.data?.message || 'No se pudo registrar la incidencia.',
         confirmButtonText: 'Aceptar'
       });
+      return;
+    } finally {
+      console.log("Envío finalizado");
+      setIsSubmitting(false);
     }
   };
 
@@ -659,9 +665,12 @@ const FormularioIncidencia = () => {
         <div className="flex justify-center">
           <button
             type="submit"
-            className="mb-2 mt-2 px-4 py-2 w-40 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
-          >
-            Crear incidencia
+            disabled={isSubmitting}
+            className={`w-full px-4 py-2 rounded text-white 
+            ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}
+              `}
+            >
+              {isSubmitting ? 'Enviando...' : 'Enviar'}
           </button>
         </div>
       </form>

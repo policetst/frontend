@@ -27,6 +27,7 @@ const EditIncident = () => {
   const { code } = useParams();
   const navigate = useNavigate();
   const [cookies] = useCookies(['user']);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [mostrarFormularioPersona, setMostrarFormularioPersona] = useState(false);
   const [mostrarFormularioVehiculo, setMostrarFormularioVehiculo] = useState(false);
@@ -51,19 +52,23 @@ const EditIncident = () => {
       if (result.isConfirmed) {
         const response = await closeIncident(incident_code, agent_code);
         if (response.ok) {
-          Swal.fire(
-            'Incidencia cerrada',
-            'La incidencia ha sido cerrada correctamente.',
-            'success'
-          );
+          Swal.fire({
+            icon: 'success',
+            title: 'Incidencia cerrada',
+            text: 'La incidencia ha sido cerrada correctamente.',
+            confirmButtonText: 'Aceptar'
+          });
+          console.log("Incidencia cerrada");
+          navigate('/incidencia');
         } else {
-          return;
-          Swal.fire(
-            'Error',
-            response.message || 'No se pudo cerrar la incidencia.',
-            'error'
-        
-          );
+          Swal.fire({
+            icon: 'warning',
+            title: 'Error',
+            text: 'No se ha podido cerrar incidencia.',
+            confirmButtonText: 'Aceptar'
+          });
+          setIsSubmitting(true);
+          console.log("No se ha podido cerrar incidencia")
         }
       }
     });
@@ -185,6 +190,7 @@ const handleDniBlur = async (e) => {
             text: `Se ha añadido automáticamente a la incidencia.`,
             confirmButtonText: 'Aceptar'
           });
+          setIsSubmitting(true);
         }
         // Limpia el formulario
         setNuevaPersona({
@@ -228,6 +234,7 @@ const handleMatriculaBlur = async (e) => {
             text: `Se ha añadido automáticamente a la incidencia.`,
             confirmButtonText: 'Aceptar'
           });
+          return;
         }
         // Limpia el formulario
         setNuevoVehiculo({
@@ -385,10 +392,20 @@ const handleMatriculaBlur = async (e) => {
       if (!result.isConfirmed) return;
       const response = await closeIncident(code, USER_CODE);
       if (response.ok) {
-        Swal.fire('Incidencia cerrada', 'La incidencia ha sido cerrada correctamente.', 'success');
+        Swal.fire({
+          icon: 'success',
+          title: 'Incidencia cerrada', 
+          text: 'La incidencia ha sido cerrada correctamente.'
+        });
         setForm(prev => ({ ...prev, status: 'Closed' }));
+        navigate('/incidencia');
       } else {
-        Swal.fire('Error', response.message || 'No se pudo cerrar la incidencia.', 'error');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Error', 
+          text: response.message || 'No se pudo cerrar la incidencia.'
+        });
+        return;
       }
     } else {
       setForm(prev => ({ ...prev, status: newStatus }));
@@ -407,9 +424,19 @@ const handleMatriculaBlur = async (e) => {
       if (result.isConfirmed) {
         try {
           await sendIncidentViaEmail(form.description, form.location, allImages);
-          Swal.fire('Reenviado', 'La incidencia ha sido reenviada a la brigada.', 'success');
+          Swal.fire({
+            icon: 'success',
+            title: 'Reenviado', 
+            text: 'La incidencia ha sido reenviada a la brigada.'
+          });
+          return;
         } catch (error) {
-          Swal.fire('Error', 'No se pudo reenviar la incidencia a la brigada.', 'error');
+          Swal.fire({
+            icon: 'warning',
+            title: 'Error', 
+            text: 'No se pudo reenviar la incidencia a la brigada.'
+          });
+          return;
         }
       }
     });
@@ -417,7 +444,9 @@ const handleMatriculaBlur = async (e) => {
 
   // --- SUBMIT (ACTUALIZAR) ---
   const handleSubmit = async (e) => {
+    if (isSubmitting) return;
     e.preventDefault();
+    setIsSubmitting(true);
 
     const result = await Swal.fire({
       title: '¿Deseas actualizar la incidencia?',
@@ -427,6 +456,7 @@ const handleMatriculaBlur = async (e) => {
       confirmButtonText: 'Sí, actualizar',
       cancelButtonText: 'Cancelar'
     });
+    setIsSubmitting(true);
     if (!result.isConfirmed) return;
 
     // Validación de campos obligatorios
@@ -443,7 +473,7 @@ const handleMatriculaBlur = async (e) => {
         text: `Por favor, completa el campo: ${campoFaltante.label}`,
         confirmButtonText: 'Aceptar'
       });
-      return;
+      setIsSubmitting(true);
     }
     // Validación personas y vehículos
     for (let i = 0; i < personas.length; i++) {
@@ -455,7 +485,7 @@ const handleMatriculaBlur = async (e) => {
           text: `La persona ${i + 1} debe tener todos los campos completos.`,
           confirmButtonText: 'Aceptar'
         });
-        return;
+        setIsSubmitting(true);
       }
     }
     for (let i = 0; i < vehiculos.length; i++) {
@@ -467,7 +497,7 @@ const handleMatriculaBlur = async (e) => {
           text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
           confirmButtonText: 'Aceptar'
         });
-        return;
+        setIsSubmitting(true);
       }
     }
 
@@ -522,6 +552,7 @@ const handleMatriculaBlur = async (e) => {
           text: response.message || 'No se pudo actualizar la incidencia.',
           confirmButtonText: 'Aceptar'
         });
+        setIsSubmitting(true);
       }
     } catch (error) {
       Swal.close();
@@ -531,6 +562,7 @@ const handleMatriculaBlur = async (e) => {
         text: error.response?.data?.message || 'No se pudo actualizar la incidencia.',
         confirmButtonText: 'Aceptar'
       });
+      setIsSubmitting(true);
     }
   };
 
@@ -652,12 +684,14 @@ const handleMatriculaBlur = async (e) => {
                 <h3 className="text-xl font-bold mb-2">Personas</h3>
                 
                 <button
+                  disabled={form.status === 'Closed'}
                   type="button"
                   onClick={() => setMostrarFormularioPersona(prev => !prev)}
                   className={`px-3 py-1 rounded text-white 
                     ${mostrarFormularioPersona 
                       ? 'bg-gray-400 hover:bg-gray-700' 
                       : 'bg-[#002856] hover:bg-cyan-600'}
+                    disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400
                   `}
                 >
                   {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
@@ -758,12 +792,14 @@ const handleMatriculaBlur = async (e) => {
               <div>
                 <h2 className="text-xl font-bold mb-2">Vehículos{/*({vehiculos.length})*/}</h2> 
                 <button
+                  disabled={form.status === 'Closed'}
                   type="button"
                   onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
                   className={`px-3 py-1 rounded text-white 
                     ${mostrarFormularioVehiculo 
                       ? 'bg-gray-400 hover:bg-gray-700' 
                       : 'bg-[#002856] hover:bg-cyan-600'}
+                    disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400
                   `}
                 >
                   {mostrarFormularioVehiculo ? 'Ocultar' : 'Nuevo vehículo'}
@@ -884,10 +920,18 @@ const handleMatriculaBlur = async (e) => {
 
               <button
                 type="submit"
-                className={`w-full py-2 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                disabled={form.status === 'Closed'}
-              >
-                Actualizar
+                disabled={form.status === 'Closed' || isSubmitting}
+                className={`w-full px-4 py-2 rounded text-white 
+                ${form.status === 'Closed' || isSubmitting 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700'}
+                  `}
+                >
+                  {form.status === 'Closed' 
+                  ? 'Incidencia cerrada'
+                  : isSubmitting
+                    ? 'Actualizando...' 
+                    : 'Actualizar'}
               </button>
               {/* Lightbox imágenes */}
               {lightboxOpen && (

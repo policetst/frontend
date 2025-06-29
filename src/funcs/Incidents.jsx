@@ -140,23 +140,6 @@ async function postIncident(incident) {
         Authorization: `Bearer ${token}`,
       },
     });
-    const { ok, message } = res.data;
-
-    if (ok === true) {
-      await Swal.fire({
-        icon: 'success',
-        title: 'Incidencia creada',
-        text: 'La incidencia se ha creado correctamente.',
-        confirmButtonText: 'Aceptar',
-      });
-    } else {
-      await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: message || 'Hubo un problema al crear la incidencia.',
-        confirmButtonText: 'Aceptar',
-      });
-    }
 
     return res.data;
 
@@ -166,12 +149,13 @@ async function postIncident(incident) {
 
     console.error(`Error ${status} al crear incidencia:`, errorMessage);
 
-    await Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: errorMessage || 'No se ha podido crear la incidencia.',
-      confirmButtonText: 'Aceptar',
-    });
+    // Comentado para evitar doble warning cuando faltan campos.
+    // await Swal.fire({
+    //   icon: 'error',
+    //   title: 'Errors',
+    //   text: errorMessage || 'No se ha podido crear la incidencia.',
+    //   confirmButtonText: 'Aceptar',
+    // });
 
     return { ok: false, message: errorMessage };
   }

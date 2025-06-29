@@ -46,7 +46,7 @@ useEffect(() => {
             {count}
           </span>
         )}
-        <BellRing className="w-6 h-6 hover:text-gray-600" />
+        <BellRing className="w-6 h-6 text-gray-100 hover:text-cyan-500 transition" />
       </button>
 
       {/* Dropdown de tareas */}
