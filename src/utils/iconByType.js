@@ -12,6 +12,7 @@ export const getIconByType = (type) => {
     'Ilícito penal': 'justice.png',
     'Incidencias Urbanísticas': 'construction.png',
     'Otras incidencias no clasificadas': 'question.png',
+    'Juzgados': 'juz.png',
   };
 
   const filename = iconMap[type] || 'question.png';

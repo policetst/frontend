@@ -87,7 +87,7 @@ function Mapa() {
             const [lat, lng] = incident.location.split(',').map(Number);
             if (isNaN(lat) || isNaN(lng)) return null;
 
-            const icon = getIconByType(incident.type);
+            const icon = getIconByType(incident.type);            
 
             return (
               <Marker key={incident.id} position={[lat, lng]} icon={icon}>
