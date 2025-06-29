@@ -82,7 +82,7 @@ const EditIncident = () => {
             'Error',
             response.message || 'No se pudo cerrar la incidencia.',
             'error'
-        
+
           );
         }
       }
@@ -91,7 +91,7 @@ const EditIncident = () => {
 
   const Navigate = useNavigate();
   console.log('code: '+ code);
-  
+
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     status: 'Open',
@@ -150,6 +150,20 @@ const EditIncident = () => {
     };
     if (code) fetchIncidentData();
   }, [code]);
+
+  // Función callback para refrescar los datos cuando se añade un compañero
+  const handleTeammateAdded = async () => {
+    try {
+      const data = await getIncident(code);
+      if (data && data.ok !== false) {
+        setTeammate(data.team_mate);
+        // Opcionalmente, también podemos actualizar otros datos si es necesario
+        setCreatorCode(data.creator_user_code);
+      }
+    } catch (error) {
+      console.error("Error al refrescar los datos del compañero:", error);
+    }
+  };
 
   const tipos = [
     'Animales',
@@ -577,7 +591,13 @@ const handleMatriculaBlur = async (e) => {
         {/* Formulario principal */}
         <div className="flex justify-center items-center">
           <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8">
-            <AddTeammate incident_code={code} team_mate_code={USER_CODE} creator_user_code={creator_code} team_mate={teammate}/>
+            <AddTeammate
+              incident_code={code}
+              team_mate_code={USER_CODE}
+              creator_user_code={creator_code}
+              team_mate={teammate}
+              onTeammateAdded={handleTeammateAdded}
+            />
             <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white rounded-md shadow-md space-y-6">
               <div>
                 <h2 className="text-xl font-bold mb-2 text-center"> {code}</h2>
