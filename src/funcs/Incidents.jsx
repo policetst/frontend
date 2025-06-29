@@ -5,8 +5,9 @@ import Swal from 'sweetalert2';
 import emailjs from 'emailjs-com';
 import { getEmailConfig } from './Config'
 
-const INCIDENTS_URL = 'https://arbadev-back-1.onrender.com/incidents';
-const BASE_URL = 'https://arbadev-back-1.onrender.com';
+const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+const IMAGESD_URL = import.meta.env.VITE_IMAGESD_URL;
 
 const UpdateBrigadeField = async (code, value) => {
   const token = getTokenFromCookie();
@@ -74,14 +75,18 @@ function validarDniNif(texto) {
  * @returns {Boolean}
  */
 function validarMatricula(texto) {
-  if (!texto) return false;
-  // Eliminar espacios y pasar a mayúsculas
-  const value = texto.toUpperCase().replace(/\s+/g, '');
+  if (!texto || typeof texto !== 'string') return false;
+  
+  // Eliminar espacios, guiones y pasar a mayúsculas
+  const value = texto.toUpperCase().replace(/[\s-]+/g, '');
 
-  // Patrón: 4 números + 3 letras (sin vocales, Ñ, Q)
-  const matriculaPattern = /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/;
+  // Formato nuevo: 4 números + 3 consonantes (sin vocales, Ñ, Q)
+  const formatoNuevo = /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/;
+  
+  // Formato antiguo: 1-2 letras + 4 números + 1-2 letras (sin vocales, Ñ, Q)
+  const formatoAntiguo = /^[BCDFGHJKLMNPRSTVWXYZ]{1,2}[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{1,2}$/;
 
-  return matriculaPattern.test(value);
+  return formatoNuevo.test(value) || formatoAntiguo.test(value);
 }
 
 

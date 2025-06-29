@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   getIncident,
   updateIncident,
+  getUserInfo,
   sendIncidentViaEmail,
   deleteImage,
   closeIncident,
@@ -12,6 +13,7 @@ import {
   capitalize,
   UpdateBrigadeField
 } from '../funcs/Incidents';
+import { getUserRole } from '../funcs/Users';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -20,8 +22,9 @@ import Mapview from '../components/Map';
 import ImageUpload from '../components/ImageUpload';
 import AddTeammate from '../components/AddTeammate';
 
-const INCIDENTS_IMAGES_URL = 'https://arbadev-back-1.onrender.com/upload';
-const API_URL = 'https://arbadev-back-1.onrender.com';
+const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
+const API_URL = import.meta.env.VITE_BASE_URL;
+
 
 const EditIncident = () => {
   document.title = "SIL Tauste - Editar Incidencia";
@@ -33,6 +36,22 @@ const EditIncident = () => {
 
   const [mostrarFormularioPersona, setMostrarFormularioPersona] = useState(false);
   const [mostrarFormularioVehiculo, setMostrarFormularioVehiculo] = useState(false);
+  const [userdetails, setUserdetails] = useState(null);
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await getUserRole(USER_CODE);
+        setUserdetails(response); 
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    fetchUserDetails();
+  }, [USER_CODE]); 
+  console.log('User details:', userdetails);
+  
+  
 
   /*
 * Function to close an incident
@@ -78,7 +97,7 @@ const EditIncident = () => {
 
   const Navigate = useNavigate();
   console.log('code: '+ code);
-  
+
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     status: 'Open',
@@ -138,6 +157,20 @@ const EditIncident = () => {
     if (code) fetchIncidentData();
   }, [code]);
 
+  // Función callback para refrescar los datos cuando se añade un compañero
+  const handleTeammateAdded = async () => {
+    try {
+      const data = await getIncident(code);
+      if (data && data.ok !== false) {
+        setTeammate(data.team_mate);
+        // Opcionalmente, también podemos actualizar otros datos si es necesario
+        setCreatorCode(data.creator_user_code);
+      }
+    } catch (error) {
+      console.error("Error al refrescar los datos del compañero:", error);
+    }
+  };
+
   const tipos = [
     'Animales',
     'Seguridad Ciudadana',
@@ -146,6 +179,7 @@ const EditIncident = () => {
     'Asistencia Colaboración Ciudadana',
     'Ilícito penal',
     'Incidencias Urbanísticas',
+    'Juzgados',
     'Otras incidencias no clasificadas',
   ];
 
@@ -590,7 +624,13 @@ const handleMatriculaBlur = async (e) => {
         {/* Formulario principal */}
         <div className="flex justify-center items-center">
           <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8">
-            <AddTeammate incident_code={code} team_mate_code={USER_CODE} creator_user_code={creator_code} team_mate={teammate}/>
+            <AddTeammate
+              incident_code={code}
+              team_mate_code={USER_CODE}
+              creator_user_code={creator_code}
+              team_mate={teammate}
+              onTeammateAdded={handleTeammateAdded}
+            />
             <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white rounded-md shadow-md space-y-6">
               <div>
                 <h2 className="text-xl font-bold mb-2 text-center"> {code}</h2>
@@ -611,14 +651,29 @@ const handleMatriculaBlur = async (e) => {
                 <div className="mb-4">
                   <label className="block font-medium">Coordenadas</label>
                   <input
-                    disabled
+                    disabled={userdetails !== "Administrator"}
                     type="text"
                     name="location"
                     value={form.location}
-                    onChange={() => {}}
-                    className="w-full mt-1 p-2 border rounded-md bg-gray-100"
+                    onChange={(e) => {
+                      if (userdetails === "Administrator") {
+                        setForm({ ...form, location: e.target.value });
+                      }
+                    }}
+                    className={`w-full mt-1 p-2 border rounded-md ${
+                      userdetails !== "Administrator" ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+                    }`}
                     placeholder="Latitud, Longitud"
+                    title={userdetails !== "Administrator" ? "Solo los administradores pueden editar las coordenadas" : ""}
                   />
+                  {userdetails !== "Administrator" && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      <svg className="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      Solo los administradores pueden editar las coordenadas
+                    </p>
+                  )}
                   <Mapview chords={form.location} inc_code={code} />
                 </div>
                 {/* Contadores */}

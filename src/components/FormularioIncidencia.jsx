@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail, capitalize } from '../funcs/Incidents';
 import { validarDniNif, validarMatricula } from '../funcs/Incidents';
-const INCIDENTS_URL = 'https://arbadev-back-1.onrender.com/incidents';
-const INCIDENTS_IMAGES_URL = 'https://arbadev-back-1.onrender.com/upload';
-const API_URL = 'https://arbadev-back-1.onrender.com';
+const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
+const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
+const API_URL = import.meta.env.VITE_BASE_URL;
 import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
@@ -69,6 +69,7 @@ const FormularioIncidencia = () => {
     'Asistencia Colaboración Ciudadana',
     'Ilícito penal',
     'Incidencias Urbanísticas',
+    'Juzgados',
     'Otras incidencias no clasificadas',
   ];
 

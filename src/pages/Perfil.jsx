@@ -55,7 +55,7 @@ export default function GestionUsuarios() {
     }
 
     if (formData.password !== formData.confirmpassword) {
-      console.error('Contraseña no confirmada');
+      alert('Las contraseñas no coinciden');
       return;
     }
 
@@ -140,7 +140,7 @@ export default function GestionUsuarios() {
           <h2 className="text-2xl font-bold">Gestión de usuario</h2>
           <hr className="border-t border-gray-300 my-4" />
         </div>
-
+        
         {/* Estructura principal */}
         <div className='grid sm:grid-cols-2 gap-4'>
           {/* Columna 1 */}
@@ -183,7 +183,9 @@ export default function GestionUsuarios() {
                       </div>
                       <hr className="border-t border-gray-300 pb-4" />
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo de recuperación</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                          Correo de recuperación
+                        </label>
                         <input
                           type="email"
                           value={formData.email}
@@ -195,21 +197,39 @@ export default function GestionUsuarios() {
                         />
                       </div>
                       <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
-                        <input
-                          type="password"
-                          value={formData.password}
-                          onChange={handleChange}
-                          id="password"
-                          name="password"
-                          className="w-full p-2 border border-gray-200 rounded bg-gray-50"
-                          placeholder="Contraseña"
-                        />
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                          Contraseña
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={handleChange}
+                            id="password"
+                            name="password"
+                            className="w-full p-2 pr-10 border border-gray-200 rounded bg-gray-50"
+                            placeholder="Contraseña"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600"
+                            tabIndex={-1}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-gray-400" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-400" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                       <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+                        <label htmlFor="confirmpassword" className="block text-sm font-medium text-gray-700">
+                          Confirmar contraseña
+                        </label>
                         <input
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           value={formData.confirmpassword}
                           onChange={handleChange}
                           id="confirmpassword"
@@ -220,7 +240,9 @@ export default function GestionUsuarios() {
                       </div>
                       {userRole === 'Administrator' && (
                         <div>
-                          <label htmlFor="emailbrigada" className="block text-sm font-medium text-gray-700">Correo Brigada</label>
+                          <label htmlFor="emailbrigada" className="block text-sm font-medium text-gray-700">
+                            Correo Brigada
+                          </label>
                           <input
                             type="email"
                             value={formData.emailbrigada}
