@@ -3,6 +3,8 @@ import { PencilLine } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createUser } from '../funcs/Users';
 
+import Swal from 'sweetalert2';
+
 function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
   const [newUser, setNewUser] = useState({
     code: '',
@@ -18,19 +20,38 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { code, email, password, role, nombre } = newUser;
-
-    if (!code || !email || !password || !role || !nombre) {
-      alert("Por favor, completa todos los campos.");
+    if (!newUser.code || !newUser.email || !newUser.password || !newUser.role || !newUser.nombre) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, completa todos los campos.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#3085d6'
+      });
       return;
     }
 
     try {
+      Swal.fire({
+        title: 'Creando usuario...',
+        text: 'Por favor espera mientras se procesa la información',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
       const createdUser = await createUser(newUser);
       console.log("New User Data:", createdUser);
 
-      if (createdUser.ok) {
-        alert("Usuario creado correctamente.");
+      if (createdUser && createdUser.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Usuario creado!',
+          text: 'El usuario ha sido creado correctamente.',
+          confirmButtonText: 'Perfecto',
+          confirmButtonColor: '#28a745'
+        });
         setNewUser({
           code: '',
           email: '',
@@ -39,17 +60,28 @@ function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
           status: 'Active',
           nombre: '',
         });
-        setShowForm(false);
 
         if (typeof refetchUsuarios === 'function') {
           refetchUsuarios(); // Recargar lista desde el padre
         }
       } else {
-        alert("Error al crear el usuario: " + createdUser.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al crear usuario',
+          text: createdUser?.message || 'Ha ocurrido un error inesperado',
+          confirmButtonText: 'Intentar de nuevo',
+          confirmButtonColor: '#dc3545'
+        });
       }
     } catch (error) {
       console.error("Error al crear el usuario:", error);
-      alert("Error inesperado. Intenta nuevamente.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error inesperado',
+        text: 'Ha ocurrido un error. Por favor, intenta nuevamente.',
+        confirmButtonText: 'Reintentar',
+        confirmButtonColor: '#dc3545'
+      });
     }
   };
 
