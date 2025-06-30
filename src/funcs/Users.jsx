@@ -1,6 +1,6 @@
 import { getTokenFromCookie } from "./Incidents";
 import bcrypt from "bcryptjs";
-const USERS_URL = "https://arbadev-back-1.onrender.com/users";
+const USERS_URL = "https://arbadev-back-joq0.onrender.com/users";
 import axios from "axios";
 import Swal from "sweetalert2";
 
