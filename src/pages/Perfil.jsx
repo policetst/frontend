@@ -55,7 +55,13 @@ export default function GestionUsuarios() {
     }
 
     if (formData.password !== formData.confirmpassword) {
-      alert('Las contraseñas no coinciden');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Contraseñas no coinciden',
+        text: 'Las contraseñas introducidas no son iguales. Por favor, verifica que ambas contraseñas sean idénticas.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f39c12'
+      });
       return;
     }
 
