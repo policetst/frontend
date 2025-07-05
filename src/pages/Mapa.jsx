@@ -80,7 +80,7 @@ function Mapa() {
             }}
           >
           <TileLayer
-            attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+            attribution='&copy; Arba Dev | SIL Tauste'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           {filteredIncidents.map((incident) => {

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { PencilLine } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createUser } from '../funcs/Users';
-
 import Swal from 'sweetalert2';
 
 function AddUser({ userRole, usuarios = [], refetchUsuarios }) {
