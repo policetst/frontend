@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail, capitalize } from '../funcs/Incidents';
 import { validarDniNif, validarMatricula } from '../funcs/Incidents';
+import LocationPicker from './LocationPicker';  
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
 const API_URL = import.meta.env.VITE_BASE_URL;
