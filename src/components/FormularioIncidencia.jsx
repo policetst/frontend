@@ -419,8 +419,6 @@ const FormularioIncidencia = () => {
 
           <h3 className="text-xl font-bold mb-4">Datos esenciales</h3>
 
-          // En tu componente FormularioIncidencia, modifica la sección de coordenadas:
-
 <div className="mb-4">
   <label className="block font-medium">Coordenadas</label>
   <input
