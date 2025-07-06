@@ -10,6 +10,7 @@ import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 import Mapview from './Map';
+import LocationPicker from './LocationPicker';
 import Swal from 'sweetalert2';
 
 const FormularioIncidencia = () => {
@@ -418,18 +419,27 @@ const FormularioIncidencia = () => {
 
           <h3 className="text-xl font-bold mb-4">Datos esenciales</h3>
 
-          <div className="mb-4">
-            <label className="block font-medium">Coordenadas</label>
-            <input
-              type="text"
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
-              placeholder="Latitud, Longitud"
-            />
-            <Mapview chords={form.location} />
-          </div>
+          // En tu componente FormularioIncidencia, modifica la sección de coordenadas:
+
+<div className="mb-4">
+  <label className="block font-medium">Coordenadas</label>
+  <input
+    type="text"
+    name="location"
+    value={form.location}
+    onChange={handleChange}
+    className="w-full mt-1 p-2 border rounded"
+    placeholder="Latitud, Longitud"
+  />
+  <LocationPicker 
+    onLocationSelect={(coords) => {
+      const coordsString = `${coords.lat},${coords.lng}`;
+      setLocation(coordsString);
+      setForm(prev => ({ ...prev, location: coordsString }));
+    }} 
+  />
+  <Mapview chords={form.location} />
+</div>
 
           <div className="mb-4">
             <label className="block font-medium">Tipo de incidencia</label>
