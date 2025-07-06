@@ -10,7 +10,6 @@ import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
 import Mapview from './Map';
-import LocationPicker from './LocationPicker';
 import Swal from 'sweetalert2';
 
 const FormularioIncidencia = () => {
