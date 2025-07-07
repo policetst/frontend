@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail, capitalize } from '../funcs/Incidents';
+import LocationPicker from './LocationPicker';
 import { validarDniNif, validarMatricula } from '../funcs/Incidents';
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
 const INCIDENTS_IMAGES_URL = import.meta.env.VITE_IMAGES_URL;
@@ -428,6 +429,14 @@ const FormularioIncidencia = () => {
               className="w-full mt-1 p-2 border rounded"
               placeholder="Latitud, Longitud"
             />
+            <LocationPicker
+  value={form.location}
+  onLocationSelect={(coords) => {
+    const coordsString = `${coords.lat},${coords.lng}`;
+    setLocation(coordsString);
+    setForm(prev => ({ ...prev, location: coordsString }));
+  }}
+/>
             <Mapview chords={form.location} />
           </div>
 
