@@ -1,21 +1,32 @@
-
-import React, { useState } from "react";
-import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
+import React, { useState, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-function LocationPicker({ onLocationSelect }) {
+function parseCoords(value) {
+  if (!value) return [41.9170839926252, -1.2461675913711587];
+  const [lat, lng] = value.split(",").map(Number);
+  if (isNaN(lat) || isNaN(lng)) return [41.9170839926252, -1.2461675913711587];
+  return [lat, lng];
+}
+
+function LocationPicker({ value, onLocationSelect }) {
   const [showMap, setShowMap] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState(null);
+  const [marker, setMarker] = useState(parseCoords(value));
+
+  // Sincroniza el marcador si cambia el valor externo
+  useEffect(() => {
+    setMarker(parseCoords(value));
+  }, [value]);
 
   function LocationMarker() {
     useMapEvents({
       click(e) {
-        setSelectedPosition(e.latlng);
+        setMarker([e.latlng.lat, e.latlng.lng]);
         if (onLocationSelect) onLocationSelect(e.latlng);
         setShowMap(false);
       },
     });
-    return null;
+    return marker ? <Marker position={marker} /> : null;
   }
 
   return (
@@ -27,13 +38,6 @@ function LocationPicker({ onLocationSelect }) {
       >
         📍 Seleccionar en mapa
       </button>
-      
-      {selectedPosition && (
-        <div className="mt-2 text-sm text-gray-600">
-          Última selección: {selectedPosition.lat.toFixed(6)}, {selectedPosition.lng.toFixed(6)}
-        </div>
-      )}
-      
       {showMap && (
         <div
           style={{
@@ -49,21 +53,21 @@ function LocationPicker({ onLocationSelect }) {
             justifyContent: "center",
           }}
         >
-          <div style={{ 
-            width: "90vw", 
-            maxWidth: "600px", 
-            height: "70vh", 
-            background: "#fff", 
-            borderRadius: 8, 
+          <div style={{
+            width: "90vw",
+            maxWidth: "600px",
+            height: "70vh",
+            background: "#fff",
+            borderRadius: 8,
             overflow: "hidden",
             position: "relative"
           }}>
             <button
               type="button"
-              style={{ 
-                position: "absolute", 
-                top: 10, 
-                right: 10, 
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
                 zIndex: 1001,
                 background: "#ef4444",
                 color: "white",
@@ -77,7 +81,7 @@ function LocationPicker({ onLocationSelect }) {
               ✕ Cerrar
             </button>
             <MapContainer
-              center={[41.9170839926252, -1.2461675913711587]}
+              center={marker}
               zoom={13}
               style={{ width: "100%", height: "100%" }}
             >

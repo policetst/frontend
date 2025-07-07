@@ -429,14 +429,15 @@ const FormularioIncidencia = () => {
     className="w-full mt-1 p-2 border rounded"
     placeholder="Latitud, Longitud"
   />
-  <LocationPicker 
-    onLocationSelect={(coords) => {
-      const coordsString = `${coords.lat},${coords.lng}`;
-      setLocation(coordsString);
-      setForm(prev => ({ ...prev, location: coordsString }));
-    }} 
-  />
-  <Mapview chords={form.location} />
+<LocationPicker
+  value={form.location}
+  onLocationSelect={(coords) => {
+    const coordsString = `${coords.lat},${coords.lng}`;
+    setLocation(coordsString);
+    setForm(prev => ({ ...prev, location: coordsString }));
+  }}
+/>
+<Mapview chords={form.location} />
 </div>
 
           <div className="mb-4">
