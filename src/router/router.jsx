@@ -17,11 +17,16 @@ import EditarVehiculo from '../pages/EditarVehiculo';
 import EditarPersona from '../pages/EditarPersona';
 import Error from "../pages/Error";
 import ResetPassword from "../pages/ResetPassword";
+import { DiligenciaForm } from "../components/DiligenciaForm";
 import EditUser from '../pages/EditUser';
 
 
 //! make the router to use the hash router
 const ROUTER = createHashRouter([
+  {
+    path: "/atestado",
+    element: <DiligenciaForm />  
+  },
   /*
   
   * con el formato
