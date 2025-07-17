@@ -6,7 +6,7 @@ const getTokenFromCookie = () => {
   return match ? match[2] : '';
 };
 
-const API_BASE_URL = 'https://arbadev-back-1.onrender.com/api';
+const API_BASE_URL = 'https://arbadev-back-1.onrender.com';
 
 class ApiService {
   constructor() {
