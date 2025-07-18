@@ -123,11 +123,11 @@ const AtestadoPrintView = ({ atestado, diligencias, onClose }) => {
                     </div>
                   </div>
                   
-                  {diligencia.valores && diligencia.valores.length > 0 && (
+                  {diligencia.valores && Array.isArray(diligencia.valores) && diligencia.valores.length > 0 && diligencia.valores.some(valor => valor && valor.variable) && (
                     <div className="mt-3 pt-3 border-t border-gray-200 print:border-t">
                       <p className="text-sm font-medium text-gray-700 mb-2">Variables utilizadas:</p>
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        {diligencia.valores.map((valor, idx) => (
+                        {diligencia.valores.filter(valor => valor && valor.variable).map((valor, idx) => (
                           <div key={idx} className="flex">
                             <span className="font-medium text-gray-600 min-w-0 flex-shrink-0">
                               {valor.variable}:

@@ -76,6 +76,17 @@ export default function DiligenciaForm() {
     setLoading(true)
 
     try {
+      // Validaciones adicionales
+      if (!selectedTemplateId) {
+        alert('Por favor selecciona una plantilla')
+        return
+      }
+
+      if (!selectedTemplate) {
+        alert('Plantilla no encontrada')
+        return
+      }
+
       const templateValues = variables.map(variable => ({
         variable,
         value: values[variable] || ''
@@ -84,17 +95,21 @@ export default function DiligenciaForm() {
       const diligenciaData = {
         templateId: selectedTemplateId,
         values: templateValues,
-        texto_final: previewText
+        previewText: previewText
       }
 
       console.log('Enviando diligencia:', diligenciaData) // Debug
+      console.log('AtestadoId:', atestadoId) // Debug
+      console.log('SelectedTemplate:', selectedTemplate) // Debug
+
       const response = await apiService.createDiligencia(atestadoId, diligenciaData)
       console.log('Respuesta:', response) // Debug
 
       alert('Diligencia creada correctamente')
       navigate(`/atestados/${atestadoId}`)
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error completo:', error) // Debug más detallado
+      console.error('Error response:', error.response) // Debug de la respuesta
       const errorMessage = error.response?.data?.message || error.message || 'Error desconocido'
       alert('Error al guardar diligencia: ' + errorMessage)
     } finally {

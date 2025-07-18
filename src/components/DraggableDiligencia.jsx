@@ -64,11 +64,11 @@ const DraggableDiligencia = ({
           {diligencia.texto_final || diligencia.content || 'Sin contenido'}
         </p>
       </div>
-      {diligencia.valores && diligencia.valores.length > 0 && (
+      {diligencia.valores && Array.isArray(diligencia.valores) && diligencia.valores.length > 0 && diligencia.valores.some(valor => valor && valor.variable) && (
         <div className="mt-2 pt-2 border-t border-gray-100">
           <p className="text-xs text-gray-500 mb-1">Variables utilizadas:</p>
           <div className="flex flex-wrap gap-1">
-            {diligencia.valores.map((valor, idx) => (
+            {diligencia.valores.filter(valor => valor && valor.variable).map((valor, idx) => (
               <span key={idx} className="inline-block bg-gray-100 text-xs px-2 py-1 rounded">
                 {valor.variable}: {valor.valor}
               </span>
