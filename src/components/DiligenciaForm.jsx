@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from './ui/Button'
 import { Input } from './ui/Input'
 import { Label } from './ui/Label'
@@ -7,9 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/Card'
 import { Save, Eye, FileText, Loader2 } from '../utils/Icons'
 import { extractVariables, inferFieldType, replaceVariables } from '../utils/types'
 import { TemplateSelector } from './TemplateSelector'
-import apiService from '..//../services/apiService' // Ajusta la ruta según tu estructura
+import apiService from '../../services/apiService'
 
-export function DiligenciaForm({ atestadoId, onSubmit, onCancel }) {
+export default function DiligenciaForm() {
+  const { id: atestadoId } = useParams()
+  const navigate = useNavigate()
+
   // Estados para las plantillas
   const [plantillas, setPlantillas] = useState([])
   const [plantillasLoading, setPlantillasLoading] = useState(true)
@@ -30,17 +34,13 @@ export function DiligenciaForm({ atestadoId, onSubmit, onCancel }) {
     try {
       setPlantillasLoading(true)
       setPlantillasError(null)
-      
+
       console.log('Cargando plantillas...') // Debug
       const response = await apiService.getPlantillas()
       console.log('Respuesta plantillas:', response) // Debug
-      
-      if (response.ok) {
-        setPlantillas(response.plantillas || [])
-        console.log('Plantillas cargadas:', response.plantillas) // Debug
-      } else {
-        throw new Error(response.message || 'Error al cargar plantillas')
-      }
+
+      setPlantillas(response.plantillas || [])
+      console.log('Plantillas cargadas:', response.plantillas) // Debug
     } catch (error) {
       console.error('Error cargando plantillas:', error)
       setPlantillasError(error.message)
@@ -84,27 +84,19 @@ export function DiligenciaForm({ atestadoId, onSubmit, onCancel }) {
       const diligenciaData = {
         templateId: selectedTemplateId,
         values: templateValues,
-        previewText
+        texto_final: previewText
       }
 
-      if (onSubmit) {
-        await onSubmit(diligenciaData)
-      } else {
-        // Si no hay onSubmit, hacer la petición directamente
-        const response = await apiService.createDiligencia(atestadoId, diligenciaData)
-        if (response.ok) {
-          alert('Diligencia creada correctamente')
-          // Redirigir o limpiar formulario
-          setSelectedTemplateId('')
-          setValues({})
-          setShowPreview(false)
-        } else {
-          throw new Error(response.message || 'Error al crear diligencia')
-        }
-      }
+      console.log('Enviando diligencia:', diligenciaData) // Debug
+      const response = await apiService.createDiligencia(atestadoId, diligenciaData)
+      console.log('Respuesta:', response) // Debug
+
+      alert('Diligencia creada correctamente')
+      navigate(`/atestados/${atestadoId}`)
     } catch (error) {
       console.error('Error:', error)
-      alert('Error al guardar diligencia: ' + error.message)
+      const errorMessage = error.response?.data?.message || error.message || 'Error desconocido'
+      alert('Error al guardar diligencia: ' + errorMessage)
     } finally {
       setLoading(false)
     }
@@ -288,7 +280,11 @@ export function DiligenciaForm({ atestadoId, onSubmit, onCancel }) {
         )}
 
         <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate(`/atestados/${atestadoId}`)}
+          >
             Cancelar
           </Button>
           <Button type="submit" disabled={loading || !selectedTemplateId}>

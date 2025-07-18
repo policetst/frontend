@@ -1,0 +1,83 @@
+import React from 'react';
+
+const DraggableDiligencia = ({ 
+  diligencia, 
+  index, 
+  onDragStart, 
+  onDragOver, 
+  onDrop, 
+  formatDateTime,
+  isDragging,
+  dragOverIndex 
+}) => {
+  const handleDragStart = (e) => {
+    e.dataTransfer.setData('text/plain', index.toString());
+    onDragStart(index);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    onDragOver(index);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    onDrop(draggedIndex, index);
+  };
+
+  return (
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      className={`
+        border-l-4 border-blue-500 pl-4 py-2 cursor-move transition-all duration-200
+        ${isDragging ? 'opacity-50 scale-95' : ''}
+        ${dragOverIndex === index ? 'bg-blue-50 border-blue-300' : ''}
+        hover:bg-gray-50
+      `}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center text-gray-400">
+            <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
+            <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
+            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+          </div>
+          <h3 className="font-medium text-gray-900">
+            Diligencia #{index + 1}
+            {diligencia.plantilla_nombre && (
+              <span className="text-sm text-gray-500 ml-2">
+                (Plantilla: {diligencia.plantilla_nombre})
+              </span>
+            )}
+          </h3>
+        </div>
+        <span className="text-xs text-gray-500">
+          {formatDateTime(diligencia.created_at)}
+        </span>
+      </div>
+      <div className="prose max-w-none">
+        <p className="whitespace-pre-wrap text-gray-700">
+          {diligencia.texto_final || diligencia.content || 'Sin contenido'}
+        </p>
+      </div>
+      {diligencia.valores && diligencia.valores.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-gray-100">
+          <p className="text-xs text-gray-500 mb-1">Variables utilizadas:</p>
+          <div className="flex flex-wrap gap-1">
+            {diligencia.valores.map((valor, idx) => (
+              <span key={idx} className="inline-block bg-gray-100 text-xs px-2 py-1 rounded">
+                {valor.variable}: {valor.valor}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DraggableDiligencia;

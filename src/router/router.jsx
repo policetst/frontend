@@ -17,26 +17,19 @@ import EditarVehiculo from '../pages/EditarVehiculo';
 import EditarPersona from '../pages/EditarPersona';
 import Error from "../pages/Error";
 import ResetPassword from "../pages/ResetPassword";
-import { DiligenciaForm } from "../components/DiligenciaForm";
 import EditUser from '../pages/EditUser';
 
+// 🆕 COMPONENTES PARA ATESTADOS
+import DiligenciaForm from "../components/DiligenciaForm";
+import AtestadosList from "../components/AtestadosList";
+import AtestadoDetail from "../components/AtestadosDetail";
+import CrearAtestado from "../components/CrearAtestado";
+import EditarAtestado from "../components/EditarAtestado";
+import PlantillasList from "../components/PlantillasList";
+import CrearPlantilla from "../components/CrearPlantilla";
+import EditarPlantilla from "../components/EditarPlantilla";
 
-//! make the router to use the hash router
 const ROUTER = createHashRouter([
-  {
-    path: "/atestado",
-    element: <DiligenciaForm />  
-  },
-  /*
-  
-  * con el formato
-  * {
-  * path: "/ruta",
-  * element: <Componente />,
-  },
-  * }
-  */
-
   {
     path: "/login",
     element: <Login />
@@ -48,63 +41,99 @@ const ROUTER = createHashRouter([
   {
     path: "/",
     element: <Loayaut/>,
-    errorElement: <Error />, //! Error page for the entire app
+    errorElement: <Error />,
     children:[
       {
         path: '/reset-password/:code',
         element: <ResetPassword />
       },
-
       {
         path: '/edituser/:code',
         element: <EditUser/>
       },
-    {
-      path: '/editincident/:code',
-      element: <EditIncident/>
-    },
-    {
-      path: "/",
-      element: <PaginaPrincipal />
-    },
-    {
-      path: "/perfil",
-      element: <Perfil />
-    },
-    {
-      path: "/mapa",
-      element: <Mapa />
-    },
-    {
-      path: "/incidencia/",
-      element: <MostrarIncidencia />
-    },
-    {
-      path: "/estadisticas",
-      element: <Estadisticas />
-    },
-    {
-      path: "/crear-incidencia",
-      element: <CrearIncidencia />
-    },
-    {
-      path: "/personas-y-vehiculos",
-      element: <PersonasVehiculos />,
-    },
-    {
-      path: "/editarpersona/:dni",
-      element: <EditarPersona />
-    },
-    {
-      path: "/editarvehiculo/:license_plate",
-      element: <EditarVehiculo />
-    },
-    {
-      path: "*",
-      element: <NotFound />
-    }
-  ]
-}
+      {
+        path: '/editincident/:code',
+        element: <EditIncident/>
+      },
+      {
+        path: "/",
+        element: <PaginaPrincipal />
+      },
+      {
+        path: "/perfil",
+        element: <Perfil />
+      },
+      {
+        path: "/mapa",
+        element: <Mapa />
+      },
+      {
+        path: "/incidencia/",
+        element: <MostrarIncidencia />
+      },
+      {
+        path: "/estadisticas",
+        element: <Estadisticas />
+      },
+      {
+        path: "/crear-incidencia",
+        element: <CrearIncidencia />
+      },
+      {
+        path: "/personas-y-vehiculos",
+        element: <PersonasVehiculos />,
+      },
+      {
+        path: "/editarpersona/:dni",
+        element: <EditarPersona />
+      },
+      {
+        path: "/editarvehiculo/:license_plate",
+        element: <EditarVehiculo />
+      },
+
+      // 🆕 RUTAS PARA ATESTADOS
+      {
+        path: "/atestados",
+        element: <AtestadosList />
+      },
+      {
+        path: "/atestados/nuevo",
+        element: <CrearAtestado />
+      },
+      {
+        path: "/atestados/:id",
+        element: <AtestadoDetail />
+      },
+      {
+        path: "/atestados/:id/editar",
+        element: <EditarAtestado />
+      },
+      {
+        path: "/atestados/:id/diligencias/nueva",
+        element: <DiligenciaForm />
+      },
+
+      // 🆕 RUTAS PARA PLANTILLAS
+      {
+        path: "/plantillas",
+        element: <PlantillasList />
+      },
+      {
+        path: "/plantillas/nueva",
+        element: <CrearPlantilla />
+      },
+      {
+        path: "/plantillas/:id/editar",
+        element: <EditarPlantilla />
+      },
+
+      {
+        path: "*",
+        element: <NotFound />
+      }
+    ]
+  }
 ]);
 
 export default ROUTER;

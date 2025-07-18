@@ -49,16 +49,88 @@ class ApiService {
     );
   }
 
-  // PLANTILLAS
-  async getPlantillas() {
-    console.log('🚀 Llamando getPlantillas...');
-    const response = await this.api.get('/plantillas');
+  // ==================== MÉTODOS PARA ATESTADOS ====================
+  
+  async getAtestados() {
+    console.log('🚀 Llamando getAtestados...');
+    const response = await this.api.get('/atestados');
+    return response.data;
+  }
+
+  async getAtestado(id) {
+    console.log('🚀 Llamando getAtestado...', { id });
+    const response = await this.api.get(`/atestados/${id}`);
+    return response.data;
+  }
+
+  async createAtestado(data) {
+    console.log('🚀 Llamando createAtestado...', { data });
+    const response = await this.api.post('/atestados', data);
+    return response.data;
+  }
+
+  async updateAtestado(id, data) {
+    console.log('🚀 Llamando updateAtestado...', { id, data });
+    const response = await this.api.put(`/atestados/${id}`, data);
+    return response.data;
+  }
+
+  async deleteAtestado(id) {
+    console.log('🚀 Llamando deleteAtestado...', { id });
+    const response = await this.api.delete(`/atestados/${id}`);
+    return response.data;
+  }
+
+  async getDiligencias(atestadoId) {
+    console.log('🚀 Llamando getDiligencias...', { atestadoId });
+    const response = await this.api.get(`/atestados/${atestadoId}/diligencias`);
     return response.data;
   }
 
   async createDiligencia(atestadoId, data) {
     console.log('🚀 Llamando createDiligencia...', { atestadoId, data });
     const response = await this.api.post(`/atestados/${atestadoId}/diligencias`, data);
+    return response.data;
+  }
+
+  // ==================== MÉTODOS PARA PLANTILLAS ====================
+  
+  async getPlantillas() {
+    console.log('🚀 Llamando getPlantillas...');
+    const response = await this.api.get('/plantillas');
+    return response.data;
+  }
+
+  async getPlantilla(id) {
+    console.log('🚀 Llamando getPlantilla...', { id });
+    const response = await this.api.get(`/plantillas/${id}`);
+    return response.data;
+  }
+
+  async createPlantilla(data) {
+    console.log('🚀 Llamando createPlantilla...', { data });
+    const response = await this.api.post('/plantillas', data);
+    return response.data;
+  }
+
+  async updatePlantilla(id, data) {
+    console.log('🚀 Llamando updatePlantilla...', { id, data });
+    const response = await this.api.put(`/plantillas/${id}`, data);
+    return response.data;
+  }
+
+  async deletePlantilla(id) {
+    console.log('🚀 Llamando deletePlantilla...', { id });
+    const response = await this.api.delete(`/plantillas/${id}`);
+    return response.data;
+  }
+
+  // Método para reordenar diligencias
+  async reorderDiligencias(atestadoId, diligenciasOrder) {
+    console.log('🚀 Llamando reorderDiligencias...', { atestadoId, diligenciasOrder });
+    const response = await this.api.put(`/atestados/${atestadoId}/diligencias/reorder`, {
+      diligenciasOrder
+    });
     return response.data;
   }
 }
