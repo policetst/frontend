@@ -1,18 +1,107 @@
 import { useCookies } from 'react-cookie';
+
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import emailjs from 'emailjs-com';
+import { getEmailConfig } from './Config'
 
+const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+const IMAGESD_URL = import.meta.env.VITE_IMAGESD_URL;
 
-const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL || 'http://localhost:4000/incidents';
+const UpdateBrigadeField = async (code, value) => {
+  const token = getTokenFromCookie();
+  try {
+    const res = await axios.put(`${INCIDENTS_URL}/${code}/brigade_field`, { brigade_field: value }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating brigade field:", error);
+    return { ok: false, message: 'Error al actualizar el campo de brigada' };
+  }
+};
 
-
-//*Function to get the user's token from the cookie
 //*Function to get the user's token from the cookie (sin hooks)
 const getTokenFromCookie = () => {
   const match = document.cookie.match(/(^| )token=([^;]+)/);
   return match ? match[2] : '';
 };
+/**
+ * Function to capitalize the first letter of each word in a string
+ * @param {String} texto
+ * @returns {String}
+ */
+function capitalize(texto) {
+  return texto
+    .toLowerCase()
+    .replace(/\b\w/g, letra => letra.toUpperCase());
+}
 
+/**
+ * Function to validate DNI/NIF
+ * @param {String} texto
+ * @returns {Boolean}
+ */
+function validarDniNif(texto) {
+  if (!texto) return false;
+  const value = texto.toUpperCase().trim();
+
+  const dniPattern = /^(\d{8})([A-Z])$/;
+  const niePattern = /^[XYZ]\d{7}[A-Z]$/;
+
+  const letras = 'TRWAGMYFPDXBNJZSQVHLCKE';
+
+  if (dniPattern.test(value)) {
+    const [, num, letra] = value.match(dniPattern);
+    return letras[num % 23] === letra;
+  }
+
+  // Validación NIE
+  if (niePattern.test(value)) {
+    let nieNum = value.replace('X', '0').replace('Y', '1').replace('Z', '2');
+    const num = nieNum.slice(0, 8);
+    const letra = nieNum[8];
+    return letras[num % 23] === letra;
+  }
+
+  return false;
+}
+/**
+ * Description: Function to validate license plates
+ * @param {String} texto
+ * @returns {Boolean}
+ */
+function validarMatricula(texto) {
+  if (!texto || typeof texto !== 'string') return false;
+  
+  // Eliminar espacios, guiones y pasar a mayúsculas
+  const value = texto.toUpperCase().replace(/[\s-]+/g, '');
+
+  // Formato nuevo: 4 números + 3 consonantes (sin vocales, Ñ, Q)
+  const formatoNuevo = /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/;
+  
+  // Formato antiguo: 1-2 letras + 4 números + 1-2 letras (sin vocales, Ñ, Q)
+  const formatoAntiguo = /^[BCDFGHJKLMNPRSTVWXYZ]{1,2}[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{1,2}$/;
+
+  return formatoNuevo.test(value) || formatoAntiguo.test(value);
+}
+
+
+/**
+ * Function to delete images from server to optimice space
+ * @param {any} imageUrl
+ * @returns {any}
+ */
+async function deleteImage(imageUrl){
+  await axios.post(`https://arbadev-back-joq0.onrender.com/imagesd`, { url: imageUrl }, {
+    headers: {
+      Authorization: `Bearer ${getTokenFromCookie()}`,
+    }
+  });
+}
 
 //* function to close an incident
 const closeIncident = async (code, userCode) => {
@@ -78,57 +167,46 @@ async function postIncident(incident) {
     const token = getTokenFromCookie();
     const res = await axios.post(INCIDENTS_URL, incident, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
     });
-    console.log("Response from backend:", res.data);
-    const { ok, message } = res.data;
-
-    if (ok === true) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Incidencia creada',
-        text: 'La incidencia se ha creado correctamente.',
-        confirmButtonText: 'Aceptar'
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: message || 'Hubo un problema al crear la incidencia.',
-        confirmButtonText: 'Aceptar'
-      });
-    }
 
     return res.data;
+
   } catch (error) {
-    console.error("Error posting incident:", error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'No se ha podido crear la incidencia.',
-      confirmButtonText: 'Aceptar'
-    });
-    return { ok: false, message: 'Error al conectar con el servidor' };
+    const status = error.response?.status;
+    const errorMessage = error.response?.data?.message || error.message;
+
+    console.error(`Error ${status} al crear incidencia:`, errorMessage);
+
+    // Comentado para evitar doble warning cuando faltan campos.
+    // await Swal.fire({
+    //   icon: 'error',
+    //   title: 'Errors',
+    //   text: errorMessage || 'No se ha podido crear la incidencia.',
+    //   confirmButtonText: 'Aceptar',
+    // });
+
+    return { ok: false, message: errorMessage };
   }
 }
 
+//* Function to get the incidents from the backend
 async function getIncidents() {
-  const token = getTokenFromCookie();
-  try {
+  const token = getTokenFromCookie();  try {
     const res = await axios.get(INCIDENTS_URL, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching incidents:", error);
     return { ok: false, message: 'Error al conectar con el servidor' };
   }
 }
-
+//* Function to update an incident
 async function updateIncident(code, incidentData) {
   try {
     const token = getTokenFromCookie();
@@ -137,14 +215,13 @@ async function updateIncident(code, incidentData) {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Response from backend:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error updating incident:", error);
     return { ok: false, message: 'Error al actualizar la incidencia' };
   }
 }
-
+//* Function to get details of one incident
 async function getIncidentDetails(code) {
   try {
     const token = getTokenFromCookie();
@@ -153,7 +230,6 @@ async function getIncidentDetails(code) {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Incident details:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching incident details:", error);
@@ -175,8 +251,6 @@ const getIncident = async (code) => {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log("Incident data from API:", res.data);
-
     if (res.data && res.data.incident) {
       return {
         ...res.data.incident,
@@ -242,7 +316,105 @@ const countVehicles = async (code) => {
   }
 };
 
+
+
+/**
+ * Function to send an incident via email using EmailJS to notify the brigade if necessary.
+ * @param {string} to
+ * @param {string} descripcion
+ * @param {string} ubicacion
+ * @param {string[]} imagenes
+ * @returns {Promise<any>}
+ */
+const sendIncidentViaEmail = async(descripcion, ubicacion, imagenes, code) => {
+  //* get email 
+  const email = await getEmailConfig();
+  const brigadeEmail = email.data.brigade_field;
+  //change brigade field value to !upgrade(esta mal puesto)
+
+
+  // check and set images to array
+  if (!Array.isArray(imagenes)) imagenes = [];
+
+  //html element of images
+  const imagesHTML = imagenes
+    .filter(url => typeof url === 'string' && url.trim())
+    .map(url => `<img src="${url}" style="width: 200px; margin: 10px; border-radius: 5px;" />`)
+    .join('');
+
+  // Full body of email
+  const htmlContent = `
+    <h3>📌 Incidencia reportada</h3>
+    <p><strong>📝 Descripción:</strong> ${descripcion}</p>
+    <p><strong>📍 Ubicación:</strong> ${ubicacion}</p>
+    ${imagenes.length > 0 ? `<h4>📷 Imágenes:</h4>${imagesHTML}` : '<p><em>No se adjuntaron imágenes.</em></p>'}
+  `;
+
+  // Parámetrs 
+emailjs.send("service_2oua2y5","template_w7rd2z8",{
+to_name: "brigada",
+message: htmlContent,
+to_email: brigadeEmail,
+email: "renderpolice333@gmail.com",
+},
+ "DZjuMjjhaQImO7ZAl"
+);
+};
+
+//* get users for estadistics
+const getUsers = async () => {
+  try {
+    const token = getTokenFromCookie();
+    const res =  await axios.get(BASE_URL+'/users', {
+      
+headers: {
+  Authorization: `Bearer ${token}` //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiQVIwMTQ5MiIsInJvbGUiOiJTdGFuZGFyZCIsImlhdCI6MTc0ODQzNzUwNCwiZXhwIjoxNzQ4NDY2MzA0fQ.nae4Dt9BArAFL6vit9XTINKWliy7qj6L5PLE5sbkP2Y
+}
+
+    });
+     return res.data ;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
+};
+const getUserInfo = async (code) => {
+  try {
+    const token = getTokenFromCookie();
+    const res = await axios.get(`${BASE_URL}/user/${code}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    return null;
+  }
+};
+const getOpenIncidents = async () => {
+  try {
+    const token = getTokenFromCookie();
+    const res = await axios.get(`${INCIDENTS_URL}/open`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data.incidents || [];
+  } catch (error) {
+    console.error("Error fetching open incidents:", error);
+    return [];
+  }
+};
+
 export {
+  getOpenIncidents,
+  validarDniNif,
+  validarMatricula,
+  getUserInfo,
+  getUsers,
+  deleteImage,
+  sendIncidentViaEmail,
   getLocation,
   postIncident,
   getIncidents,
@@ -252,5 +424,7 @@ export {
   countPeople,
   countVehicles,
   closeIncident,
-  getTokenFromCookie
+  getTokenFromCookie,
+  capitalize,
+  UpdateBrigadeField
 };

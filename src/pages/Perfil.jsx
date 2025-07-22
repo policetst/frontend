@@ -1,341 +1,299 @@
-import { useState } from 'react';
-import { Plus, Pencil } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CircleUserRound, PencilLine, Eye,EyeOff } from 'lucide-react';
+import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
+import AddUser from '../components/AddUser';
+import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
 
 export default function GestionUsuarios() {
-  const [temaClaro, setTemaClaro] = useState(true);
+  useEffect(() => {
+    document.title = "SIL Tauste - Gestion de usuario";
+  }, []);
 
-  const usuarios = [
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: true },
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: false },
-    { id: 'AR12345', nombre: 'Josema', email: 'josema_el_duro3000@gmail.com', activo: true },
-  ];
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmpassword: '',
+    emailbrigada: ''
+  });
+
+  const [username, setUsername] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailconfig, setEmailConfig] = useState('');
+  const [userDetails, setUserDetails] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [usuarios, setUsuarios] = useState([]);
+  const [showUserForm, setShowUserForm] = useState(true);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.email || !formData.password || !formData.confirmpassword) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Aviso',
+        text: `Completa todos los campos`,
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+
+    if (!username) {
+      console.error('Username no disponible');
+      return;
+    }
+
+    if (formData.password !== formData.confirmpassword) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Contraseñas no coinciden',
+        text: 'Las contraseñas introducidas no son iguales. Por favor, verifica que ambas contraseñas sean idénticas.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f39c12'
+      });
+      return;
+    }
+
+    try {
+      const updatedUser = await changeCredentials(username, formData);
+      console.log('User updated:', updatedUser);
+
+      if (userRole === 'Administrator' && formData.emailbrigada) {
+        await updateEmailConfig({ email: formData.emailbrigada });
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: `Credenciales actualizadas.`,
+        confirmButtonText: 'Aceptar'
+      });
+      setShowUserForm(false);
+
+    } catch (error) {
+      console.error('Error updating user:', error);
+      Swal.fire({
+        icon: 'warning',
+        title: 'Error',
+        text: `Ocurrió un error al actualizar`,
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+  };
+
+  const fetchAllData = async () => {
+    try {
+      const storedUsername = localStorage.getItem('username');
+      setUsername(storedUsername || 'Usuario');
+
+      const details = await getUserDetails(storedUsername);
+      setUserDetails(details);
+      setFormData(prev => ({
+        ...prev,
+        email: details?.user?.email || ''
+      }));
+
+      const role = await getUserRole(storedUsername);
+      setUserRole(role || 'Standard');
+
+      const allUsers = await getAllUsers();
+      setUsuarios(allUsers);
+
+      const emailConfig = await getEmailConfig();
+      setEmailConfig(emailConfig.data.brigade_field);
+      setFormData(prev => ({
+        ...prev,
+        emailbrigada: emailConfig.data.brigade_field || ''
+      }));
+    } catch (error) {
+      console.error('Error fetching initial data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+// Animación de carga
+  if (userRole === null) {
+    return (
+      <div className="flex justify-center">
+        <div className="flex flex-col items-center mt-15 space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-8 border-blue-600 border-t-transparent opacity-80"></div>
+          <p className="text-gray-600 text-sm">Cargando datos de usuario...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      {/* Titulo en escritorio o tablet */}
-      <div className="hidden md:block">
-        <h2 className="text-2xl font-bold mt-4 ml-15 mb-10">Gestion de usuario</h2>
-      </div>
-      {/* Titulo en moviles */}
-      <div className="block md:hidden">
-        <h2 className="text-2xl font-bold flex justify-center mb-10">Gestion de usuario</h2>
-      </div>
-      <div className="flex justify-center">
-      <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] p-6 space-y-8 text-gray-800">
-        {/* Administrador */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold pb-5">Usuario Administrador</h2>
-
-          <div className="flex justify-center flex-wrap gap-6">
-            {/* Avatar + ID */}
-            <div className="flex flex-col items-center">
-              <div className="w-24 h-24 border-2 border-gray-400 rounded-full flex items-center justify-center">
-                <span className="text-5xl">👤</span>
+    <div className="flex justify-center">
+      <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8 text-gray-800">
+        {/* Título */}
+        <div className="block text-center xl:text-left">
+          <h2 className="text-2xl font-bold">Gestión de usuario</h2>
+          <hr className="border-t border-gray-300 my-4" />
+        </div>
+        
+        {/* Estructura principal */}
+        <div className='grid sm:grid-cols-2 gap-4'>
+          {/* Columna 1 */}
+          <div>
+            {/* Tarjeta de usuario */}
+            <div className="flex justify-center mb-8">
+              <div className="w-full max-w-[356px] bg-white border border-gray-300 rounded px-4 py-3 shadow-sm hover:shadow-md transition gap-4">
+                <div className="flex flex-grow items-center gap-4">
+                  <CircleUserRound className='h-12 w-12 stroke-[1.8] text-gray-800' />
+                  <div className='flex flex-col'>
+                    <h3 className="text-lg font-semibold">{username}</h3>
+                    <hr className="border-t border-gray-300" />
+                    <span className="text-sm">
+                      {userRole !== "Standard" ? "Administrador" : "Estándar"}
+                    </span>
+                  </div>
+                  <div className="ml-auto flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => setShowUserForm((prev) => !prev)}
+                      className={showUserForm
+                        ? "text-gray-500 hover:text-gray-700 p-1 border"
+                        : "text-blue-600 hover:text-blue-800"}
+                    >
+                      <PencilLine className='w-5 h-5' />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <span className="font-semibold mt-2">AR01100</span>
             </div>
 
             {/* Formulario */}
-            <form className="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md">
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="status" className="block text-md font-medium text-gray-700">
-                    Estado
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
-                    className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 md:text-md"
-                  >
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
-                  </select>
-                </div>
-
-                
-
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Ingrese su contraseña"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Correo Electrónico
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Ingrese su correo electrónico"
-                  />
-                </div>
-
-                {/* Tema & Brigada */}
-                <div className="flex justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Tema Predefinido</p>
-                    <div className="flex gap-4">
-                      <label className="flex items-center">
-                        <input type="radio" name="theme" value="light" className="form-radio text-indigo-600" />
-                        <span className="ml-2 text-gray-700">Claro</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="radio" name="theme" value="dark" className="form-radio text-indigo-600" />
-                        <span className="ml-2 text-gray-700">Oscuro</span>
-                      </label>
+            {showUserForm && (
+              <div className='flex justify-center'>
+                <div className="w-full max-w-[356px] bg-white border border-gray-300 rounded shadow-sm hover:shadow-md transition gap-4 mt-1">
+                  <form className="bg-white p-4 rounded-lg shadow-lg w-full md:max-w-md" onSubmit={handleSubmit}>
+                    <div className="space-y-4">
+                      <div className="flex justify-center">
+                        <h3 className="text-lg">Editar usuario: {username}</h3>
+                      </div>
+                      <hr className="border-t border-gray-300 pb-4" />
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                          Correo de recuperación
+                        </label>
+                        <input
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="correoderecuperacion@dominio.ex"
+                          id="email"
+                          name="email"
+                          className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                          Contraseña
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={handleChange}
+                            id="password"
+                            name="password"
+                            className="w-full p-2 pr-10 border border-gray-200 rounded bg-gray-50"
+                            placeholder="Contraseña"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600"
+                            tabIndex={-1}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-gray-400" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-400" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label htmlFor="confirmpassword" className="block text-sm font-medium text-gray-700">
+                          Confirmar contraseña
+                        </label>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={formData.confirmpassword}
+                          onChange={handleChange}
+                          id="confirmpassword"
+                          name="confirmpassword"
+                          className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                          placeholder="Confirmar contraseña"
+                        />
+                      </div>
+                      {userRole === 'Administrator' && (
+                        <div>
+                          <label htmlFor="emailbrigada" className="block text-sm font-medium text-gray-700">
+                            Correo Brigada
+                          </label>
+                          <input
+                            type="email"
+                            value={formData.emailbrigada}
+                            onChange={handleChange}
+                            id="emailbrigada"
+                            name="emailbrigada"
+                            className="w-full p-2 border border-gray-200 rounded bg-gray-50"
+                            placeholder="correodebrigada@dominio.ex"
+                          />
+                        </div>
+                      )}
+                      <button
+                        type="submit"
+                        className="mt-2 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-800 transition duration-200"
+                      >
+                        Actualizar
+                      </button>
                     </div>
-                  </div>
+                  </form>
                 </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
-                >
-                  Guardar
-                </button>
               </div>
-            </form>
+            )}
+          </div>
+
+          {/* Columna 2 */}
+          <div>
+            {/* Gestión de usuarios - Solo Administradores */}
+            {userRole === 'Administrator' && (
+              <div className="space-y-4 w-full">
+                <div className="text-center mt-15 md:mt-0">
+                  <h3 className="text-xl font-semibold">Gestionar usuarios</h3>
+                  <hr className="block md:hidden border-t border-gray-300 my-6" />
+                </div>
+                <div className='flex justify-center'>
+                  <AddUser
+                    userRole={userRole}
+                    usuarios={usuarios}
+                    refetchUsuarios={fetchAllData}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
-
-        <hr />
-
-        {/* Lista de usuarios */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold pb-5">Gestionar usuarios</h2>
-            <button className="border border-blue-400 text-blue-500 rounded-full p-1">
-              <Plus className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Tarjetas de usuarios */}
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
-            {usuarios.map((u, index) => (
-              <div
-                key={index}
-                className={`flex justify-between items-center border rounded px-3 py-2 ${
-                  u.activo ? 'bg-white text-black' : 'bg-gray-100 text-gray-400'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`w-2 h-full mt-1 rounded-sm ${
-                      u.activo ? 'bg-blue-500' : 'bg-gray-400'
-                    }`}
-                  ></div>
-                  <div className="flex flex-col">
-                    <span className={`font-bold ${!u.activo && 'text-gray-400'}`}>{u.id}</span>
-                    <span className="text-sm">{u.nombre} | {u.email}</span>
-                  </div>
-                </div>
-                <Pencil className="w-4 h-4 text-blue-600 cursor-pointer" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React from 'react';
-
-// document.title = "Perfil";
-
-// function Perfil() {
-//   const users = [
-//     { id: 1, username: "AR065432", email: "user1@example.com" },
-//     { id: 2, username: "AR065433", email: "user2@example.com" },
-//     { id: 3, username: "AR065434", email: "user3@example.com" },
-//     { id: 4, username: "AR065435", email: "user4@example.com" },
-//     { id: 5, username: "AR065436", email: "user5@example.com" },
-//     { id: 6, username: "AR065437", email: "user6@example.com" },
-//     { id: 7, username: "AR065438", email: "user7@example.com" },
-//     { id: 8, username: "AR065439", email: "user8@example.com" },
-//     { id: 9, username: "AR065440", email: "user9@example.com" },
-//     { id: 10, username: "AR065441", email: "user10@example.com" },
-//     { id: 11, username: "AR065442", email: "user11@example.com" },
-//   ];
-//   const user1 = {
-//     username: "AR065432",
-//     password: "password123",
-//     role: "Standard",
-//   };
-
-//   return (
-    
-
-
-
-
-    // <div className="flex flex-col md:flex-row items-start justify-start min-h-screen gap-6 p-4">
-
-
-
-    //   {/* Información del usuario */}
-    //   <div className="bg-white p-8 rounded-lg shadow-lg w-full md:max-w-md">
-    //     <h1 className="text-2xl font-bold">
-    //       {/* Gestionar usuario {user1.role === "Standard" ? "Estándar" : "Administrador"} */}
-    //       GESTIONAR USUARIO ADMINISTRADOR
-    //     </h1>
-    //     <img
-    //       src="/user.jpg"
-    //       alt="user image"
-    //       width={180}
-    //       className="rounded-full mt-5 mx-auto md:mx-0"
-    //     />
-    //     <p className="text-3xl mt-5 text-center md:text-left">{user1.username}</p>
-    //   </div>
-
-    //   {/* Formulario */}
-      // <form className="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md">
-      //   <div className="mt-4">
-      //     <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-      //       Estado
-      //     </label>
-      //     <select
-      //       id="status"
-      //       name="status"
-      //       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-      //     >
-      //       <option value="active">Activo</option>
-      //       <option value="inactive">Inactivo</option>
-      //     </select>
-      //   </div>
-      //   <div className="mt-4">
-      //     <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-      //       Contraseña
-      //     </label>
-      //     <input
-      //       type="password"
-      //       id="password"
-      //       name="password"
-      //       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-      //       placeholder="Ingrese su contraseña"
-      //     />
-      //   </div>
-      //   <div className="mt-4">
-      //     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-      //       Correo Electrónico
-      //     </label>
-      //     <input
-      //       type="email"
-      //       id="email"
-      //       name="email"
-      //       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-      //       placeholder="Ingrese su correo electrónico"
-      //     />
-      //   </div>
-      //   {/* Tema */}
-      //   <div className="flex flex-col mt-4">
-      //     <p className="text-sm">Tema Predefinido</p>
-      //     <div className="flex items-center mt-2">
-      //       <label className="flex items-center mr-4">
-      //         <input
-      //           type="radio"
-      //           name="theme"
-      //           value="light"
-      //           className="form-radio text-indigo-600"
-      //         />
-      //         <span className="ml-2 text-gray-700">Claro</span>
-      //       </label>
-      //       <label className="flex items-center">
-      //         <input
-      //           type="radio"
-      //           name="theme"
-      //           value="dark"
-      //           className="form-radio text-indigo-600"
-      //         />
-      //         <span className="ml-2 text-gray-700">Oscuro</span>
-      //       </label>
-      //     </div>
-      //   </div>
-      //   <div className="mt-4">
-      //     <button
-      //       type="submit"
-      //       className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
-      //     >
-      //       Guardar
-      //     </button>
-      //   </div>
-      // </form>
-    //   {/* final de usuario */}
-    //   <div className="w-full">
-    //     <h2 className="text-lg font-bold text-gray-800 mb-4">GESTIONAR USUARIOS</h2>
-    //     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 md:grid-cols-1 gap-6">
-    //       {users.map((user) => (
-    //         <div
-    //           key={user.id}
-    //           className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between"
-    //         >
-    //           {/* Información del usuario */}
-    //           <div>
-    //             <h3 className="text-lg font-bold text-gray-800">{user.username}</h3>
-    //             <p className="text-sm text-gray-600">{user.email}</p>
-    //           </div>
-      
-    //           {/* Botones de acción */}
-    //           <div className="flex gap-2 mt-4">
-    //             <button
-    //               onClick={() => handleEdit(user.id)}
-    //               className="px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-    //             >
-    //               Editar
-    //             </button>
-    //             <button
-    //               onClick={() => handleDelete(user.id)}
-    //               className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-    //             >
-    //               Eliminar
-    //             </button>
-    //           </div>
-    //         </div>
-    //       ))}
-    //     </div>
-    //   </div>
-    // </div>
-//   );
-// }
-
-// export default Perfil;

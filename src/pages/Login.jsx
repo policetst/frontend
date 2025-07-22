@@ -1,238 +1,225 @@
-import React, {useState} from 'react' // * import useState to handle the state of the inputs
+import React, { useState } from 'react';
 import axios from 'axios';
-const LOGIN_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/login';
 import Swal from 'sweetalert2';
 import { useCookies } from 'react-cookie';
-import { Link, useNavigate } from 'react-router-dom'; // * import Link to handle the navigation between pages
-import '../index.css'; // * import the css file to style the components
+import { Link, useNavigate } from 'react-router-dom';
+import { EyeOff, Eye } from 'lucide-react';
+import '../index.css';
+
+const LOGIN_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
+
 function Login() {
-    const [cookies, setCookie] = useCookies(['token']);
-    
-    const navigate = useNavigate(); // * create a instance of useNavigate to handle the navigation
+  document.title = 'SIL Tauste - Login';
 
-    //! * create a user object to handle the login
-   
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    //* this function captures the username input and sets the username state
-    const handleUsernameChange = (e) => {
-        e.preventDefault();
-        setUsername(e.target.value);
-    }
-    //* this function captures the password input and sets the password state
-    const handlePasswordChange = (e) => {
-        e.preventDefault();
-        setPassword(e.target.value);
-    }
-    //* this function handles the submit event of the form and checks if the username and password are correct
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-      
-        try {
-          const response = await axios.post(LOGIN_URL+'/login', {
-            username,
-            password
-          });
-      
-          //* assume that the token comes in response.data.token
+  const [cookies, setCookie] = useCookies(['token']);
+  const navigate = useNavigate();
 
-          const token = response.data.token;
-          //* save the cookie with the token
-          setCookie('token', token, { path: '/', maxAge: 3600 }); // 1 hour
-localStorage.setItem('username', username); // * save the username in local storage     
-          //* navigate to the incident page
-          navigate('/incidencia');
-      
-        } catch (error) {
-          console.error('Error en el login:', error);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [visible, setVisible] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setVisible((prev) => !prev);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${LOGIN_URL}/login`, {
+        username,
+        password,
+      });
+
+      const token = response.data.token;
+      setCookie('token', token, { path: '/', maxAge: 3600 });
+
+      const setUserWithExpiry = (username) => {
+        Swal.fire({
+          title: '¡Acceso concedido!',
+          text: `Bienvenido, ${username}. La sesión expirará en 1 hora.`,
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+        });
+
+        const expiry = Date.now() + 3600 * 1000;
+        localStorage.setItem('username', username);
+
+        setTimeout(() => {
+          localStorage.removeItem('username');
+          setCookie('token', '', { path: '/' });
           Swal.fire({
-            title: '¡Acceso denegado!',
-            text: 'Usuario o contraseña incorrectos',
-            icon: 'error',
-            confirmButtonText: 'Reintentar',
+            title: 'Sesión expirada',
+            text: 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.',
+            icon: 'warning',
+            confirmButtonText: 'Aceptar',
           });
- 
-        }
+          navigate('/login');
+        }, 3600 * 1000);
       };
-      
-  //!jsx code
-  return (
 
-    <div className="w-full min-h-screen">
-      {/* Versión escritorio: dos columnas */}
+      setUserWithExpiry(username);
+      navigate('/');
+    } catch (error) {
+      console.error('Error en el login:', error);
+      Swal.fire({
+        title: '¡Acceso denegado!',
+        text: 'Usuario o contraseña incorrectos',
+        icon: 'error',
+        confirmButtonText: 'Reintentar',
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen">
+      {/* Desktop */}
       <div className="hidden lg:grid grid-cols-2 min-h-screen">
-        {/* Columna izquierda: logo + formulario */}
         <div className="flex flex-col items-center justify-center p-8 bg-white">
-            <div className="flex flex-col justify-center w-100">
-                {/* Logo de SIL */}
-                <div className="flex justify-center p-8 bg-[#002856] rounded-t-lg">
-                    <img src="/SIL-logo-tech.png" alt="Logo" className="mb-6 w-50" />
+          <div className="w-2/3 flex justify-center items-center">
+            <div className="w-full p-6 rounded border border-gray-400 shadow-xl">
+              <div className="flex justify-center p-8 bg-[#002856] rounded-t-lg">
+                <img src="/SIL-logo-tech.png" alt="Logo" className="mb-6 w-50" />
+              </div>
+              <form className="mt-8" onSubmit={handleSubmit}>
+                <div className="space-y-5">
+                  <label htmlFor="username" className="text-base font-medium text-gray-900">Usuario</label>
+                  <div className="relative text-gray-400 focus-within:text-gray-600">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                      <i className="ti ti-user text-xl"></i>
+                    </div>
+                    <input
+                      id="username"
+                      name="username"
+                      type="text"
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                      border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
+                    />
+                  </div>
+
+                  <div className="mb-8">
+                    <div className="flex justify-between items-center">
+                      <label htmlFor="password" className="text-base font-medium text-gray-900">Contraseña</label>
+                      <Link to="/forgot" className="text-sm font-medium text-sky-500 underline">
+                        Olvidaste tu contraseña
+                      </Link>
+                    </div>
+                    <div className="relative text-gray-400 focus-within:text-gray-600">
+                      <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <i className="ti ti-fingerprint text-xl"></i>
+                      </div>
+                      <input
+                        id="password"
+                        name="password"
+                        type={visible ? 'text' : 'password'}
+                        onChange={(e) => setPassword(e.target.value)}
+                        value={password}
+                        className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                        border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute top-1/2 right-3 -translate-y-1/2"
+                        tabIndex={-1}
+                      >
+                        {visible ? (
+                          <EyeOff className="w-6 h-6 text-gray-500" />
+                        ) : (
+                          <Eye className="w-6 h-6 text-gray-500" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full px-4 py-4 font-semibold text-white bg-[#002856] rounded-md transition-all hover:opacity-80"
+                  >
+                    Acceder
+                  </button>
                 </div>
-                {/* Formulario */}
-                <form className="mt-8">
-                    <div className="space-y-5">
-                        <label htmlFor="" className="text-base font-medium text-gray-900"> Usuario </label>
-                        <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <i className="ti ti-user text-xl"></i>
-                            </div>
-                            <input type="text" name="" id="" placeholder="" onChange={handleUsernameChange}
-                            className="w-full p-3 border rounded" />
-                    </div>
-                    <div>
-                        <div className="flex justify-between items-center">
-                            <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
-                            <Link to="/forgot"
-                                className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
-                        </div>
-                        <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <i className="ti ti-fingerprint text-xl"></i>
-                            </div>
-                            <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
-                                className="w-full p-3 border rounded" />
-                        </div>
-                    </div>
-                    <div>
-                        <button type="submit"
-                            className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-[#002856]"
-                            onClick={handleSubmit}>
-                            Acceder
-                        </button>
-                    </div>
-                    </div>
-                </form>
+              </form>
             </div>
+          </div>
         </div>
 
-        {/* Columna derecha: Torre de Tauste */}
-        <div className="relative">
+        {/* Right Column */}
+        <div className="fixed top-0 right-0 h-screen w-1/2">
           <img src="/loginimg.jpg" alt="Torre de Tauste" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute bottom-0 left-0 right-0 h-25
-                 bg-gradient-to-t from-zinc-800 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-25 bg-gradient-to-t from-zinc-800 to-transparent" />
         </div>
       </div>
 
-      {/* Versión móvil */}
+      {/* Mobile */}
       <div className="block lg:hidden">
-        {/* Imagen de cabecera */}
         <div className="flex justify-center bg-[#002856]">
-          <img src="/SIL-logo-tech.png" alt="Logo de SIL" className="m-5"/>
+          <img src="/SIL-logo-tech.png" alt="Logo de SIL" className="m-5" />
         </div>
 
-        {/* Formulario móvil */}
-        <div className="px-6 py-8">
-            <form className="w-full max-w-sm mx-auto space-y-4">
-                <h2 className="text-xl font-semibold text-center mb-10 mt-7">Iniciar sesión</h2>
-                <label htmlFor="" className="text-base font-medium text-gray-900"> Usuario </label>
-                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                        <i className="ti ti-user text-xl"></i>
-                    </div>
-                    <input type="text" name="" id="" placeholder="" onChange={handleUsernameChange}
-                    className="w-full p-3 border rounded" />
-                </div>
-                <div>
-                        <div className="flex justify-between items-center">
-                            <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
-                        <Link to="/forgot"
-                            className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
-                    </div>
-                    <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                            <i className="ti ti-fingerprint text-xl"></i>
-                        </div>
+        <div className="flex justify-center items-center">
+          <div className="w-3/4 p-7 mt-[10%] rounded border border-gray-400 bg-white shadow-xl">
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <h2 className="text-xl font-semibold text-center">Iniciar sesión</h2>
+              <hr className="border-t border-gray-300 my-4" />
 
-                        <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
-                            className="w-full p-3 border rounded" />
-                    </div>
+              <label htmlFor="username-mobile" className="text-base font-medium text-gray-900">Usuario</label>
+              <div className="relative text-gray-400 focus-within:text-gray-600">
+                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                  <i className="ti ti-user text-xl"></i>
                 </div>
+                <input
+                  id="username-mobile"
+                  name="username"
+                  type="text"
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                  border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
+                />
+              </div>
 
-                <div>
-                    <button type="submit"
-                        className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-[#002856]"
-                        onClick={handleSubmit}>
-                        Acceder
-                    </button>
+              <label htmlFor="password-mobile" className="text-base font-medium text-gray-900">Contraseña</label>
+              <div className="relative text-gray-400 focus-within:text-gray-600">
+                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                  <i className="ti ti-fingerprint text-xl"></i>
                 </div>
+                <input
+                  id="password-mobile"
+                  name="password"
+                  type={visible ? 'text' : 'password'}
+                  onChange={(e) => setPassword(e.target.value)}
+                  value={password}
+                  className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
+                  border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute top-1/2 right-3 -translate-y-1/2"
+                  tabIndex={-1}
+                >
+                  {visible ? <EyeOff className="w-6 h-6 text-gray-500" /> : <Eye className="w-6 h-6 text-gray-500" />}
+                </button>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <Link to="/forgot" className="text-sm font-medium text-sky-500 underline">
+                  Olvidaste tu contraseña
+                </Link>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full px-4 py-4 font-semibold text-white bg-[#002856] rounded-md transition-all hover:opacity-80"
+              >
+                Acceder
+              </button>
             </form>
+          </div>
         </div>
       </div>
     </div>
-);
+  );
 }
 
 export default Login;
-
-
-
-//     <div className="grid grid-cols-1 lg:grid-cols-2">
-//         <div className="flex items-center justify-center px-4 py-7 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
-//             <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto sm:relative">
-//                 <div className="flex justify-center px-4 py-4 bg-[#002856] border-b">
-//                     <img src="/SIL-logo-tech.png" alt="Logo de SIL Tauste" style={{ width: '240px', height: '125px' }}/>
-//                 </div>
-//                 <form className="mt-8">
-//                     <div className="space-y-5">
-//                         <div>
-//                             <label htmlFor="" className="text-base font-medium text-gray-900"> Usuario </label>
-//                             <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-//                                 <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-//                                     <i className="ti ti-user text-xl"></i>
-//                                 </div>
-
-//                                 <input type="text" name="" id="" placeholder="" onChange={handleUsernameChange}
-//                                     className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
-//                             </div>
-
-//                         </div>
-
-//                         <div>
-//                             <div className="flex justify-between items-center">
-//                                 <label htmlFor="" className="text-base font-medium text-gray-900"> Contraseña</label>
-//                                 <Link to="/forgot"
-//                                     className="text-sm font-medium text-sky-500 underline">Olvidaste tu contraseña</Link>
-//                             </div>
-//                             <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-//                                 <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-//                                     <i className="ti ti-fingerprint text-xl"></i>
-//                                 </div>
-
-//                                 <input type="password" name="" id="" placeholder="" onChange={handlePasswordChange}
-//                                     className="block w-full py-4 ps-10 pe-4 text-black placeholder-gray-500 transition-all duration-200 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-sky-600 focus:bg-white caret-sky-600" />
-//                             </div>
-//                         </div>
-
-//                         <div>
-//                             <button type="submit"
-//                                 className="inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md focus:outline-none hover:opacity-80 focus:opacity-80 bg-[#002856]"
-                                
-//                                 onClick={handleSubmit}>
-//                                 Acceder
-//                             </button>
-//                         </div>
-//                     </div>
-//                 </form>
-
-//                 <div className="mt-3 space-y-3">
-            
-
-                
-//                 </div>
-//             </div>
-//         </div>
-
-//         <div
-//             className="relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 bg-cover bg-center sm:px-6 lg:h-screen lg:px-8 lg:bg-[url('/loginimg.jpg')] ">
-//             <div className="absolute bottom-0 left-0 right-0 h-25
-//                 bg-gradient-to-t from-zinc-800 to-transparent"></div>
-
-    
-//         </div>
-//     </div>
-    
-
-//   )
-// }
-
-// export default Login

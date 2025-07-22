@@ -1,24 +1,37 @@
   import React, { useState, useEffect } from 'react';
-  import { Link, Outlet } from 'react-router-dom';
+  import { useNavigate, Link, Outlet } from 'react-router-dom';
   import { useCookies } from 'react-cookie';
   import '../index.css';
-  import { Menu, X, User, LogOut, Home, Settings } from 'lucide-react';
-  import { CircleUserRound } from 'lucide-react';
-  import { Users } from 'lucide-react';
-  import { NotebookPen } from 'lucide-react';
-  import { Newspaper } from 'lucide-react';
-  import { Map } from 'lucide-react';
-  import { ChartColumn } from 'lucide-react';
-  import { House } from 'lucide-react';
-  import { BellRing } from 'lucide-react';
-  import { useNavigate } from 'react-router-dom';
+  import Notifications from '../components/Notifications';
+  import { checkLoginStatus } from '../funcs/Users';
+  import {
+    Menu,
+    X,
+    UserSearch,
+    LogOut,
+    Home,
+    Settings,
+    CircleUserRound,
+    Users,
+    NotebookPen,
+    NotebookText,
+    Newspaper,
+    Map,
+    ChartColumn,
+    House,
+    BellRing,
+    CarFront,
+  } from 'lucide-react';
+
+
+
   function Layout() {
     const user_code = localStorage.getItem('username');
     const [cookies, setCookie] = useCookies(['user']);
     const navigate = useNavigate();
     useEffect(() => {
-      if (!cookies.user && !user_code) {
-        navigate('/login');
+      if (cookies.token == "" || user_code == "") {
+         navigate('/login');
       }
     }, [cookies, navigate]);
     
@@ -29,10 +42,8 @@
       window.location.href = '/#/login';
       console.log('User logged out');
     };
-
+       window.addEventListener("beforeunload", handleLogout);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [showTasks, setShowTasks] = useState(false);
-
     const toggleSidebar = () => {
       setIsSidebarOpen(!isSidebarOpen);
     };
@@ -42,9 +53,19 @@
         setIsSidebarOpen(false);
       }
     };
+useEffect(() => {
+      const checkUserStatus = async () => {
+        const isLoggedIn = await checkLoginStatus(user_code);
+console.log('Estado de inicio de sesión:', isLoggedIn.must_change_password);
+        if (isLoggedIn.must_change_password) {
+          navigate(`/reset-password/${user_code}`);
+        }
+      };
+      checkUserStatus();
+    }, [navigate, user_code]);
 
     return (
-      <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-screen bg-gray-50 overflow-hidden dark">
         {/* Overlay for mobile and desktop sidebar */}
         {isSidebarOpen && (
           <div
@@ -66,14 +87,8 @@
             {/* Sidebar Header */}
             <div className="flex justify-center px-4 py-4 bg-[#002856] border-b">
               <img src="/SIL-logo-tech.png" alt="Logo de SIL Tauste" style={{ width: '255px', height: '115px' }}/>
-              {/* <button
-                className="text-gray-600 hover:text-gray-800"
-                onClick={toggleSidebar}
-                aria-label="Cerrar menú"
-              >
-                <X className="w-6 h-6" />
-              </button> */}
             </div>
+            
 
             {/* Sidebar Menu */}
             <nav className="flex flex-col flex-1 justify-between py-6">
@@ -94,8 +109,18 @@
                     className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
                     onClick={closeSidebar}
                   >
-                    <Newspaper className="mr-3 w-5 h-5" />
+                    <NotebookText  className="mr-3 w-5 h-5" />
                     Mostrar Incidencia
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/personas-y-vehiculos"
+                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
+                    onClick={closeSidebar}
+                  >
+                    <UserSearch className="mr-3 w-5 h-5" />
+                    Personas y vehiculos
                   </Link>
                 </li>
                 <li>
@@ -106,16 +131,6 @@
                   >
                     <ChartColumn className="mr-3 w-5 h-5" />
                     Estadísticas
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/personas"
-                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                    onClick={closeSidebar}
-                  >
-                    <Users className="mr-3 w-5 h-5" /> 
-                    Personas
                   </Link>
                 </li>
                 <li>
@@ -152,6 +167,16 @@
                     Gestion de usuario
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to="/login"
+                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-3 w-5 h-5" />
+                    Cerrar sesión
+                  </Link>
+                </li>
               </ul>
             </nav>
 
@@ -162,7 +187,7 @@
           </div>
         </aside>
 
-        {/* Cabecera: Hamburguesa + titulo + botones(notificaciones, logout) */}
+        {/* header */}
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Hamburguesa */}
           <header className="relative flex items-center justify-between px-4 sm:px-6 py-3 bg-[#222831] text-white shadow-md">
@@ -185,56 +210,39 @@
               </h1>
             </div>
             {/* Botones */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-6 ">
               {/* Campana de notificaciones */}
-              <div className="relative">
-                <button
-                  className="flex items-center justify-center text-gray-100 hover:text-cyan-500 transition w-6 h-6"
-                  onClick={() => setShowTasks(!showTasks)}
-                >
-                  <BellRing className="w-6 h-6" />
-                </button>
+              <Notifications />
 
-                {/* Dropdown de tareas */}
-                {showTasks && (
-                  <div className="fixed top-16 right-4 w-64 bg-white rounded-md shadow-lg z-50 border border-zinc-400">
-                    <div className="p-4 border-b font-semibold text-gray-100 bg-[#002856]">
-                      Incidencias abiertas
-                    </div>
-                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-100 text-sm text-gray-700">
-                      <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
-                      <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
-                      <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
-                      <li className="p-3 hover:bg-gray-50 cursor-pointer">INC12345</li>
-                    </ul>
-                    <div className="p-2 text-center text-xs text-blue-500 hover:underline cursor-pointer">
-                      <Link
-                        to="/incidencia"
-                        className="px-2 py-1 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition"
-                        onClick={closeSidebar}
-                      >
-                        Ir a Mostrar incidencias
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-              </div>
-
-              {/* Botón de logout */}
-              <button
-                className="flex items-center justify-center text-gray-100 hover:text-red-600 transition w-6 h-6"
-                aria-label="Cerrar sesión"
-                onClick={handleLogout}
+              {/* Botón de Pagina Principal */}
+              <Link
+                to="/"
+                className="flex items-center justify-center text-gray-100 hover:text-cyan-500 transition w-6 h-6"
+                aria-label="Pagina principal"
               >
-                <LogOut className="w-6 h-6" />
-              </button>
+                <Home className="w-6 h-6" />
+              </Link>
             </div>
 
           </header>
 
+          {/* Mostrar usuario actual */}
+          <div className="h-10 w-full">
+            <div className="h-10 flex items-center justify-center sm:justify-end text-gray-900 px-4">
+              {/* <CircleUserRound className="mr-2 w-5 h-5" /> */}
+              <p className="pr-1.5">Agente:</p>
+              <Link
+                to="/perfil"
+                className="text-gray-900 hover:text-cyan-500 transition"
+                onClick={closeSidebar}
+              >
+                {user_code}
+              </Link>
+            </div>
+          </div>
+
           {/* Main Content */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
+          <main className="flex-1 overflow-y-auto bg-gray-50">
             <Outlet />
           </main>
 

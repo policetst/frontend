@@ -8,11 +8,18 @@ import Login from "../pages/Login";
 import MostrarIncidencia from "../pages/MostrarIncidencia";
 import Estadisticas from "../pages/Estadisticas";
 import CrearIncidencia from "../pages/CrearIncidencia";
-import Personas from "../pages/Personas";
 import PaginaPrincipal from "../pages/PaginaPrincipal";
 import ForgotPassword from "../pages/ForgotPassword";
 import Loayaut from "../loayauts/Loayaut";
 import EditIncident from "../pages/EditIncident";
+import PersonasVehiculos from "../pages/PersonasVehiculos";
+import EditarVehiculo from '../pages/EditarVehiculo';
+import EditarPersona from '../pages/EditarPersona';
+import Error from "../pages/Error";
+import ResetPassword from "../pages/ResetPassword";
+import EditUser from '../pages/EditUser';
+
+
 //! make the router to use the hash router
 const ROUTER = createHashRouter([
   /*
@@ -25,56 +32,72 @@ const ROUTER = createHashRouter([
   * }
   */
 
-     {
+  {
     path: "/login",
     element: <Login />
   },
-   {
-
-  path: "/forgot",
-  element: <ForgotPassword />
- },
   {
-  path: "/",
-  element: <Loayaut/>,
-  children:[
-    {
-path: '/editincident/:code',
-element: <EditIncident/>
-
-    },
-     {
+    path: "/forgot",
+    element: <ForgotPassword />
+  },
+  {
     path: "/",
-    element: <PaginaPrincipal />
-  },
-  {
-    path: "/perfil",
-    element: <Perfil />
-  },
-  {
-    path: "/mapa",
-    element: <Mapa />
-  },
-  {
-    path: "/incidencia/",
-    element: <MostrarIncidencia />
-  },
-  {
-    path: "/estadisticas",
-    element: <Estadisticas />
-  },
-  {
-    path: "/crear-incidencia",
-    element: <CrearIncidencia />
-  },
-  {
-    path: "/personas",
-    element: <Personas />
-  },
-  {
-    path: "*",
-    element: <NotFound />
-  }
+    element: <Loayaut/>,
+    errorElement: <Error />, //! Error page for the entire app
+    children:[
+      {
+        path: '/reset-password/:code',
+        element: <ResetPassword />
+      },
+
+      {
+        path: '/edituser/:code',
+        element: <EditUser/>
+      },
+    {
+      path: '/editincident/:code',
+      element: <EditIncident/>
+    },
+    {
+      path: "/",
+      element: <PaginaPrincipal />
+    },
+    {
+      path: "/perfil",
+      element: <Perfil />
+    },
+    {
+      path: "/mapa",
+      element: <Mapa />
+    },
+    {
+      path: "/incidencia/",
+      element: <MostrarIncidencia />
+    },
+    {
+      path: "/estadisticas",
+      element: <Estadisticas />
+    },
+    {
+      path: "/crear-incidencia",
+      element: <CrearIncidencia />
+    },
+    {
+      path: "/personas-y-vehiculos",
+      element: <PersonasVehiculos />,
+    },
+    {
+      path: "/editarpersona/:dni",
+      element: <EditarPersona />
+    },
+    {
+      path: "/editarvehiculo/:license_plate",
+      element: <EditarVehiculo />
+    },
+    {
+      path: "*",
+      element: <NotFound />
+    }
   ]
 }
 ]);
