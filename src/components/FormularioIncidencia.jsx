@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { postIncident, getLocation, getTokenFromCookie, sendIncidentViaEmail, capitalize } from '../funcs/Incidents';
+import LocationPicker from './LocationPicker';
 import { validarDniNif, validarMatricula } from '../funcs/Incidents';
 import LocationPicker from './LocationPicker';  
 const INCIDENTS_URL = import.meta.env.VITE_INCIDENTS_URL;
@@ -421,6 +422,7 @@ const FormularioIncidencia = () => {
 
           <div className="mb-4">
             <label className="block font-medium">Coordenadas</label>
+<<<<<<< HEAD
             <div className='flex items-stretch space-x-2'>
               <input
                 type="text"
@@ -440,6 +442,25 @@ const FormularioIncidencia = () => {
               />
             </div>
           <Mapview chords={form.location} />
+=======
+            <input
+              type="text"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              className="w-full mt-1 p-2 border rounded"
+              placeholder="Latitud, Longitud"
+            />
+            <LocationPicker
+  value={form.location}
+  onLocationSelect={(coords) => {
+    const coordsString = `${coords.lat},${coords.lng}`;
+    setLocation(coordsString);
+    setForm(prev => ({ ...prev, location: coordsString }));
+  }}
+/>
+            <Mapview chords={form.location} />
+>>>>>>> 86ee09a0723feb68234656a9e14ce6d67294b8d0
           </div>
 
           <div className="mb-4">

@@ -3,6 +3,7 @@ import { CircleUserRound, PencilLine, Eye,EyeOff } from 'lucide-react';
 import { getUserRole, getUserDetails, getAllUsers, changeCredentials } from '../funcs/Users';
 import AddUser from '../components/AddUser';
 import { getEmailConfig, updateEmailConfig } from '../funcs/Config';
+import Swal from 'sweetalert2';
 
 export default function GestionUsuarios() {
   useEffect(() => {

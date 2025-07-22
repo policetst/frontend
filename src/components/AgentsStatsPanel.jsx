@@ -108,64 +108,79 @@ function AgentsStatsPanel({ incidents }) {
   console.log("Agent stats:", agentStats);
 
   return (
-    <div className="mt-10 w-full mx-auto">
-      <h3 className="text-xl font-bold mb-4">Estadísticas por agente</h3>
-      <div className="flex justify-center overflow-x-auto">
-        <table className="min-w-full bg-white rounded-2xl shadow text-sm">
-          <thead>
-            <tr>
-              <th className="px-3 py-2 text-left">#</th>
-              <th className="px-3 py-2 text-left">Agente</th>
-              <th className="px-3 py-2 text-center">Código</th>
-              <th className="px-3 py-2 text-center">Creadas</th>
-              <th className="px-3 py-2 text-center">% sobre total</th>
-              <th className="px-3 py-2 text-center">Cerradas</th>
-              <th className="px-3 py-2 text-center">% sobre total</th>
-              <th className="px-3 py-2 text-center">Con Brigada</th>
-              {tiposUnicos.map(tipo => (
-                <th key={tipo} className="px-2 py-2 text-center">
-                  {TIPO_ACRONIMOS[tipo] || tipo}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {agentStats.length === 0 ? (
-              <tr>
-                <td colSpan={8 + tiposUnicos.length} className="text-center text-gray-500 py-4">
-                  No hay datos de agentes.
-                </td>
-              </tr>
-            ) : (
-              agentStats.map((ag, idx) => (
-                <tr key={ag.code} className={ag.creadas > 0 && idx === 0 ? "bg-blue-50 font-semibold" : ag.creadas === 0 ? "bg-gray-50 text-gray-600" : ""}>
-                  <td className="px-3 py-2">{idx + 1}</td>
-                  <td className="px-3 py-2">{ag.name}</td>
-                  <td className="px-3 py-2 text-center text-xs">{ag.code}</td>
-                  <td className="px-3 py-2 text-center">{ag.creadas}</td>
-                  <td className="px-3 py-2 text-center">
-                    {totalCreadas > 0 ? ((ag.creadas / totalCreadas) * 100).toFixed(1) : 0}%
-                  </td>
-                  <td className="px-3 py-2 text-center">{ag.cerradas}</td>
-                  <td className="px-3 py-2 text-center">
-                    {totalCerradas > 0 ? ((ag.cerradas / totalCerradas) * 100).toFixed(1) : 0}%
-                  </td>
-                  <td className="px-3 py-2 text-center">{ag.conBrigada}</td>
+    <div className="mt-10 w-full mx-auto px-2 sm:px-4">
+      <h3 className="text-lg sm:text-xl font-bold mb-4">Estadísticas por agente</h3>
+      <div className="overflow-x-auto -mx-2 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table className="min-w-full divide-y divide-gray-300 bg-white text-xs sm:text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-1 sm:px-3 py-2 text-left font-semibold text-gray-900">#</th>
+                  <th className="px-1 sm:px-3 py-2 text-left font-semibold text-gray-900 min-w-[120px]">Agente</th>
+                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900">Código</th>
+                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900">Creadas</th>
+                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden sm:table-cell">% total</th>
+                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900">Cerradas</th>
+                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden sm:table-cell">% total</th>
+                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden md:table-cell">Brigada</th>
                   {tiposUnicos.map(tipo => (
-                    <td key={tipo} className="px-2 py-2 text-center">
-                      {ag.tipos[tipo] || 0}
-                    </td>
+                    <th key={tipo} className="px-1 sm:px-2 py-2 text-center font-semibold text-gray-900 hidden lg:table-cell">
+                      <span className="block sm:hidden">{TIPO_ACRONIMOS[tipo]?.substring(0, 2) || tipo.substring(0, 2)}</span>
+                      <span className="hidden sm:block">{TIPO_ACRONIMOS[tipo] || tipo}</span>
+                    </th>
                   ))}
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {agentStats.length === 0 ? (
+                  <tr>
+                    <td colSpan={8 + tiposUnicos.length} className="text-center text-gray-500 py-8">
+                      No hay datos de agentes.
+                    </td>
+                  </tr>
+                ) : (
+                  agentStats.map((ag, idx) => (
+                    <tr key={ag.code} className={`${ag.creadas > 0 && idx === 0 ? "bg-blue-50 font-semibold" : ag.creadas === 0 ? "bg-gray-50 text-gray-600" : ""} hover:bg-gray-50`}>
+                      <td className="px-1 sm:px-3 py-2 whitespace-nowrap">{idx + 1}</td>
+                      <td className="px-1 sm:px-3 py-2">
+                        <div className="truncate max-w-[120px] sm:max-w-none" title={ag.name}>
+                          {ag.name}
+                        </div>
+                      </td>
+                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap text-xs">{ag.code}</td>
+                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap font-medium">{ag.creadas}</td>
+                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap hidden sm:table-cell">
+                        {totalCreadas > 0 ? ((ag.creadas / totalCreadas) * 100).toFixed(1) : 0}%
+                      </td>
+                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap font-medium">{ag.cerradas}</td>
+                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap hidden sm:table-cell">
+                        {totalCerradas > 0 ? ((ag.cerradas / totalCerradas) * 100).toFixed(1) : 0}%
+                      </td>
+                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap hidden md:table-cell">{ag.conBrigada}</td>
+                      {tiposUnicos.map(tipo => (
+                        <td key={tipo} className="px-1 sm:px-2 py-2 text-center whitespace-nowrap hidden lg:table-cell">
+                          {ag.tipos[tipo] || 0}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div className="mt-4 text-right text-gray-500 text-sm">
-        Total agentes: <span className="font-bold">{agentStats.length}</span> | 
-        Total incidencias creadas: <span className="font-bold">{totalCreadas}</span> | 
-        Total cerradas: <span className="font-bold">{totalCerradas}</span>
+      <div className="mt-4 text-center sm:text-right text-gray-500 text-xs sm:text-sm space-y-1 sm:space-y-0">
+        <div className="sm:inline">
+          Total agentes: <span className="font-bold">{agentStats.length}</span>
+        </div>
+        <div className="sm:inline sm:ml-4">
+          Creadas: <span className="font-bold">{totalCreadas}</span>
+        </div>
+        <div className="sm:inline sm:ml-4">
+          Cerradas: <span className="font-bold">{totalCerradas}</span>
+        </div>
       </div>
     </div>
   );
