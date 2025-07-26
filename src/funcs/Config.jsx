@@ -6,7 +6,7 @@ import axios from "axios";
 const getEmailConfig = async () => {
   try {
     const token = getTokenFromCookie();
-    const res = await axios.get(`https://arbadev-back-joq0.onrender.com/config/email`, {
+    const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/config/email`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -21,7 +21,7 @@ const getEmailConfig = async () => {
 const updateEmailConfig = async (config) => {
   try {
     const token = getTokenFromCookie();
-    const res = await axios.put(`https://arbadev-back-joq0.onrender.com/config/email`, config, {
+    const res = await axios.put(`${import.meta.env.VITE_BASE_URL}/config/email`, config, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`

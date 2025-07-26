@@ -1,8 +1,8 @@
-import { getTokenFromCookie } from "./Incidents";
-import bcrypt from "bcryptjs";
-const USERS_URL = "https://arbadev-back-joq0.onrender.com/users";
-import axios from "axios";
-import Swal from "sweetalert2";
+import { getTokenFromCookie } from './Incidents';
+import bcrypt from 'bcryptjs';
+const USERS_URL = import.meta.env.VITE_USERS_URL;
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 /**
  * Function to get a user's role by their code

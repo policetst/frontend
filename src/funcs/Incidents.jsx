@@ -96,7 +96,7 @@ function validarMatricula(texto) {
  * @returns {any}
  */
 async function deleteImage(imageUrl){
-  await axios.post(`https://arbadev-back-joq0.onrender.com/imagesd`, { url: imageUrl }, {
+  await axios.post(`${import.meta.env.VITE_IMAGESD_URL}`, { url: imageUrl }, {
     headers: {
       Authorization: `Bearer ${getTokenFromCookie()}`,
     }
