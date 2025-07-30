@@ -10,6 +10,7 @@ const API_URL = import.meta.env.VITE_BASE_URL;
 import ImageUpload from './ImageUpload';
 import axios from 'axios';
 import { X as XIcon } from 'lucide-react';
+import { ChevronUp } from 'lucide-react'
 import Mapview from './Map';
 import Swal from 'sweetalert2';
 
@@ -39,6 +40,13 @@ const FormularioIncidencia = () => {
   });
   const navigate = useNavigate();
   const [selectedImages, setSelectedImages] = useState([]);
+
+  const [showPersonForm, setShowPersonForm] = useState(false);
+  const togglePersonForm = () => {
+    setShowPersonForm(prev => !prev);};
+    const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const toggleVehicleForm = () => {
+    setShowVehicleForm(prev => !prev);};
 
   const [mostrarFormularioPersona, setMostrarFormularioPersona] = useState(false);
   const [mostrarFormularioVehiculo, setMostrarFormularioVehiculo] = useState(false);
@@ -398,7 +406,7 @@ const FormularioIncidencia = () => {
 
   return (
     <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8">
-      <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white rounded-md shadow-md space-y-6">
+      <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white border border-gray-400 rounded-sm shadow-md space-y-6">
         {/* Datos de registro */}
         <div>
           <div className="flex justify-center md:justify-end">
@@ -427,7 +435,7 @@ const FormularioIncidencia = () => {
                 name="location"
                 value={form.location}
                 onChange={handleChange}
-                className="flex-1 p-2 border rounded"
+                className="flex-1 mt-1 p-2 border border-gray-500 rounded"
                 placeholder="Latitud, Longitud"
               />
               <LocationPicker
@@ -450,7 +458,7 @@ const FormularioIncidencia = () => {
               name="type"
               value={form.type}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-2 border border-gray-500 rounded"
             >
               <option value="">-- Selecciona un tipo --</option>
               {tipos.map((tipo, idx) => (
@@ -468,7 +476,7 @@ const FormularioIncidencia = () => {
               value={form.description}
               onChange={handleChange}
               rows={4}
-              className="w-full mt-1 p-2 border rounded"
+              className="w-full mt-1 p-2 border border-gray-500 rounded"
               placeholder="Escribe una descripción detallada..."
             />
           </div>
@@ -487,23 +495,20 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 my-4" />
 
         {/* Sección personas */}
-        <div>
-          <h3 className="text-xl font-bold mb-2">Personas</h3>
-
-          <button
-            type="button"
-            onClick={() => setMostrarFormularioPersona(prev => !prev)}
-            className={`px-3 py-1 rounded text-white 
-              ${mostrarFormularioPersona 
-                ? 'bg-gray-400 hover:bg-gray-700' 
-                : 'bg-[#002856] hover:bg-cyan-600'}
-            `}
-          >
-            {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
-          </button>
+        <div 
+          className='flex justify-between cursor-pointer pt-2'
+          onClick={togglePersonForm}
+        >
+          <h3 className="text-xl font-bold mb-2 pl-2">Personas</h3>
+          <ChevronUp
+            className={`w-7 h-7 mr-2 transition-transform duration-450 ${
+            showPersonForm ? "rotate-180" : "rotate-0"
+            }`}
+          />
         </div>
+        
         <div className="mt-4">
-          {mostrarFormularioPersona && (
+          {showPersonForm && (
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
                 <input
@@ -511,7 +516,7 @@ const FormularioIncidencia = () => {
                   placeholder="DNI - NIE"
                   value={nuevaPersona.dni}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                   onBlur={handleDniBlur}
                 />
                 <input
@@ -520,7 +525,7 @@ const FormularioIncidencia = () => {
                   placeholder="Nombre"
                   value={nuevaPersona.first_name}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                 />
                 <input
                   type="text"
@@ -528,7 +533,7 @@ const FormularioIncidencia = () => {
                   placeholder="1º Apellido"
                   value={nuevaPersona.last_name1}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                 />
                 <input
                   type="text"
@@ -536,7 +541,7 @@ const FormularioIncidencia = () => {
                   placeholder="2º Apellido"
                   value={nuevaPersona.last_name2}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                 />
                 <input
                   type="text"
@@ -544,17 +549,19 @@ const FormularioIncidencia = () => {
                   placeholder="Número de contacto"
                   value={nuevaPersona.phone_number}
                   onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                 />
               </div>
 
+              <div className='flex justify-center'>
               <button
                 type="button"
                 onClick={agregarPersona}
-                className="mt-1 px-3 py-2 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
+                className="mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400"
               >
                 Agregar persona
               </button>
+              </div>
             </div>
           )}
         </div>
@@ -589,22 +596,19 @@ const FormularioIncidencia = () => {
         <hr className="border-t border-gray-300 mt-2 mb-4" />
 
         {/* Sección vehículos */}
-        <div>
-          <h2 className="text-xl font-bold mb-2">Vehículos</h2>
-          <button
-            type="button"
-            onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
-            className={`px-3 py-1 rounded text-white 
-              ${mostrarFormularioVehiculo 
-                ? 'bg-gray-400 hover:bg-gray-700' 
-                : 'bg-[#002856] hover:bg-cyan-600'}
-            `}
-          >
-            {mostrarFormularioVehiculo ? 'Ocultar' : 'Nuevo vehículo'}
-          </button>
+        <div 
+          className='flex justify-between cursor-pointer pt-2'
+          onClick={toggleVehicleForm}
+        >
+          <h2 className="text-xl font-bold mb-2 pl-2">Vehículos</h2>
+          <ChevronUp
+            className={`w-7 h-7 mr-2 transition-transform duration-450 ${
+            showVehicleForm ? "rotate-180" : "rotate-0"
+            }`}
+          />
         </div>
         <div className="mt-4">
-          {mostrarFormularioVehiculo && (
+          {showVehicleForm && (
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
                 <input
@@ -613,37 +617,39 @@ const FormularioIncidencia = () => {
                   onBlur={handleMatriculaBlur}
                   value={nuevoVehiculo.license_plate}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                 />
                 <input
                   type="text"
                   placeholder="Marca"
                   value={nuevoVehiculo.brand}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                 />
                 <input
                   type="text"
                   placeholder="Modelo"
                   value={nuevoVehiculo.model}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                 />
                 <input
                   type="text"
                   placeholder="Color"
                   value={nuevoVehiculo.color}
                   onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-                  className="p-2 border rounded"
+                  className="p-2 border border-gray-500 rounded"
                 />
               </div>
-              <button
-                type="button"
-                onClick={agregarVehiculo}
-                className="mt-2 px-3 py-2 bg-[#002856] text-white rounded hover:bg-cyan-600 active:bg-gray-400"
-              >
-                Agregar vehículo
-              </button>
+              <div className='flex justify-center'>
+                <button
+                  type="button"
+                  onClick={agregarVehiculo}
+                  className="mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400"
+                >
+                  Agregar vehículo
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -679,18 +685,18 @@ const FormularioIncidencia = () => {
 
         {/* Sección de imágenes */}
         <div>
-          <h2 className="text-xl font-bold mb-2">Subir imágenes</h2>
+          <h2 className="text-xl font-bold mb-2 pl-2">Subir imágenes</h2>
           <ImageUpload onImagesChange={handleImagesChange} />
         </div>
         <div className="flex justify-center">
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full px-4 py-2 rounded text-white 
-            ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}
+            className={`w-full px-4 py-3 rounded text-white
+            ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-900 hover:bg-cyan-600'}
               `}
             >
-              {isSubmitting ? 'Enviando...' : 'Enviar'}
+              {isSubmitting ? 'Creando...' : 'Crear incidencia'}
           </button>
         </div>
       </form>
