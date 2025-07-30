@@ -6,7 +6,7 @@ const getTokenFromCookie = () => {
   return match ? match[2] : '';
 };
 
-const API_BASE_URL = 'https://arbadev-back-joq0.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 class ApiService {
   constructor() {

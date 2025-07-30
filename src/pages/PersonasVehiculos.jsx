@@ -13,8 +13,7 @@ function Vehiculos() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetch('https://arbadev-back-1.onrender.com/vehicles', {
-        method: 'GET',
+    fetch(import.meta.env.VITE_VEHICLES_URL, {
       headers: {
         'Content-Type': 'application/json',
         authorization: `Bearer ${getTokenFromCookie()}`
@@ -24,7 +23,7 @@ function Vehiculos() {
       .then(data => data.ok ? setVehicles(data.data) : console.error('Error al obtener vehículos:', data.message))
       .catch(err => console.error('Error de red al obtener vehículos:', err));
 
-    fetch('https://arbadev-back-1.onrender.com/people', {
+    fetch(import.meta.env.VITE_PEOPLE_URL, {
       headers: {
         'Content-Type': 'application/json',
         authorization: `Bearer ${getTokenFromCookie()}`
