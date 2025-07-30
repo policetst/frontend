@@ -33,7 +33,7 @@ function LocationPicker({ value, onLocationSelect }) {
     <div className="mt-1">
       <button
         type="button"
-        className="bg-[#012956] text-white border rounded-sm px-4 py-2 hover:bg-blue-600"
+        className="bg-blue-900 text-white border rounded-sm px-4 py-2 hover:bg-cyan-600"
         onClick={() => setShowMap(true)}
       >
       Seleccionar ubicación
