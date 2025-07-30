@@ -421,23 +421,27 @@ const FormularioIncidencia = () => {
 
           <div className="mb-4">
             <label className="block font-medium">Coordenadas</label>
-            <input
-              type="text"
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
-              placeholder="Latitud, Longitud"
-            />
-            <LocationPicker
-  value={form.location}
-  onLocationSelect={(coords) => {
-    const coordsString = `${coords.lat},${coords.lng}`;
-    setLocation(coordsString);
-    setForm(prev => ({ ...prev, location: coordsString }));
-  }}
-/>
-            <Mapview chords={form.location} />
+            <div className="flex gap-4 mt-1">
+              <input
+                type="text"
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                className="flex-1 p-2 border rounded"
+                placeholder="Latitud, Longitud"
+              />
+              <LocationPicker
+                value={form.location}
+                onLocationSelect={(coords) => {
+                  const coordsString = `${coords.lat},${coords.lng}`;
+                  setLocation(coordsString);
+                  setForm(prev => ({ ...prev, location: coordsString }));
+                }}
+              />
+            </div>
+            <div className="mt-2">
+              <Mapview chords={form.location} />
+            </div>
           </div>
 
           <div className="mb-4">
