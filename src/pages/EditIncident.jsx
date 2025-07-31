@@ -17,7 +17,7 @@ import { getUserRole } from '../funcs/Users';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { X as XIcon } from 'lucide-react';
+import { X as XIcon, ChevronUp } from 'lucide-react';
 import Mapview from '../components/Map';
 import ImageUpload from '../components/ImageUpload';
 import AddTeammate from '../components/AddTeammate';
@@ -36,6 +36,14 @@ const EditIncident = () => {
 
   const [mostrarFormularioPersona, setMostrarFormularioPersona] = useState(false);
   const [mostrarFormularioVehiculo, setMostrarFormularioVehiculo] = useState(false);
+  const [showPersonForm, setShowPersonForm] = useState(false);
+  const togglePersonForm = () => {
+    setShowPersonForm(prev => !prev);
+  };
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const toggleVehicleForm = () => {
+    setShowVehicleForm(prev => !prev);
+  };
   const [userdetails, setUserdetails] = useState(null);
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -96,8 +104,6 @@ const EditIncident = () => {
   };
 
   const Navigate = useNavigate();
-  console.log('code: '+ code);
-
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     status: 'Open',
@@ -744,26 +750,19 @@ const handleMatriculaBlur = async (e) => {
               <hr className="border-t border-gray-300 my-4" />
 
               {/* Sección personas */}
-              <div>
-                <h3 className="text-xl font-bold mb-2">Personas</h3>
-                
-                <button
-                  disabled={form.status === 'Closed'}
-                  type="button"
-                  onClick={() => setMostrarFormularioPersona(prev => !prev)}
-                  className={`px-3 py-1 rounded text-white 
-                    ${mostrarFormularioPersona 
-                      ? 'bg-gray-400 hover:bg-gray-700' 
-                      : 'bg-[#002856] hover:bg-cyan-600'}
-                    disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400
-                  `}
-                >
-                  {mostrarFormularioPersona ? 'Ocultar' : 'Nueva persona'}
-                </button>
-
+              <div 
+                className='flex justify-between cursor-pointer pt-2'
+                onClick={form.status !== 'Closed' ? togglePersonForm : undefined}
+              >
+                <h3 className="text-xl font-bold mb-2 pl-2">Personas</h3>
+                <ChevronUp
+                  className={`w-7 h-7 mr-2 transition-transform duration-450 ${
+                  showPersonForm ? "rotate-180" : "rotate-0"
+                  } ${form.status === 'Closed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                />
               </div>
               <div className="mt-4">
-                {mostrarFormularioPersona && (
+                {showPersonForm && (
                   <div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
                       <input
@@ -773,46 +772,49 @@ const handleMatriculaBlur = async (e) => {
                         placeholder="DNI - NIE"
                         value={nuevaPersona.dni}
                         onChange={e => setNuevaPersona({ ...nuevaPersona, dni: e.target.value })}
-                        className="p-2 border rounded"
+                        className="p-2 border border-gray-500 rounded"
                       />
                       <input
                         type="text"
                         placeholder="Nombre"
                         value={nuevaPersona.first_name}
                         onChange={e => setNuevaPersona({ ...nuevaPersona, first_name: e.target.value })}
-                        className="p-2 border rounded"
+                        className="p-2 border border-gray-500 rounded"
                       />
                       <input
                         type="text"
                         placeholder="1º Apellido"
                         value={nuevaPersona.last_name1}
                         onChange={e => setNuevaPersona({ ...nuevaPersona, last_name1: e.target.value })}
-                        className="p-2 border rounded"
+                        className="p-2 border border-gray-500 rounded"
                       />
                       <input
                         type="text"
                         placeholder="2º Apellido"
                         value={nuevaPersona.last_name2}
                         onChange={e => setNuevaPersona({ ...nuevaPersona, last_name2: e.target.value })}
-                        className="p-2 border rounded"
+                        className="p-2 border border-gray-500 rounded"
                       />
                       <input
                         type="text"
                         placeholder="Número de contacto"
                         value={nuevaPersona.phone_number}
                         onChange={e => setNuevaPersona({ ...nuevaPersona, phone_number: e.target.value })}
-                        className="p-2 border rounded"
+                        className="p-2 border border-gray-500 rounded"
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={agregarPersona}
-                      className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                      disabled={form.status === 'Closed' ? true : false}
+
+                    <div className='flex justify-center'>
+                      <button
+                        type="button"
+                        onClick={agregarPersona}
+                        className={`mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                        disabled={form.status === 'Closed' ? true : false}
                       >
-                      Añadir persona
-                    </button>
-                </div>
+                        Agregar persona
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
               
@@ -853,66 +855,63 @@ const handleMatriculaBlur = async (e) => {
               <hr className="border-t border-gray-300 mt-2 mb-4" />
 
               {/* Sección vehículos */}
-              <div>
-                <h2 className="text-xl font-bold mb-2">Vehículos{/*({vehiculos.length})*/}</h2> 
-                <button
-                  disabled={form.status === 'Closed'}
-                  type="button"
-                  onClick={() => setMostrarFormularioVehiculo(prev => !prev)}
-                  className={`px-3 py-1 rounded text-white 
-                    ${mostrarFormularioVehiculo 
-                      ? 'bg-gray-400 hover:bg-gray-700' 
-                      : 'bg-[#002856] hover:bg-cyan-600'}
-                    disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400
-                  `}
-                >
-                  {mostrarFormularioVehiculo ? 'Ocultar' : 'Nuevo vehículo'}
-                </button>
+              <div 
+                className='flex justify-between cursor-pointer pt-2'
+                onClick={form.status !== 'Closed' ? toggleVehicleForm : undefined}
+              >
+                <h2 className="text-xl font-bold mb-2 pl-2">Vehículos</h2>
+                <ChevronUp
+                  className={`w-7 h-7 mr-2 transition-transform duration-450 ${
+                  showVehicleForm ? "rotate-180" : "rotate-0"
+                  } ${form.status === 'Closed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                />
               </div>
                 
               <div className="mt-4">
-                {mostrarFormularioVehiculo && (
+                {showVehicleForm && (
                 <div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mb-3">
                     <input
                       type="text"
-                      placeholder="4704JBN"
+                      placeholder="Matrícula"
                       onBlur={handleMatriculaBlur}
                       value={nuevoVehiculo.license_plate}
                       onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, license_plate: e.target.value })}
-                      className="p-2 border rounded"
+                      className="p-2 border border-gray-500 rounded"
                     />
                     <input
                       type="text"
                       placeholder="Marca"
                       value={nuevoVehiculo.brand}
                       onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, brand: e.target.value })}
-                      className="p-2 border rounded"
+                      className="p-2 border border-gray-500 rounded"
                     />
                     <input
                       type="text"
                       placeholder="Modelo"
                       value={nuevoVehiculo.model}
                       onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, model: e.target.value })}
-                      className="p-2 border rounded"
+                      className="p-2 border border-gray-500 rounded"
                     />
                     <input
                       type="text"
                       placeholder="Color"
                       value={nuevoVehiculo.color}
                       onChange={(e) => setNuevoVehiculo({ ...nuevoVehiculo, color: e.target.value })}
-                      className="p-2 border rounded"
+                      className="p-2 border border-gray-500 rounded"
                     />
                   </div>
                   
-                  <button
-                    type="button"
-                    onClick={agregarVehiculo}
-                    className={`mt-2 px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                    disabled={form.status === 'Closed' ? true : false}
-                  >
-                    Añadir vehículo
-                  </button>
+                  <div className='flex justify-center'>
+                    <button
+                      type="button"
+                      onClick={agregarVehiculo}
+                      className={`mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={form.status === 'Closed' ? true : false}
+                    >
+                      Agregar vehículo
+                    </button>
+                  </div>
                 </div>
                 )}
               </div>
