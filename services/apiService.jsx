@@ -97,7 +97,7 @@ class ApiService {
     
     const response = await this.api.post(`/atestados/${atestadoId}/diligencias`, data);
     return response.data;
-  },}
+  }
 
   async updateDiligencia(diligenciaId, data) {
     console.log('🚀 Llamando updateDiligencia...', { diligenciaId, data });
@@ -152,6 +152,12 @@ class ApiService {
   // Método para reordenar diligencias
   async reorderDiligencias(atestadoId, diligenciasOrder) {
     console.log('🚀 Llamando reorderDiligencias...', { atestadoId, diligenciasOrder });
+    console.log('🔍 DEBUG Frontend - Reordenamiento:');
+    console.log('🆔 atestadoId:', atestadoId, 'tipo:', typeof atestadoId);
+    console.log('📊 diligenciasOrder:', diligenciasOrder, 'es array:', Array.isArray(diligenciasOrder));
+    console.log('📏 Longitud del array:', diligenciasOrder ? diligenciasOrder.length : 'undefined');
+    console.log('📤 Payload completo:', JSON.stringify({ diligenciasOrder }, null, 2));
+    
     const response = await this.api.put(`/atestados/${atestadoId}/diligencias/reorder`, {
       diligenciasOrder
     });
