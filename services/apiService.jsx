@@ -88,10 +88,16 @@ class ApiService {
   }
 
   async createDiligencia(atestadoId, data) {
-    console.log('🚀 Llamando createDiligencia...', { atestadoId, data });
+    console.log('🚀 Llamando createDiligencia con:', { atestadoId, data });
+    console.log('🔍 DEBUG ApiService - Datos detallados:');
+    console.log('🆔 atestadoId:', atestadoId, 'tipo:', typeof atestadoId);
+    console.log('📋 data.templateId:', data.templateId, 'tipo:', typeof data.templateId);
+    console.log('📊 data.values:', data.values, 'es array:', Array.isArray(data.values));
+    console.log('📤 Payload completo:', JSON.stringify(data, null, 2));
+    
     const response = await this.api.post(`/atestados/${atestadoId}/diligencias`, data);
     return response.data;
-  }
+  },}
 
   async updateDiligencia(diligenciaId, data) {
     console.log('🚀 Llamando updateDiligencia...', { diligenciaId, data });

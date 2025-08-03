@@ -99,17 +99,28 @@ const AtestadoDetail = () => {
 
   const createDiligenciaFromPlantilla = async (plantilla, values) => {
     try {
+      console.log('🔍 DEBUG Frontend - Creando diligencia:');
+      console.log('📋 Plantilla completa:', JSON.stringify(plantilla, null, 2));
+      console.log('🆔 plantilla.id:', plantilla.id, 'tipo:', typeof plantilla.id);
+      console.log('📝 values recibidos:', values);
+      
       const variables = extractVariables(plantilla.content || '');
+      console.log('🔧 Variables extraídas:', variables);
+      
       const templateValues = variables.map(variable => ({
         variable,
         value: values[variable] || ''
       }));
+      console.log('📊 Template values mapeados:', templateValues);
 
       const diligenciaData = {
         templateId: plantilla.id,
         values: templateValues,
         previewText: replaceVariables(plantilla.content, values)
       };
+      
+      console.log('📤 Datos a enviar:', JSON.stringify(diligenciaData, null, 2));
+      console.log('🎯 Atestado ID:', id);
 
       await apiService.createDiligencia(id, diligenciaData);
       await loadData(); // Recargar datos
