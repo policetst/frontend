@@ -93,6 +93,24 @@ class ApiService {
     return response.data;
   }
 
+  async updateDiligencia(diligenciaId, data) {
+    console.log('🚀 Llamando updateDiligencia...', { diligenciaId, data });
+    const response = await this.api.put(`/diligencias/${diligenciaId}`, data);
+    return response.data;
+  }
+
+  async deleteDiligencia(diligenciaId) {
+    console.log('🚀 Llamando deleteDiligencia...', { diligenciaId });
+    const response = await this.api.delete(`/diligencias/${diligenciaId}`);
+    return response.data;
+  }
+
+  async getDiligencia(diligenciaId) {
+    console.log('🚀 Llamando getDiligencia...', { diligenciaId });
+    const response = await this.api.get(`/diligencias/${diligenciaId}`);
+    return response.data;
+  }
+
   // ==================== MÉTODOS PARA PLANTILLAS ====================
   
   async getPlantillas() {

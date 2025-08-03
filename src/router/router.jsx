@@ -21,6 +21,7 @@ import EditUser from '../pages/EditUser';
 
 // 🆕 COMPONENTES PARA ATESTADOS
 import DiligenciaForm from "../components/DiligenciaForm";
+import DiligenciasList from "../components/DiligenciasList";
 import AtestadosList from "../components/AtestadosList";
 import AtestadoDetail from "../components/AtestadosDetail";
 import CrearAtestado from "../components/CrearAtestado";
@@ -112,6 +113,12 @@ const ROUTER = createHashRouter([
       {
         path: "/atestados/:id/diligencias/nueva",
         element: <DiligenciaForm />
+      },
+
+      // 🆕 RUTAS PARA DILIGENCIAS
+      {
+        path: "/diligencias",
+        element: <DiligenciasList />
       },
 
       // 🆕 RUTAS PARA PLANTILLAS
