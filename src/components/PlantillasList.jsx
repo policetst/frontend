@@ -65,14 +65,14 @@ const PlantillasList = () => {
 
   if (loading) return (
     <div className="p-6">
-      <div className="text-center">Cargando plantillas...</div>
+      <div className="text-center">Cargando Diligencias...</div>
     </div>
   );
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Plantillas</h1>
+        <h1 className="text-2xl font-bold">Diligencias</h1>
         <div className="flex gap-2">
           <Link 
             to="/atestados" 
@@ -84,7 +84,7 @@ const PlantillasList = () => {
             to="/plantillas/nueva" 
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Nueva Plantilla
+            Nueva Diligencia
           </Link>
         </div>
       </div>
@@ -92,7 +92,7 @@ const PlantillasList = () => {
       {/* Filtro de búsqueda */}
       <div className="bg-white p-4 rounded border mb-6">
         <div className="max-w-md">
-          <label className="block text-sm font-medium mb-2">Buscar plantillas</label>
+          <label className="block text-sm font-medium mb-2">Buscar Diligencias</label>
           <input
             type="text"
             value={busqueda}
@@ -149,7 +149,7 @@ const PlantillasList = () => {
                 {/* Variables */}
                 {variables.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-xs text-gray-500 mb-1">Variables disponibles:</p>
+                    <p className="text-xs text-gray-500 mb-1">Palabras clave disponibles:</p>
                     <div className="flex flex-wrap gap-1">
                       {variables.slice(0, 5).map((variable, idx) => (
                         <span key={idx} className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">

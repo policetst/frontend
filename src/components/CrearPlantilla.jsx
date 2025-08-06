@@ -76,7 +76,7 @@ const CrearPlantilla = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Crear Nueva Plantilla</h1>
+        <h1 className="text-2xl font-bold">Crear Nueva  Diligencia</h1>
         <Button
           variant="outline"
           onClick={() => navigate('/plantillas')}
@@ -89,7 +89,7 @@ const CrearPlantilla = () => {
         {/* Formulario */}
         <Card>
           <CardHeader>
-            <CardTitle>Información de la Plantilla</CardTitle>
+            <CardTitle>Información de la Diligencia</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -102,7 +102,7 @@ const CrearPlantilla = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Nombre de la plantilla"
+                  placeholder="Nombre de la diligencia"
                   className={errors.name ? 'border-red-500' : ''}
                 />
                 {errors.name && (
@@ -117,7 +117,7 @@ const CrearPlantilla = () => {
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Descripción de la plantilla (opcional)"
+                  placeholder="Descripción de la diligencia (opcional)"
                   rows={3}
                 />
               </div>
@@ -131,7 +131,7 @@ const CrearPlantilla = () => {
                   name="content"
                   value={formData.content}
                   onChange={handleChange}
-                  placeholder="Contenido de la plantilla. Usa {variable} para crear variables."
+                  placeholder="Contenido de la plantilla. Usa {palabra} para crear Palabra Clave."
                   rows={10}
                   className={errors.content ? 'border-red-500' : ''}
                 />
@@ -139,7 +139,7 @@ const CrearPlantilla = () => {
                   <p className="text-red-500 text-sm mt-1">{errors.content}</p>
                 )}
                 <p className="text-sm text-gray-500 mt-1">
-                  Tip: Usa llaves para crear variables, por ejemplo: {'{nombre}'}, {'{fecha}'}, {'{descripcion}'}
+                  Tip: Usa llaves para crear Palabras clave, por ejemplo: {'{nombre}'}, {'{fecha}'}, {'{descripcion}'}
                 </p>
               </div>
 
@@ -148,7 +148,7 @@ const CrearPlantilla = () => {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? 'Creando...' : 'Crear Plantilla'}
+                  {loading ? 'Creando...' : 'Crear Diligencia'}
                 </Button>
                 <Button
                   type="button"
@@ -171,9 +171,9 @@ const CrearPlantilla = () => {
             <div className="space-y-4">
               {/* Variables detectadas */}
               <div>
-                <h3 className="font-medium mb-2">Variables detectadas ({variables.length})</h3>
+                <h3 className="font-medium mb-2">Palabras clave detectadas ({variables.length})</h3>
                 {variables.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No se detectaron variables</p>
+                  <p className="text-gray-500 text-sm">No se detectaron Palabras clave</p>
                 ) : (
                   <div className="flex flex-wrap gap-1">
                     {variables.map((variable, idx) => (
