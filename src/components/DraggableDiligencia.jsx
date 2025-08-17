@@ -35,10 +35,10 @@ const DraggableDiligencia = ({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       className={`
-        border-l-4 border-blue-500 pl-4 py-2 cursor-move transition-all duration-200
-        ${isDragging ? 'opacity-50 scale-95' : ''}
-        ${dragOverIndex === index ? 'bg-blue-50 border-blue-300' : ''}
-        hover:bg-gray-50
+        bg-white border rounded p-4 mb-2 cursor-move transition-all duration-200
+        ${isDragging ? 'opacity-50 scale-95 shadow-lg' : ''}
+        ${dragOverIndex === index ? 'bg-blue-50 border-blue-300 shadow-md' : 'border-gray-200'}
+        hover:bg-gray-50 hover:shadow-sm
       `}
     >
       <div className="flex justify-between items-start mb-2">

@@ -73,28 +73,51 @@ const AtestadoDetail = () => {
   const handleAtestadoDrop = (e) => {
     e.preventDefault();
     console.log('📥 Drop detectado en zona de atestado');
+    
     try {
-      const plantillaData = JSON.parse(e.dataTransfer.getData('text/plain'));
-      console.log('📋 Plantilla recibida:', plantillaData.name);
-      setSelectedPlantilla(plantillaData);
-      const variables = extractVariables(plantillaData.content || '');
-      console.log('🔧 Variables encontradas:', variables.length);
-      if (variables.length > 0) {
-        setPlantillaValues({});
-        setShowVariablesModal(true);
-      } else {
-        // Si no hay variables, crear diligencia directamente
-        createDiligenciaFromPlantilla(plantillaData, {});
+      const data = e.dataTransfer.getData('text/plain');
+      
+      // Intentar parsear como plantilla (JSON)
+      try {
+        const plantillaData = JSON.parse(data);
+        
+        // Si estamos en modo reordenamiento, no procesar drops de plantillas
+        if (isReordering) {
+          console.log('🚫 Modo reordenamiento activo - ignorando drop de plantilla');
+          return;
+        }
+        
+        console.log('📋 Plantilla recibida:', plantillaData.name);
+        setSelectedPlantilla(plantillaData);
+        const variables = extractVariables(plantillaData.content || '');
+        console.log('🔧 Variables encontradas:', variables.length);
+        if (variables.length > 0) {
+          setPlantillaValues({});
+          setShowVariablesModal(true);
+        } else {
+          // Si no hay variables, crear diligencia directamente
+          createDiligenciaFromPlantilla(plantillaData, {});
+        }
+      } catch (parseError) {
+        // Si no es JSON, podría ser un índice de diligencia para reordenamiento
+        console.log('📝 Datos no son JSON, posiblemente reordenamiento de diligencia');
+        // No hacer nada aquí, el reordenamiento se maneja en DraggableDiligencia
       }
     } catch (error) {
-      console.error('❌ Error al procesar plantilla:', error);
+      console.error('❌ Error al procesar drop:', error);
     }
   };
 
   const handleAtestadoDragOver = (e) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
     console.log('🎯 Drag over zona de atestado');
+    
+    // Permitir siempre el drag over, pero el efecto depende del contexto
+    if (isReordering) {
+      e.dataTransfer.dropEffect = 'move'; // Para reordenamiento
+    } else {
+      e.dataTransfer.dropEffect = 'copy'; // Para plantillas
+    }
   };
 
   const createDiligenciaFromPlantilla = async (plantilla, values) => {
@@ -417,9 +440,13 @@ const AtestadoDetail = () => {
                 return (
                   <div
                     key={plantilla.id}
-                    draggable
-                    onDragStart={(e) => handlePlantillaDragStart(e, plantilla)}
-                    className="p-3 border rounded cursor-move hover:bg-gray-50 hover:border-blue-300 transition-colors"
+                    draggable={!isReordering}
+                    onDragStart={!isReordering ? (e) => handlePlantillaDragStart(e, plantilla) : undefined}
+                    className={`p-3 border rounded transition-colors ${
+                      isReordering 
+                        ? 'cursor-not-allowed opacity-50 bg-gray-100' 
+                        : 'cursor-move hover:bg-gray-50 hover:border-blue-300'
+                    }`}
                   >
                     <h3 className="font-medium text-sm mb-1">{plantilla.name}</h3>
                     <p className="text-xs text-gray-600 mb-2">
@@ -459,9 +486,22 @@ const AtestadoDetail = () => {
                   {atestado?.estado || 'Sin estado'}
                 </span>
               </div>
-              <div className="text-sm text-gray-500 bg-blue-50 p-3 rounded border-2 border-dashed border-blue-300">
-                <p className="font-medium text-blue-700">💡 Zona de arrastre</p>
-                <p>Arrastra plantillas aquí para crear diligencias</p>
+              <div className={`text-sm p-3 rounded border-2 border-dashed ${
+                isReordering 
+                  ? 'text-yellow-600 bg-yellow-50 border-yellow-300'
+                  : 'text-gray-500 bg-blue-50 border-blue-300'
+              }`}>
+                <p className={`font-medium ${
+                  isReordering ? 'text-yellow-700' : 'text-blue-700'
+                }`}>
+                  {isReordering ? '🔄 Modo reordenamiento' : '💡 Zona de arrastre'}
+                </p>
+                <p>
+                  {isReordering 
+                    ? 'Arrastra las diligencias para cambiar su orden'
+                    : 'Arrastra plantillas aquí para crear diligencias'
+                  }
+                </p>
               </div>
             </div>
             

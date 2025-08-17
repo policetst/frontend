@@ -158,7 +158,7 @@ class ApiService {
     console.log('📏 Longitud del array:', diligenciasOrder ? diligenciasOrder.length : 'undefined');
     console.log('📤 Payload completo:', JSON.stringify({ diligenciasOrder }, null, 2));
     
-    const response = await this.api.put(`/atestados/${atestadoId}/diligencias/reorder`, {
+    const response = await this.api.put(`/atestados/${atestadoId}/reorder-diligencias`, {
       diligenciasOrder
     });
     return response.data;
