@@ -59,7 +59,15 @@ const EditIncident = () => {
   }, [USER_CODE]); 
   console.log('User details:', userdetails);
   
-  
+  // Helper function to check if admin can edit closed incidents
+  const canEditClosed = () => {
+    return userdetails === "Administrator";
+  };
+
+  // Helper function to check if field should be disabled
+  const isFieldDisabled = () => {
+    return form.status === 'Closed' && !canEditClosed();
+  };
 
   /*
 * Function to close an incident
@@ -646,7 +654,7 @@ const handleMatriculaBlur = async (e) => {
                   <select
                     name="status"
                     value={form.status}
-                    disabled={form.status === 'Closed'}
+                    disabled={isFieldDisabled()}
                     onChange={handleStatusChange}
                     className="w-full mt-1 p-2 border rounded-md"
                   >
@@ -703,8 +711,8 @@ const handleMatriculaBlur = async (e) => {
                     name="type"
                     value={form.type}
                     onChange={e => setForm({ ...form, type: e.target.value })}
-                    className={`w-full mt-1 p-2 border rounded-md ${form.status === 'Closed' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                    disabled={form.status === 'Closed'}
+                    className={`w-full mt-1 p-2 border rounded-md ${isFieldDisabled() ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    disabled={isFieldDisabled()}
                   >
                     <option value="">-- Selecciona un tipo --</option>
                     {tipos.map((tipo, idx) => (
@@ -717,7 +725,7 @@ const handleMatriculaBlur = async (e) => {
                   <textarea
                     name="description"
                     value={form.description}
-                    disabled={form.status === 'Closed'}
+                    disabled={isFieldDisabled()}
                     onChange={e => setForm({ ...form, description: e.target.value })}
                     rows={4}
                     className="w-full mt-1 p-2 border rounded-md"
@@ -739,8 +747,8 @@ const handleMatriculaBlur = async (e) => {
                     <button
                       type="button"
                       onClick={handleReSend}
-                      className={`px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${form.status === 'Closed' || form.brigade_field ? 'cursor-not-allowed opacity-50' : ''}`}
-                      disabled={form.status === 'Closed' || form.brigade_field}
+                      className={`px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${isFieldDisabled() || form.brigade_field ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={isFieldDisabled() || form.brigade_field}
                     >
                       Reenviar
                     </button>
@@ -752,13 +760,13 @@ const handleMatriculaBlur = async (e) => {
               {/* Sección personas */}
               <div 
                 className='flex justify-between cursor-pointer pt-2'
-                onClick={form.status !== 'Closed' ? togglePersonForm : undefined}
+                onClick={!isFieldDisabled() ? togglePersonForm : undefined}
               >
                 <h3 className="text-xl font-bold mb-2 pl-2">Personas</h3>
                 <ChevronUp
                   className={`w-7 h-7 mr-2 transition-transform duration-450 ${
                   showPersonForm ? "rotate-180" : "rotate-0"
-                  } ${form.status === 'Closed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${isFieldDisabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
               </div>
               <div className="mt-4">
@@ -806,11 +814,11 @@ const handleMatriculaBlur = async (e) => {
 
                     <div className='flex justify-center'>
                       <button
-                        type="button"
-                        onClick={agregarPersona}
-                        className={`mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                        disabled={form.status === 'Closed' ? true : false}
-                      >
+                      type="button"
+                      onClick={agregarPersona}
+                      className={`mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400 ${isFieldDisabled() ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={isFieldDisabled()}
+                    >
                         Agregar persona
                       </button>
                     </div>
@@ -857,13 +865,13 @@ const handleMatriculaBlur = async (e) => {
               {/* Sección vehículos */}
               <div 
                 className='flex justify-between cursor-pointer pt-2'
-                onClick={form.status !== 'Closed' ? toggleVehicleForm : undefined}
+                onClick={!isFieldDisabled() ? toggleVehicleForm : undefined}
               >
                 <h2 className="text-xl font-bold mb-2 pl-2">Vehículos</h2>
                 <ChevronUp
                   className={`w-7 h-7 mr-2 transition-transform duration-450 ${
                   showVehicleForm ? "rotate-180" : "rotate-0"
-                  } ${form.status === 'Closed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${isFieldDisabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
               </div>
                 
@@ -906,8 +914,8 @@ const handleMatriculaBlur = async (e) => {
                     <button
                       type="button"
                       onClick={agregarVehiculo}
-                      className={`mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400 ${form.status === 'Closed' ? 'cursor-not-allowed opacity-50' : ''}`}
-                      disabled={form.status === 'Closed' ? true : false}
+                      className={`mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400 ${isFieldDisabled() ? 'cursor-not-allowed opacity-50' : ''}`}
+                      disabled={isFieldDisabled()}
                     >
                       Agregar vehículo
                     </button>
@@ -960,14 +968,14 @@ const handleMatriculaBlur = async (e) => {
             <div className="absolute top-2 right-2">
               <button
                 type="button"
-                disabled={form.status === 'Closed'}
+                disabled={isFieldDisabled()}
                 onClick={() => {
-                  if (form.status === 'Closed') return;
+                  if (isFieldDisabled()) return;
                   setExistingImages(existingImages.filter((_, i) => i !== index));
                   try { deleteImage(image); } catch (err) {}
                 }}
                 className={`bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity
-                  ${form.status === 'Closed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  ${isFieldDisabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <XIcon className="h-4 w-4" />
               </button>
@@ -978,20 +986,20 @@ const handleMatriculaBlur = async (e) => {
     </div>
   )}
   {/* Añadir imágenes nuevas */}
-  <ImageUpload onImagesChange={handleImagesChange} disabled={form.status === 'Closed'} />
+  <ImageUpload onImagesChange={handleImagesChange} disabled={isFieldDisabled()} />
 </div>
 
               <button
                 type="submit"
-                disabled={form.status === 'Closed' || isSubmitting}
+                disabled={isFieldDisabled() || isSubmitting}
                 className={`w-full px-4 py-2 rounded text-white 
-                ${form.status === 'Closed' || isSubmitting 
+                ${isFieldDisabled() || isSubmitting 
                   ? 'bg-gray-400 cursor-not-allowed' 
                   : 'bg-blue-600 hover:bg-blue-700'}
                   `}
                 >
-                  {form.status === 'Closed' 
-                  ? 'Incidencia cerrada'
+                  {isFieldDisabled() 
+                  ? (canEditClosed() ? 'Incidencia cerrada (Admin puede editar)' : 'Incidencia cerrada')
                   : isSubmitting
                     ? 'Actualizando...' 
                     : 'Actualizar'}
