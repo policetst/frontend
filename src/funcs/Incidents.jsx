@@ -41,7 +41,7 @@ function capitalize(texto) {
 }
 
 /**
- * Function to validate DNI/NIF
+ * Function to validate DNI/NIF/Passport
  * @param {String} texto
  * @returns {Boolean}
  */
@@ -54,6 +54,7 @@ function validarDniNif(texto) {
 
   const letras = 'TRWAGMYFPDXBNJZSQVHLCKE';
 
+  // Validación DNI
   if (dniPattern.test(value)) {
     const [, num, letra] = value.match(dniPattern);
     return letras[num % 23] === letra;
@@ -65,6 +66,32 @@ function validarDniNif(texto) {
     const num = nieNum.slice(0, 8);
     const letra = nieNum[8];
     return letras[num % 23] === letra;
+  }
+
+  // Validación Pasaporte Español: 3 letras + 6 números
+  const pasaporteEspanol = /^[A-Z]{3}\d{6}$/;
+  if (pasaporteEspanol.test(value)) {
+    return true;
+  }
+
+  // Validación Pasaportes Extranjeros (formatos comunes):
+  // Formato 1: 1-2 letras + 6-9 números
+  const pasaporteExtranjero1 = /^[A-Z]{1,2}\d{6,9}$/;
+  
+  // Formato 2: 6-9 números seguidos de 1-3 letras
+  const pasaporteExtranjero2 = /^\d{6,9}[A-Z]{1,3}$/;
+  
+  // Formato 3: Alfanumérico de 6-12 caracteres (común en muchos países)
+  const pasaporteExtranjero3 = /^[A-Z0-9]{6,12}$/;
+  
+  // Formato 4: Con letras y números intercalados
+  const pasaporteExtranjero4 = /^[A-Z]\d{1,3}[A-Z]\d{1,6}$/;
+  
+  if (pasaporteExtranjero1.test(value) || 
+      pasaporteExtranjero2.test(value) || 
+      pasaporteExtranjero3.test(value) || 
+      pasaporteExtranjero4.test(value)) {
+    return true;
   }
 
   return false;
