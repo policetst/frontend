@@ -106,6 +106,9 @@ function validarMatricula(texto) {
   
   // Eliminar espacios, guiones y pasar a mayúsculas
   const value = texto.toUpperCase().replace(/[\s-]+/g, '');
+  
+  // Validar longitud mínima y máxima
+  if (value.length < 4 || value.length > 10) return false;
 
   // Formato nuevo español: 4 números + 3 consonantes (sin vocales, Ñ, Q)
   const formatoNuevoEspanol = /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/;
@@ -113,8 +116,8 @@ function validarMatricula(texto) {
   // Formato antiguo español: 1-2 letras + 4 números + 1-2 letras (sin vocales, Ñ, Q)
   const formatoAntiguoEspanol = /^[BCDFGHJKLMNPRSTVWXYZ]{1,2}[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{1,2}$/;
   
-  // Formato muy antiguo español (anterior a 1971): letras + números variados
-  const formatoMuyAntiguo = /^[A-Z]{1,3}[0-9]{1,6}$/;
+  // Formato muy antiguo español (anterior a 1971): 1-2 letras + 4-6 números
+  const formatoMuyAntiguo = /^[A-Z]{1,2}[0-9]{4,6}$/;
   
   // Matrículas de ciclomotores: L + 4 números + 3 letras
   const formatoCiclomotor = /^L[0-9]{4}[A-Z]{3}$/;
@@ -131,18 +134,28 @@ function validarMatricula(texto) {
   // Matrículas de cuerpos consulares: CC + 3-4 números + 1-2 letras
   const formatoConsular = /^CC[0-9]{3,4}[A-Z]{1,2}$/;
   
-  // Matrículas extranjeras genéricas (más flexibles)
-  // Formato europeo común: 1-3 letras + 1-4 números + 1-3 letras
-  const formatoExtranjero1 = /^[A-Z]{1,3}[0-9]{1,4}[A-Z]{1,3}$/;
+  // Matrículas extranjeras específicas (más restrictivas)
+  // Formato europeo: 1-3 letras + 2-4 números + 1-3 letras (debe tener al menos 1 número)
+  const formatoExtranjeroEuropeo = /^[A-Z]{1,3}[0-9]{2,4}[A-Z]{1,3}$/;
   
-  // Formato americano/otros: 3-8 caracteres alfanuméricos
-  const formatoExtranjero2 = /^[A-Z0-9]{3,8}$/;
+  // Formato americano: 3 letras + 3-4 números O 3-4 números + 3 letras
+  const formatoAmericano1 = /^[A-Z]{3}[0-9]{3,4}$/;
+  const formatoAmericano2 = /^[0-9]{3,4}[A-Z]{3}$/;
   
-  // Formato con guiones o espacios (común en algunos países)
-  const formatoExtranjeroConSeparadores = /^[A-Z0-9]{1,4}[\s-][A-Z0-9]{1,4}[\s-]?[A-Z0-9]{0,4}$/;
+  // Formato mixto: debe contener al menos 1 letra y 1 número, longitud 5-8
+  const formatoMixto = /^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]{5,8}$/;
   
-  // Validar contra el texto original para formatos con separadores
+  // Validar contra el texto original para formatos con separadores (más restrictivo)
   const valueOriginal = texto.toUpperCase().trim();
+  const formatoConSeparadores = /^[A-Z0-9]{1,3}[\s-][A-Z0-9]{2,4}[\s-]?[A-Z0-9]{1,3}$/;
+  
+  // Verificar que no sea solo números o solo letras (excepto formatos específicos)
+  const soloNumeros = /^[0-9]+$/;
+  const soloLetras = /^[A-Z]+$/;
+  
+  if (soloNumeros.test(value) || soloLetras.test(value)) {
+    return false; // Rechazar cadenas que solo contengan números o solo letras
+  }
   
   return formatoNuevoEspanol.test(value) || 
          formatoAntiguoEspanol.test(value) ||
@@ -152,9 +165,11 @@ function validarMatricula(texto) {
          formatoRemolque.test(value) ||
          formatoDiplomatico.test(value) ||
          formatoConsular.test(value) ||
-         formatoExtranjero1.test(value) ||
-         formatoExtranjero2.test(value) ||
-         formatoExtranjeroConSeparadores.test(valueOriginal);
+         formatoExtranjeroEuropeo.test(value) ||
+         formatoAmericano1.test(value) ||
+         formatoAmericano2.test(value) ||
+         formatoMixto.test(value) ||
+         formatoConSeparadores.test(valueOriginal);
 }
 
 
