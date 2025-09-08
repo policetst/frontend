@@ -10,44 +10,147 @@ const DraggableDiligencia = ({
   isDragging,
   dragOverIndex,
   onEdit,
-  onDelete
+  onDelete,
+  isReordering = false,
+  compact = false
 }) => {
   const handleDragStart = (e) => {
+    if (!isReordering) return;
     e.dataTransfer.setData('text/plain', index.toString());
     onDragStart(index);
   };
 
   const handleDragOver = (e) => {
+    if (!isReordering) return;
     e.preventDefault();
     onDragOver(index);
   };
 
   const handleDrop = (e) => {
+    if (!isReordering) return;
     e.preventDefault();
     const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'));
     onDrop(draggedIndex, index);
   };
 
+  if (compact) {
+    return (
+      <div
+        draggable={isReordering}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        className={`
+          bg-white border rounded p-3 transition-all duration-200
+          ${isReordering ? 'cursor-move' : 'cursor-default'}
+          ${isDragging ? 'opacity-50 scale-95 shadow-lg' : ''}
+          ${dragOverIndex === index ? 'bg-blue-50 border-blue-300 shadow-md' : 'border-gray-200'}
+          ${isReordering ? 'hover:bg-gray-50 hover:shadow-sm' : ''}
+        `}
+      >
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {isReordering && (
+              <div className="flex flex-col items-center text-gray-400 flex-shrink-0">
+                <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <h4 className="font-medium text-sm text-gray-900 truncate">
+                #{index + 1}
+                {diligencia.plantilla_nombre && (
+                  <span className="text-xs text-gray-500 ml-1">
+                    {diligencia.plantilla_nombre}
+                  </span>
+                )}
+              </h4>
+              <p className="text-xs text-gray-500 mt-1">
+                {formatDateTime(diligencia.created_at)}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(diligencia);
+              }}
+              className="text-blue-600 hover:text-blue-800 p-1 rounded"
+              title="Editar diligencia"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(diligencia.id);
+              }}
+              className="text-red-600 hover:text-red-800 p-1 rounded"
+              title="Eliminar diligencia"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="text-xs text-gray-600 line-clamp-2">
+          {diligencia.texto_final ? 
+            diligencia.texto_final.substring(0, 100) + (diligencia.texto_final.length > 100 ? '...' : '') :
+            'Sin contenido'
+          }
+        </div>
+
+        {diligencia.valores && Array.isArray(diligencia.valores) && diligencia.valores.length > 0 && diligencia.valores.some(valor => valor && valor.variable) && (
+          <div className="mt-2 pt-2 border-t border-gray-100">
+            <div className="flex flex-wrap gap-1">
+              {diligencia.valores.filter(valor => valor && valor.variable).slice(0, 3).map((valor, idx) => (
+                <span key={idx} className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded text-xs">
+                  {valor.variable}
+                </span>
+              ))}
+              {diligencia.valores.filter(valor => valor && valor.variable).length > 3 && (
+                <span className="text-xs text-gray-500">
+                  +{diligencia.valores.filter(valor => valor && valor.variable).length - 3}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Vista completa (original)
   return (
     <div
-      draggable
+      draggable={isReordering}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       className={`
-        bg-white border rounded p-4 mb-2 cursor-move transition-all duration-200
+        bg-white border rounded p-4 mb-2 transition-all duration-200
+        ${isReordering ? 'cursor-move' : 'cursor-default'}
         ${isDragging ? 'opacity-50 scale-95 shadow-lg' : ''}
         ${dragOverIndex === index ? 'bg-blue-50 border-blue-300 shadow-md' : 'border-gray-200'}
-        hover:bg-gray-50 hover:shadow-sm
+        ${isReordering ? 'hover:bg-gray-50 hover:shadow-sm' : ''}
       `}
     >
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center gap-2">
-          <div className="flex flex-col items-center text-gray-400">
-            <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
-            <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
-            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-          </div>
+          {isReordering && (
+            <div className="flex flex-col items-center text-gray-400">
+              <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+            </div>
+          )}
           <h3 className="font-medium text-gray-900">
             Diligencia #{index + 1}
             {diligencia.plantilla_nombre && (
@@ -99,8 +202,8 @@ const DraggableDiligencia = ({
           <p className="text-xs text-gray-500 mb-1">Variables utilizadas:</p>
           <div className="flex flex-wrap gap-1">
             {diligencia.valores.filter(valor => valor && valor.variable).map((valor, idx) => (
-              <span key={idx} className="inline-block bg-gray-100 text-xs px-2 py-1 rounded">
-                {valor.variable}: {valor.valor}
+              <span key={idx} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                {valor.variable}: {valor.valor || '(vacío)'}
               </span>
             ))}
           </div>

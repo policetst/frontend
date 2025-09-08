@@ -1,6 +1,6 @@
 import { createHashRouter } from "react-router-dom";
 
-//* Importar los componentes de las páginas */
+// COMPONENTES PRINCIPALES
 import NotFound from "../pages/NotFound";
 import Perfil from "../pages/Perfil";
 import Mapa from "../pages/Mapa";
@@ -13,17 +13,17 @@ import ForgotPassword from "../pages/ForgotPassword";
 import Loayaut from "../loayauts/Loayaut";
 import EditIncident from "../pages/EditIncident";
 import PersonasVehiculos from "../pages/PersonasVehiculos";
-import EditarVehiculo from '../pages/EditarVehiculo';
-import EditarPersona from '../pages/EditarPersona';
+import EditarVehiculo from "../pages/EditarVehiculo";
+import EditarPersona from "../pages/EditarPersona";
 import Error from "../pages/Error";
-import ResetPassword from "../pages/ResetPassword";
+import ResetPassword from '../pages/ResetPassword';
 import EditUser from '../pages/EditUser';
 
 // 🆕 COMPONENTES PARA ATESTADOS
 import DiligenciaForm from "../components/DiligenciaForm";
-import DiligenciasList from "../components/DiligenciasList";
 import AtestadosList from "../components/AtestadosList";
 import AtestadoDetail from "../components/AtestadosDetail";
+import AtestadosDetailSimple from "../components/AtestadosDetailSimple";
 import CrearAtestado from "../components/CrearAtestado";
 import EditarAtestado from "../components/EditarAtestado";
 import PlantillasList from "../components/PlantillasList";
@@ -45,15 +45,15 @@ const ROUTER = createHashRouter([
     errorElement: <Error />,
     children:[
       {
-        path: '/reset-password/:code',
+        path: "/reset-password/:code",
         element: <ResetPassword />
       },
       {
-        path: '/edituser/:code',
+        path: "/edituser/:code",
         element: <EditUser/>
       },
       {
-        path: '/editincident/:code',
+        path: "/editincident/:code",
         element: <EditIncident/>
       },
       {
@@ -107,18 +107,18 @@ const ROUTER = createHashRouter([
         element: <AtestadoDetail />
       },
       {
-        path: "/atestados/:id/editar",
-        element: <EditarAtestado />
+        path: "/atestados/:id/simple",
+        element: <AtestadosDetailSimple />
       },
       {
-        path: "/atestados/:id/diligencias/nueva",
-        element: <DiligenciaForm />
+        path: "/atestados/:id/editar",
+        element: <EditarAtestado />
       },
 
       // 🆕 RUTAS PARA DILIGENCIAS
       {
-        path: "/diligencias",
-        element: <DiligenciasList />
+        path: "/atestados/:id/diligencias/nueva",
+        element: <DiligenciaForm />
       },
 
       // 🆕 RUTAS PARA PLANTILLAS
@@ -135,6 +135,7 @@ const ROUTER = createHashRouter([
         element: <EditarPlantilla />
       },
 
+      // RUTA 404
       {
         path: "*",
         element: <NotFound />
