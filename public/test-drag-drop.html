@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Drag & Drop - Atestados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .diligencia {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: move;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .diligencia:hover {
+            background: #e9ecef;
+            border-color: #007bff;
+        }
+        .diligencia.dragging {
+            opacity: 0.5;
+            transform: scale(0.95) rotate(2deg);
+        }
+        .diligencia.drag-over {
+            background: #cce5ff;
+            border-color: #007bff;
+            border-style: dashed;
+        }
+        .drag-handle {
+            display: inline-block;
+            margin-right: 10px;
+            color: #6c757d;
+            font-size: 18px;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 5px;
+        }
+        .log-entry.info { color: #007bff; }
+        .log-entry.success { color: #28a745; }
+        .log-entry.error { color: #dc3545; }
+        .log-entry.warning { color: #ffc107; }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 6px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.enabled {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.disabled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Drag & Drop - Atestados</h1>
+        
+        <div class="controls">
+            <button onclick="toggleDragMode()">Toggle Drag Mode</button>
+            <button onclick="clearLog()">Clear Log</button>
+            <button onclick="resetOrder()">Reset Order</button>
+            <span class="status" id="dragStatus">disabled</span>
+        </div>
+
+        <h2>Diligencias de Prueba</h2>
+        <div id="diligencias-container">
+            <!-- Las diligencias se generarán dinámicamente -->
+        </div>
+
+        <h3>📋 Event Log</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let isDragModeEnabled = false;
+        let draggedIndex = null;
+        let dragOverIndex = null;
+        
+        // Datos de prueba
+        const testDiligencias = [
+            { id: 1, texto: "Primera diligencia de prueba", orden: 1 },
+            { id: 2, texto: "Segunda diligencia de prueba", orden: 2 },
+            { id: 3, texto: "Tercera diligencia de prueba", orden: 3 },
+            { id: 4, texto: "Cuarta diligencia de prueba", orden: 4 },
+            { id: 5, texto: "Quinta diligencia de prueba", orden: 5 }
+        ];
+
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function toggleDragMode() {
+            isDragModeEnabled = !isDragModeEnabled;
+            const status = document.getElementById('dragStatus');
+            status.textContent = isDragModeEnabled ? 'enabled' : 'disabled';
+            status.className = `status ${isDragModeEnabled ? 'enabled' : 'disabled'}`;
+            
+            log(`Drag mode ${isDragModeEnabled ? 'ENABLED' : 'DISABLED'}`, isDragModeEnabled ? 'success' : 'warning');
+            renderDiligencias();
+        }
+
+        function resetOrder() {
+            testDiligencias.sort((a, b) => a.id - b.id);
+            testDiligencias.forEach((d, i) => d.orden = i + 1);
+            renderDiligencias();
+            log('Order reset to original', 'info');
+        }
+
+        function handleDragStart(e, index) {
+            if (!isDragModeEnabled) {
+                e.preventDefault();
+                log('Drag prevented - mode disabled', 'warning');
+                return;
+            }
+            
+            log(`🚀 DragStart: index ${index}`, 'info');
+            e.dataTransfer.setData('text/plain', index.toString());
+            e.dataTransfer.effectAllowed = 'move';
+            draggedIndex = index;
+            
+            // Visual feedback
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragOver(e, index) {
+            if (!isDragModeEnabled) return;
+            
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            if (dragOverIndex !== index) {
+                log(`🔄 DragOver: index ${index}`, 'info');
+                dragOverIndex = index;
+                
+                // Remove previous drag-over styling
+                document.querySelectorAll('.diligencia').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+                
+                // Add drag-over styling to current target
+                e.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDragEnd(e) {
+            log('🏁 DragEnd', 'info');
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.diligencia').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+            draggedIndex = null;
+            dragOverIndex = null;
+        }
+
+        function handleDrop(e, dropIndex) {
+            if (!isDragModeEnabled) {
+                e.preventDefault();
+                return;
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const draggedIdx = parseInt(e.dataTransfer.getData('text/plain'));
+            log(`📍 Drop: from ${draggedIdx} to ${dropIndex}`, 'success');
+            
+            if (draggedIdx === dropIndex || isNaN(draggedIdx)) {
+                log('⚠️ Same index or invalid, cancelling', 'warning');
+                return;
+            }
+
+            // Perform reorder
+            const draggedItem = testDiligencias[draggedIdx];
+            testDiligencias.splice(draggedIdx, 1);
+            testDiligencias.splice(dropIndex, 0, draggedItem);
+            
+            // Update orden values
+            testDiligencias.forEach((d, i) => d.orden = i + 1);
+            
+            log(`✅ Reorder completed: ${testDiligencias.map(d => d.id).join(', ')}`, 'success');
+            
+            // Re-render
+            renderDiligencias();
+        }
+
+        function renderDiligencias() {
+            const container = document.getElementById('diligencias-container');
+            container.innerHTML = '';
+            
+            testDiligencias.forEach((diligencia, index) => {
+                const div = document.createElement('div');
+                div.className = 'diligencia';
+                div.draggable = isDragModeEnabled;
+                
+                div.innerHTML = `
+                    <span class="drag-handle">⋮⋮</span>
+                    <strong>Diligencia #${diligencia.orden}</strong> (ID: ${diligencia.id})<br>
+                    <small>${diligencia.texto}</small>
+                `;
+                
+                if (isDragModeEnabled) {
+                    div.addEventListener('dragstart', (e) => handleDragStart(e, index));
+                    div.addEventListener('dragover', (e) => handleDragOver(e, index));
+                    div.addEventListener('dragleave', handleDragLeave);
+                    div.addEventListener('dragend', handleDragEnd);
+                    div.addEventListener('drop', (e) => handleDrop(e, index));
+                }
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Drag & Drop Test initialized', 'success');
+            renderDiligencias();
+        });
+    </script>
+</body>
+</html>
