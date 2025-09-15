@@ -1,11 +1,11 @@
 import React from 'react';
 
-const DraggableDiligencia = ({ 
-  diligencia, 
-  index, 
-  onDragStart, 
-  onDragOver, 
-  onDrop, 
+const DraggableDiligencia = ({
+  diligencia,
+  index,
+  onDragStart,
+  onDragOver,
+  onDrop,
   formatDateTime,
   isDragging,
   dragOverIndex,
@@ -41,44 +41,47 @@ const DraggableDiligencia = ({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         className={`
-          bg-white border rounded p-3 transition-all duration-200
+          police-document-sheet border border-gray-300 rounded p-3 transition-all duration-200
           ${isReordering ? 'cursor-move' : 'cursor-default'}
-          ${isDragging ? 'opacity-50 scale-95 shadow-lg' : ''}
-          ${dragOverIndex === index ? 'bg-blue-50 border-blue-300 shadow-md' : 'border-gray-200'}
-          ${isReordering ? 'hover:bg-gray-50 hover:shadow-sm' : ''}
+          ${isDragging ? 'opacity-50 scale-95 drag-preview' : ''}
+          ${dragOverIndex === index ? 'bg-gray-50 border-gray-500 shadow-md drop-zone-active' : ''}
+          ${isReordering ? 'hover:shadow-md' : ''}
         `}
       >
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {isReordering && (
               <div className="flex flex-col items-center text-gray-400 flex-shrink-0">
-                <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
-                <div className="w-1 h-1 bg-gray-400 rounded-full mb-1"></div>
-                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                <div className="w-1 h-1 bg-gray-500 rounded-full mb-1"></div>
+                <div className="w-1 h-1 bg-gray-500 rounded-full mb-1"></div>
+                <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
               </div>
             )}
+            <div className="w-8 h-8 bg-gray-700 text-white rounded flex items-center justify-center text-sm font-bold flex-shrink-0">
+              {index + 1}
+            </div>
             <div className="min-w-0 flex-1">
-              <h4 className="font-medium text-sm text-gray-900 truncate">
-                #{index + 1}
+              <h4 className="font-bold text-sm text-gray-900">
+                DILIGENCIA {index + 1}
                 {diligencia.plantilla_nombre && (
-                  <span className="text-xs text-gray-500 ml-1">
-                    {diligencia.plantilla_nombre}
+                  <span className="text-xs text-gray-600 ml-1 font-normal">
+                    ({diligencia.plantilla_nombre})
                   </span>
                 )}
               </h4>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 {formatDateTime(diligencia.created_at)}
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(diligencia);
               }}
-              className="text-blue-600 hover:text-blue-800 p-1 rounded"
+              className="text-gray-600 hover:text-gray-800 p-1 rounded hover:bg-gray-200 transition-colors"
               title="Editar diligencia"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +93,7 @@ const DraggableDiligencia = ({
                 e.stopPropagation();
                 onDelete(diligencia.id);
               }}
-              className="text-red-600 hover:text-red-800 p-1 rounded"
+              className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-100 transition-colors"
               title="Eliminar diligencia"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,24 +103,22 @@ const DraggableDiligencia = ({
           </div>
         </div>
 
-        <div className="text-xs text-gray-600 line-clamp-2">
-          {diligencia.texto_final ? 
-            diligencia.texto_final.substring(0, 100) + (diligencia.texto_final.length > 100 ? '...' : '') :
-            'Sin contenido'
-          }
+        <div className="text-xs text-gray-800 line-clamp-2 leading-relaxed font-mono">
+          {diligencia.texto_final || 'Sin contenido'}
         </div>
 
-        {diligencia.valores && Array.isArray(diligencia.valores) && diligencia.valores.length > 0 && diligencia.valores.some(valor => valor && valor.variable) && (
-          <div className="mt-2 pt-2 border-t border-gray-100">
+        {diligencia.valores && diligencia.valores.length > 0 && (
+          <div className="mt-2 pt-2 border-t border-gray-300">
+            <p className="text-xs text-gray-600 font-bold mb-1">Palabras clave:</p>
             <div className="flex flex-wrap gap-1">
-              {diligencia.valores.filter(valor => valor && valor.variable).slice(0, 3).map((valor, idx) => (
-                <span key={idx} className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded text-xs">
-                  {valor.variable}
+              {diligencia.valores.slice(0, 3).map((valor, idx) => (
+                <span key={idx} className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs font-medium">
+                  {valor.variable}: {valor.valor || '(vacío)'}
                 </span>
               ))}
-              {diligencia.valores.filter(valor => valor && valor.variable).length > 3 && (
-                <span className="text-xs text-gray-500">
-                  +{diligencia.valores.filter(valor => valor && valor.variable).length - 3}
+              {diligencia.valores.length > 3 && (
+                <span className="text-xs text-gray-600 font-medium">
+                  +{diligencia.valores.length - 3} más
                 </span>
               )}
             </div>

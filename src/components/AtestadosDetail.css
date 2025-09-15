@@ -1,10 +1,11 @@
-/* Estilos personalizados para el componente AtestadosDetail */
+/* Estilos personalizados para el componente AtestadosDetail - Diseño Policial Sobrio */
 
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-clamp: 2;
 }
 
 .line-clamp-3 {
@@ -12,18 +13,21 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-clamp: 3;
 }
 
 /* Animaciones para drag and drop */
 .drag-preview {
-  transform: rotate(5deg);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: rotate(2deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  opacity: 0.8;
 }
 
 .drop-zone-active {
-  background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
+  background: linear-gradient(45deg, #f9fafb, #f3f4f6);
   border-style: dashed;
-  animation: pulse 2s infinite;
+  border-color: #6b7280;
+  animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
@@ -31,120 +35,529 @@
     opacity: 1;
   }
   50% {
-    opacity: 0.8;
+    opacity: 0.9;
   }
 }
 
 /* Scrollbar personalizado para las áreas de scroll */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+  background: #f1f5f9;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+  background: #94a3b8;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #64748b;
 }
 
-/* Estilos para la previsualización del contenido */
-.preview-content {
-  font-family: 'Times New Roman', serif;
-  line-height: 1.6;
-}
-
-.preview-content h4 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.preview-content p {
-  margin-bottom: 1rem;
-}
-
-/* Efectos de hover mejorados */
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Indicadores de estado */
-.status-indicator {
+/* Estilos para documentos policiales - Diseño sobrio y profesional */
+.police-document-sheet {
   position: relative;
+  background: white;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
-.status-indicator::before {
+.police-document-sheet:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.police-document-sheet::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  width: 3px;
   height: 100%;
-  border-radius: 2px;
+  background: #374151;
 }
 
-.status-indicator.status-active::before {
-  background-color: #10b981;
+/* Documento completo estilo oficial */
+.police-full-document {
+  position: relative;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 2px solid #374151;
 }
 
-.status-indicator.status-pending::before {
-  background-color: #f59e0b;
+.police-full-document::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #374151, #4b5563, #374151);
 }
 
-.status-indicator.status-closed::before {
-  background-color: #6b7280;
+/* Efectos de papel oficial para las diligencias */
+.diligencia-sheet {
+  position: relative;
+  background: white;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
-/* Animación para los modales */
-.modal-enter {
-  opacity: 0;
-  transform: scale(0.9);
+.diligencia-sheet:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
-.modal-enter-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 200ms, transform 200ms;
+.diligencia-sheet::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: #6b7280;
 }
 
-.modal-exit {
-  opacity: 1;
-  transform: scale(1);
+/* Líneas de papel para contenido oficial */
+.paper-lines {
+  background-image:
+    linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+    linear-gradient(to bottom, transparent 19px, #f3f4f6 20px);
+  background-size: 20px 20px;
+  background-position: 30px 0;
 }
 
-.modal-exit-active {
-  opacity: 0;
-  transform: scale(0.9);
-  transition: opacity 200ms, transform 200ms;
+/* Margen izquierdo del papel oficial */
+.paper-margin {
+  position: relative;
+  padding-left: 40px;
 }
 
-/* Estilos para variables destacadas */
-.variable-highlight {
-  background-color: #fef3c7;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-weight: 500;
-  color: #92400e;
+.paper-margin::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
 }
 
-/* Mejoras para dispositivos móviles */
+/* Estilo de texto oficial */
+.official-text {
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+  color: #1f2937;
+}
+
+/* Numeración de páginas */
+.page-number {
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: bold;
+}
+
+/* Sellos y marcas oficiales */
+.official-stamp {
+  position: relative;
+  border: 2px solid #374151;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  font-weight: bold;
+  font-size: 10px;
+  text-align: center;
+  color: #374151;
+}
+
+.official-stamp::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #374151;
+  border-radius: 50%;
+}
+
+/* Campos de formulario estilo oficial */
+.official-field {
+  border: none;
+  border-bottom: 1px solid #374151;
+  background: transparent;
+  padding: 4px 0;
+  font-family: 'Courier New', monospace;
+  color: #1f2937;
+}
+
+.official-field:focus {
+  outline: none;
+  border-bottom: 2px solid #374151;
+  background: #f9fafb;
+}
+
+/* Tablas oficiales */
+.official-table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 2px solid #374151;
+}
+
+.official-table th,
+.official-table td {
+  border: 1px solid #374151;
+  padding: 8px 12px;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+}
+
+.official-table th {
+  background: #f3f4f6;
+  font-weight: bold;
+}
+
+/* Firmas y sellos */
+.signature-area {
+  border-top: 1px solid #374151;
+  margin-top: 20px;
+  padding-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Estilos para impresión */
+@media print {
+  .police-full-document,
+  .police-document-sheet,
+  .diligencia-sheet {
+    box-shadow: none;
+    border: 1px solid #000;
+    page-break-inside: avoid;
+  }
+
+  .custom-scrollbar {
+    overflow: visible !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  .official-text {
+    color: #000 !important;
+  }
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .mobile-stack {
-    flex-direction: column;
+  .police-full-document {
+    margin: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
-  
-  .mobile-full-width {
-    width: 100%;
+
+  .police-document-sheet {
+    margin: 0 -1px;
+    border-radius: 4px;
   }
-  
-  .mobile-hide {
-    display: none;
+
+  .paper-margin {
+    padding-left: 20px;
   }
+
+  .paper-margin::before {
+    width: 15px;
+  }
+}
+
+/* Estados de carga */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Efectos de hover para elementos interactivos */
+.interactive-element {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.interactive-element:hover {
+  background-color: #f8fafc;
+  border-color: #374151;
+}
+
+/* Badges y etiquetas oficiales */
+.official-badge {
+  background: #374151;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Separadores de sección */
+.section-divider {
+  height: 2px;
+  background: linear-gradient(to right, transparent, #374151, transparent);
+  margin: 20px 0;
+}
+
+/* Watermark sutil */
+.document-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  font-size: 48px;
+  color: rgba(55, 65, 81, 0.05);
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Estilos adicionales para impresoras de tickets policiales */
+
+/* Estilos para impresión en tickets térmicos (80mm/58mm) */
+@media print {
+  /* Reset general para tickets */
+  * {
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  body {
+    font-family: 'Courier New', monospace !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    color: #000 !important;
+    background: white !important;
+    width: 80mm !important; /* Ancho estándar de ticket policial */
+    margin: 0 !important;
+    padding: 5mm !important;
+  }
+
+  /* Ocultar elementos no necesarios en tickets */
+  .no-print,
+  button,
+  .bg-gray-800,
+  .shadow-lg,
+  .rounded-lg,
+  .border,
+  .p-6,
+  .mb-6 {
+    display: none !important;
+  }
+
+  /* Encabezado del ticket */
+  .police-ticket-header {
+    text-align: center !important;
+    border-bottom: 2px solid #000 !important;
+    margin-bottom: 3mm !important;
+    padding-bottom: 2mm !important;
+  }
+
+  .police-ticket-header h1 {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    margin-bottom: 1mm !important;
+  }
+
+  .police-ticket-header .ticket-number {
+    font-size: 10px !important;
+    font-weight: bold !important;
+  }
+
+  /* Contenido del ticket */
+  .ticket-section {
+    margin-bottom: 3mm !important;
+    border-bottom: 1px dashed #000 !important;
+    padding-bottom: 2mm !important;
+  }
+
+  .ticket-section h3 {
+    font-size: 10px !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    margin-bottom: 1mm !important;
+  }
+
+  .ticket-field {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 1mm !important;
+    font-size: 9px !important;
+  }
+
+  .ticket-field-label {
+    font-weight: bold !important;
+    width: 40% !important;
+  }
+
+  .ticket-field-value {
+    width: 60% !important;
+    text-align: right !important;
+  }
+
+  /* Diligencias en formato ticket */
+  .ticket-diligencia {
+    margin-bottom: 4mm !important;
+    border: 1px solid #000 !important;
+    padding: 2mm !important;
+  }
+
+  .ticket-diligencia-header {
+    text-align: center !important;
+    font-weight: bold !important;
+    font-size: 10px !important;
+    border-bottom: 1px solid #000 !important;
+    margin-bottom: 2mm !important;
+    padding-bottom: 1mm !important;
+  }
+
+  .ticket-diligencia-content {
+    font-size: 8px !important;
+    line-height: 1.3 !important;
+    text-align: justify !important;
+    word-wrap: break-word !important;
+  }
+
+  /* Variables/Palabras clave en ticket */
+  .ticket-variables {
+    margin-top: 2mm !important;
+    border-top: 1px dashed #000 !important;
+    padding-top: 1mm !important;
+  }
+
+  .ticket-variables h4 {
+    font-size: 8px !important;
+    font-weight: bold !important;
+    margin-bottom: 1mm !important;
+  }
+
+  .ticket-variable-item {
+    font-size: 7px !important;
+    margin-bottom: 0.5mm !important;
+    display: flex !important;
+    justify-content: space-between !important;
+  }
+
+  /* Pie del ticket */
+  .ticket-footer {
+    margin-top: 5mm !important;
+    border-top: 2px solid #000 !important;
+    padding-top: 2mm !important;
+    text-align: center !important;
+    font-size: 8px !important;
+  }
+
+  /* Código de barras simulado */
+  .ticket-barcode {
+    text-align: center !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 6px !important;
+    letter-spacing: 1px !important;
+    margin: 2mm 0 !important;
+    border: 1px solid #000 !important;
+    padding: 1mm !important;
+  }
+
+  /* Ajustes para impresoras de 58mm */
+  @media (max-width: 58mm) {
+    body {
+      width: 58mm !important;
+      font-size: 9px !important;
+      padding: 3mm !important;
+    }
+
+    .police-ticket-header h1 {
+      font-size: 11px !important;
+    }
+
+    .ticket-field {
+      font-size: 8px !important;
+    }
+
+    .ticket-diligencia-content {
+      font-size: 7px !important;
+    }
+  }
+
+  /* Forzar salto de página entre diligencias */
+  .ticket-diligencia {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  /* Evitar que se corten las secciones importantes */
+  .ticket-section,
+  .police-ticket-header,
+  .ticket-footer {
+    page-break-inside: avoid !important;
+  }
+}
+
+/* Clase especial para vista de ticket */
+.ticket-print-mode {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  max-width: 80mm;
+  margin: 0 auto;
+  padding: 5mm;
+  background: white;
+  color: black;
+}
+
+.ticket-print-mode * {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Estilos para códigos QR o códigos de barras */
+.ticket-qr-code {
+  text-align: center;
+  margin: 3mm 0;
+  padding: 2mm;
+  border: 1px solid #000;
+  font-family: monospace;
+  font-size: 8px;
+}
+
+/* Numeración de páginas para tickets largos */
+.ticket-page-number {
+  position: fixed;
+  bottom: 2mm;
+  right: 5mm;
+  font-size: 6px;
+  color: #666;
 }

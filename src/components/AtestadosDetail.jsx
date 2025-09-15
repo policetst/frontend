@@ -1,65 +1,59 @@
-// pages/AtestadoDetail.jsx
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import apiService from '../../services/apiService';
-import DraggableDiligencia from './DraggableDiligencia';
-import AtestadoPrintView from './AtestadoPrintView';
-import { extractVariables, replaceVariables } from '../utils/types';
-import Swal from 'sweetalert2';
-import './AtestadosDetail.css';
+ // pages/AtestadoDetail.jsx
+ import React, { useState, useEffect, useMemo } from 'react';
+ import { useParams, Link } from 'react-router-dom';
+ import apiService from '../../services/apiService';
+ import DraggableDiligencia from './DraggableDiligencia';
+ import AtestadoPrintView from './AtestadoPrintView';
+ import AtestadoTicketView from './AtestadoTicketView';
+ import { extractVariables, replaceVariables } from '../utils/types';
+ import Swal from 'sweetalert2';
+ import './AtestadosDetail.css';
 
-const AtestadoDetail = () => {
-  const { id } = useParams();
-  const [atestado, setAtestado] = useState(null);
-  const [diligencias, setDiligencias] = useState([]);
-  const [plantillas, setPlantillas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isReordering, setIsReordering] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState(null);
-  const [dragOverIndex, setDragOverIndex] = useState(null);
-  const [showPrintView, setShowPrintView] = useState(false);
-  const [reorderLoading, setReorderLoading] = useState(false);
-  const [selectedPlantilla, setSelectedPlantilla] = useState(null);
-  const [plantillaValues, setPlantillaValues] = useState({});
-  const [showVariablesModal, setShowVariablesModal] = useState(false);
-  const [searchPlantillas, setSearchPlantillas] = useState('');
-  const [editingDiligencia, setEditingDiligencia] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editValues, setEditValues] = useState({});
-  
-  // Nuevos estados para la funcionalidad mejorada
+ const AtestadoDetail = () => {
+   const { id } = useParams();
+   const [atestado, setAtestado] = useState(null);
+   const [diligencias, setDiligencias] = useState([]);
+   const [plantillas, setPlantillas] = useState([]);
+   const [loading, setLoading] = useState(true);
+   const [isReordering, setIsReordering] = useState(false);
+   const [draggedIndex, setDraggedIndex] = useState(null);
+   const [dragOverIndex, setDragOverIndex] = useState(null);
+   const [showPrintView, setShowPrintView] = useState(false);
+   const [showTicketView, setShowTicketView] = useState(false);
+   const [reorderLoading, setReorderLoading] = useState(false);
+   const [selectedPlantilla, setSelectedPlantilla] = useState(null);
+   const [plantillaValues, setPlantillaValues] = useState({});
+   const [showVariablesModal, setShowVariablesModal] = useState(false);
+   const [searchPlantillas, setSearchPlantillas] = useState('');
+   const [editingDiligencia, setEditingDiligencia] = useState(null);
+   const [showEditModal, setShowEditModal] = useState(false);
+   const [editValues, setEditValues] = useState({});
+   const [showAddDiligenciaModal, setShowAddDiligenciaModal] = useState(false);
+   const [showUnifiedVariablesModal, setShowUnifiedVariablesModal] = useState(false);
+   const [unifiedVariables, setUnifiedVariables] = useState({});
+
   // Funciones de utilidad
   const formatDateTime = (dateString) => {
     if (!dateString) return 'No especificada';
     return new Date(dateString).toLocaleString('es-ES');
   };
 
-  const [showAddDiligenciaModal, setShowAddDiligenciaModal] = useState(false);
-  const [showUnifiedVariablesModal, setShowUnifiedVariablesModal] = useState(false);
-  const [unifiedVariables, setUnifiedVariables] = useState({});
-  const [previewContent, setPreviewContent] = useState('');
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No especificada';
+    return new Date(dateString).toLocaleDateString('es-ES');
+  };
 
   useEffect(() => {
     loadData();
     loadPlantillas();
   }, [id]);
 
-  // Calcular variables unificadas y contenido de previsualización
-  const { allVariables, fullPreview } = useMemo(() => {
-    if (!diligencias.length) return { allVariables: {}, fullPreview: '' };
+  // Calcular variables unificadas
+  const allVariables = useMemo(() => {
+    if (!diligencias.length) return {};
 
     const variablesMap = new Map();
-    let preview = '';
-
-    diligencias.forEach((diligencia, index) => {
-      // Agregar título de diligencia
-      preview += `\n=== DILIGENCIA ${index + 1} ===\n`;
-      if (diligencia.plantilla_nombre) {
-        preview += `Plantilla: ${diligencia.plantilla_nombre}\n`;
-      }
-      preview += `Fecha: ${formatDateTime(diligencia.created_at)}\n\n`;
-
-      // Extraer variables del contenido
+    diligencias.forEach((diligencia) => {
       if (diligencia.plantilla_content) {
         const variables = extractVariables(diligencia.plantilla_content);
         variables.forEach(variable => {
@@ -67,16 +61,10 @@ const AtestadoDetail = () => {
             variablesMap.set(variable, '');
           }
         });
-        preview += diligencia.plantilla_content + '\n\n';
-      } else {
-        preview += diligencia.texto_final + '\n\n';
       }
     });
 
-    return {
-      allVariables: Object.fromEntries(variablesMap),
-      fullPreview: preview
-    };
+    return Object.fromEntries(variablesMap);
   }, [diligencias]);
 
   const loadData = async () => {
@@ -99,16 +87,22 @@ const AtestadoDetail = () => {
   const loadPlantillas = async () => {
     try {
       const response = await apiService.getPlantillas();
-      setPlantillas(response.plantillas || []);
+      setPlantillas(response.plantillas || response || []);
     } catch (error) {
       console.error('Error al cargar plantillas:', error);
     }
   };
 
-  const handleReorderToggle = () => {
-    setIsReordering(!isReordering);
-    setDraggedIndex(null);
-    setDragOverIndex(null);
+  const handleReorderToggle = async () => {
+    if (isReordering) {
+      // Finalizar reordenamiento
+      setIsReordering(false);
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+    } else {
+      // Iniciar reordenamiento
+      setIsReordering(true);
+    }
   };
 
   const handleDragStart = (index) => {
@@ -120,37 +114,22 @@ const AtestadoDetail = () => {
   };
 
   const handleDrop = async (draggedIndex, dropIndex) => {
-    if (draggedIndex === dropIndex) {
-      setDraggedIndex(null);
-      setDragOverIndex(null);
-      return;
-    }
+    if (draggedIndex === dropIndex) return;
 
-    // Crear nueva lista reordenada
-    const newDiligencias = [...diligencias];
-    const draggedItem = newDiligencias[draggedIndex];
-
-    // Remover el elemento arrastrado
-    newDiligencias.splice(draggedIndex, 1);
-
-    // Insertar en la nueva posición
-    newDiligencias.splice(dropIndex, 0, draggedItem);
-
-    // Actualizar el estado local inmediatamente
-    setDiligencias(newDiligencias);
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-
-    // Preparar datos para el backend
-    const reorderData = newDiligencias.map((diligencia, index) => ({
-      id: diligencia.id,
-      orden: index + 1
-    }));
-
+    setReorderLoading(true);
     try {
-      setReorderLoading(true);
-      await apiService.reorderDiligencias(id, reorderData);
-      
+      const newDiligencias = [...diligencias];
+      const [draggedItem] = newDiligencias.splice(draggedIndex, 1);
+      newDiligencias.splice(dropIndex, 0, draggedItem);
+
+      const diligenciasOrder = newDiligencias.map((diligencia, index) => ({
+        id: diligencia.id,
+        orden: index + 1
+      }));
+
+      await apiService.reorderDiligencias(id, diligenciasOrder);
+      await loadData();
+
       Swal.fire({
         icon: 'success',
         title: 'Éxito',
@@ -160,8 +139,6 @@ const AtestadoDetail = () => {
       });
     } catch (error) {
       console.error('Error al reordenar:', error);
-      // Revertir cambios en caso de error
-      await loadData();
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -169,46 +146,36 @@ const AtestadoDetail = () => {
       });
     } finally {
       setReorderLoading(false);
+      setDraggedIndex(null);
+      setDragOverIndex(null);
     }
   };
 
-  const handleAddDiligencia = (plantilla) => {
-    setSelectedPlantilla(plantilla);
-    const variables = extractVariables(plantilla.content || '');
-    if (variables.length > 0) {
-      setPlantillaValues({});
-      setShowVariablesModal(true);
-    } else {
-      createDiligenciaFromPlantilla(plantilla, {}); // El objeto vacío se convertirá en array vacío en la función
-    }
-    setShowAddDiligenciaModal(false);
+  const handleAddDiligencia = () => {
+    setShowAddDiligenciaModal(true);
   };
 
-  const createDiligenciaFromPlantilla = async (plantilla, values) => {
+  const createDiligenciaFromPlantilla = async () => {
+    if (!selectedPlantilla) return;
+
     try {
-      console.log('🔍 DEBUG Frontend - Creando diligencia:');
-      console.log('📋 plantilla:', plantilla);
-      console.log('📝 values:', values);
-      console.log('🆔 plantilla.id:', plantilla.id, 'tipo:', typeof plantilla.id);
-
-      const templateValues = Object.entries(values).map(([variable, value]) => ({
+      const variables = extractVariables(selectedPlantilla.content || '');
+      const templateValues = variables.map(variable => ({
         variable,
-        value: value || ''
+        value: plantillaValues[variable] || ''
       }));
 
-      const previewText = replaceVariables(plantilla.content || '', values);
-
       const diligenciaData = {
-        templateId: plantilla.id,  // Cambiado de plantillaId a templateId
+        templateId: selectedPlantilla.id,
         values: templateValues,
-        previewText
+        previewText: replaceVariables(selectedPlantilla.content || '', plantillaValues)
       };
-
-      console.log('📤 Enviando diligenciaData:', JSON.stringify(diligenciaData, null, 2));
 
       await apiService.createDiligencia(id, diligenciaData);
       await loadData();
+
       setShowVariablesModal(false);
+      setShowAddDiligenciaModal(false);
       setSelectedPlantilla(null);
       setPlantillaValues({});
 
@@ -245,9 +212,10 @@ const AtestadoDetail = () => {
       try {
         await apiService.deleteDiligencia(diligenciaId);
         await loadData();
+        
         Swal.fire({
           icon: 'success',
-          title: 'Eliminado',
+          title: 'Eliminada',
           text: 'Diligencia eliminada correctamente',
           timer: 2000,
           showConfirmButton: false
@@ -266,32 +234,30 @@ const AtestadoDetail = () => {
   const handleEditDiligencia = (diligencia) => {
     setEditingDiligencia(diligencia);
     
-    const initialValues = {};
-    if (diligencia.valores && Array.isArray(diligencia.valores)) {
-      diligencia.valores.forEach(valor => {
-        if (valor && valor.variable) {
-          initialValues[valor.variable] = valor.valor || '';
-        }
-      });
+    if (diligencia.plantilla_content) {
+      const variables = extractVariables(diligencia.plantilla_content);
+      const currentValues = {};
+      
+      if (diligencia.valores) {
+        diligencia.valores.forEach(valor => {
+          currentValues[valor.variable] = valor.valor;
+        });
+      }
+      
+      setEditValues(currentValues);
     }
-    setEditValues(initialValues);
+    
     setShowEditModal(true);
   };
 
   const handleSaveEditDiligencia = async () => {
-    if (!editingDiligencia) return;
-    
     try {
-      let variables = [];
-      if (editingDiligencia.plantilla_content) {
-        variables = extractVariables(editingDiligencia.plantilla_content);
-      }
-      
+      const variables = extractVariables(editingDiligencia.plantilla_content || '');
       const templateValues = variables.map(variable => ({
         variable,
         value: editValues[variable] || ''
       }));
-      
+
       const updatedData = {
         values: templateValues,
         previewText: editingDiligencia.plantilla_content ? 
@@ -379,24 +345,6 @@ const AtestadoDetail = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'No especificada';
-    return new Date(dateString).toLocaleDateString('es-ES');
-  };
-
-  const getEstadoBadgeClass = (estado) => {
-    switch (estado?.toLowerCase()) {
-      case 'activo':
-        return 'bg-green-100 text-green-800';
-      case 'cerrado':
-        return 'bg-gray-100 text-gray-800';
-      case 'pendiente':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-blue-100 text-blue-800';
-    }
-  };
-
   const plantillasFiltradas = plantillas.filter(plantilla =>
     plantilla.name?.toLowerCase().includes(searchPlantillas.toLowerCase()) ||
     plantilla.description?.toLowerCase().includes(searchPlantillas.toLowerCase())
@@ -434,8 +382,18 @@ const AtestadoDetail = () => {
     );
   }
 
+  if (showTicketView) {
+    return (
+      <AtestadoTicketView
+        atestado={atestado}
+        diligencias={diligencias}
+        onClose={() => setShowTicketView(false)}
+      />
+    );
+  }
+
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b px-6 py-4">
         <div className="flex justify-between items-center">
@@ -450,22 +408,31 @@ const AtestadoDetail = () => {
           <div className="flex gap-3">
             <button
               onClick={() => setShowPrintView(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
               </svg>
-              Imprimir
+              Imprimir A4
+            </button>
+            <button
+              onClick={() => setShowTicketView(true)}
+              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 flex items-center gap-2 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Ticket Policial
             </button>
             <Link
               to={`/atestados/${id}/editar`}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
             >
               Editar
             </Link>
             <Link
               to="/atestados"
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
             >
               Volver
             </Link>
@@ -475,20 +442,20 @@ const AtestadoDetail = () => {
 
       {/* Layout principal */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Barra lateral izquierda - Diligencias ordenadas */}
+        {/* Barra lateral izquierda - Hojas del atestado */}
         <div className="w-80 bg-white border-r flex flex-col">
-          <div className="p-4 border-b">
+          <div className="p-4 border-b bg-gray-50">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-semibold">Diligencias</h2>
+              <h2 className="text-lg font-semibold text-gray-800">Hojas del Atestado</h2>
               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
-                {diligencias.length}
+                {diligencias.length + 1}
               </span>
             </div>
             
             <div className="flex gap-2 mb-3">
               <button
                 onClick={() => setShowAddDiligenciaModal(true)}
-                className="flex-1 bg-green-500 text-white px-3 py-2 rounded text-sm hover:bg-green-600 flex items-center justify-center gap-1"
+                className="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 flex items-center justify-center gap-1 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -500,10 +467,10 @@ const AtestadoDetail = () => {
                 <button
                   onClick={handleReorderToggle}
                   disabled={reorderLoading}
-                  className={`px-3 py-2 rounded text-sm font-medium ${
+                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
                     isReordering
-                      ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                      : 'bg-blue-500 text-white hover:bg-blue-600'
+                      ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
                   } disabled:opacity-50`}
                 >
                   {isReordering ? 'Finalizar' : 'Reordenar'}
@@ -517,9 +484,61 @@ const AtestadoDetail = () => {
                 {reorderLoading && <span className="block">Guardando...</span>}
               </div>
             )}
+
+            {Object.keys(allVariables).length > 0 && (
+              <button
+                onClick={handleShowUnifiedVariables}
+                className="w-full bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700 flex items-center justify-center gap-2 mt-2 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+                Palabras Clave ({Object.keys(allVariables).length})
+              </button>
+            )}
           </div>
           
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {/* Hoja de información básica del atestado */}
+            <div className="p-3">
+              <div className="police-document-sheet bg-white border border-gray-300 rounded p-4 mb-3 shadow-sm">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gray-700 text-white rounded flex items-center justify-center text-sm font-bold">
+                      📋
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-sm">INFORMACIÓN BÁSICA</h3>
+                      <p className="text-xs text-gray-600">Datos del atestado</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-medium">Número:</span>
+                    <span className="text-gray-900 font-bold">{atestado?.numero || 'No especificado'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-medium">Fecha:</span>
+                    <span className="text-gray-900">{formatDate(atestado?.fecha)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-medium">Creado:</span>
+                    <span className="text-gray-900">{formatDateTime(atestado?.created_at)}</span>
+                  </div>
+                </div>
+                
+                {atestado?.descripcion && (
+                  <div className="mt-3 pt-2 border-t border-gray-200">
+                    <p className="text-xs text-gray-600 font-medium mb-1">Descripción:</p>
+                    <p className="text-xs text-gray-800 line-clamp-2">{atestado.descripcion}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Diligencias como hojas */}
             {diligencias.length === 0 ? (
               <div className="p-4 text-center text-gray-500">
                 <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -529,7 +548,7 @@ const AtestadoDetail = () => {
                 <p className="text-xs text-gray-400 mt-1">Haz clic en "Agregar" para crear una</p>
               </div>
             ) : (
-              <div className="p-2 space-y-2">
+              <div className="p-3 space-y-3">
                 {diligencias.map((diligencia, index) => (
                   <DraggableDiligencia
                     key={diligencia.id}
@@ -552,109 +571,112 @@ const AtestadoDetail = () => {
           </div>
         </div>
 
-        {/* Panel central - Previsualización del contenido */}
-        <div className="flex-1 flex flex-col bg-gray-50">
-          {/* Información básica del atestado */}
-          <div className="bg-white p-6 border-b">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h2 className="text-xl font-semibold">Información del Atestado</h2>
-                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-2 ${getEstadoBadgeClass(atestado?.estado)}`}>
-                  {atestado?.estado || 'Sin estado'}
-                </span>
-              </div>
-              
-              {Object.keys(allVariables).length > 0 && (
-                <button
-                  onClick={handleShowUnifiedVariables}
-                  className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                  </svg>
-                  Asignar Variables ({Object.keys(allVariables).length})
-                </button>
-              )}
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">Número</p>
-                <p className="font-medium">{atestado?.numero || 'No especificado'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Fecha</p>
-                <p className="font-medium">{formatDate(atestado?.fecha)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Creado</p>
-                <p className="font-medium">{formatDateTime(atestado?.created_at)}</p>
-              </div>
-            </div>
-            
-            {atestado?.descripcion && (
-              <div className="mt-4">
-                <p className="text-sm text-gray-600">Descripción</p>
-                <p className="mt-1 text-sm bg-gray-50 p-3 rounded">{atestado.descripcion}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Previsualización del contenido completo */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="bg-white rounded-lg shadow-sm border">
-              <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold">Previsualización del Atestado</h3>
-                <p className="text-sm text-gray-600">Vista completa del contenido con todas las diligencias</p>
-              </div>
-              
-              <div className="p-6">
-                {diligencias.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <p className="text-lg mb-2">Atestado vacío</p>
-                    <p className="text-sm text-gray-400">Agrega diligencias para ver el contenido aquí</p>
+        {/* Panel central - Vista de documento oficial */}
+        <div className="flex-1 flex flex-col bg-gray-100">
+          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div className="max-w-4xl mx-auto">
+              {/* Documento oficial del atestado */}
+              <div className="police-full-document bg-white shadow-lg border border-gray-300 overflow-hidden">
+                {/* Encabezado oficial */}
+                <div className="bg-gray-800 text-white p-6 text-center">
+                  <h1 className="text-2xl font-bold mb-2">ATESTADO POLICIAL</h1>
+                  <div className="text-lg font-semibold">Nº {atestado?.numero || 'Sin número'}</div>
+                  <div className="text-sm opacity-90 mt-2">
+                    Fecha: {formatDate(atestado?.fecha)}
                   </div>
-                ) : (
-                  <div className="prose max-w-none">
-                    <div className="mb-6 p-4 bg-gray-50 rounded">
-                      <h4 className="text-lg font-semibold mb-2">ATESTADO #{atestado.numero}</h4>
-                      <p className="text-sm text-gray-600">Fecha: {formatDate(atestado.fecha)}</p>
-                      {atestado.descripcion && (
-                        <p className="text-sm mt-2">{atestado.descripcion}</p>
+                </div>
+
+                {/* Información básica como primera hoja */}
+                <div className="p-8 border-b-2 border-gray-300 bg-white">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-gray-700 text-white rounded flex items-center justify-center text-lg">
+                      📋
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">INFORMACIÓN BÁSICA</h2>
+                      <p className="text-gray-700">Datos generales del atestado</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                        <label className="block text-sm font-bold text-gray-800 mb-1">NÚMERO DE ATESTADO</label>
+                        <div className="text-lg font-bold text-gray-900">{atestado?.numero || 'No especificado'}</div>
+                      </div>
+                      
+                      <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                        <label className="block text-sm font-bold text-gray-800 mb-1">FECHA</label>
+                        <div className="text-lg font-bold text-gray-900">{formatDate(atestado?.fecha)}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                        <label className="block text-sm font-bold text-gray-800 mb-1">FECHA DE CREACIÓN</label>
+                        <div className="text-lg font-bold text-gray-900">{formatDateTime(atestado?.created_at)}</div>
+                      </div>
+                      
+                      {atestado?.updated_at && (
+                        <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                          <label className="block text-sm font-bold text-gray-800 mb-1">ÚLTIMA MODIFICACIÓN</label>
+                          <div className="text-lg font-bold text-gray-900">{formatDateTime(atestado?.updated_at)}</div>
+                        </div>
                       )}
                     </div>
+                  </div>
+                  
+                  {atestado?.descripcion && (
+                    <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                      <label className="block text-sm font-bold text-gray-800 mb-2">DESCRIPCIÓN</label>
+                      <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">{atestado.descripcion}</div>
+                    </div>
+                  )}
+                </div>
 
+                {/* Diligencias como hojas numeradas */}
+                {diligencias.length === 0 ? (
+                  <div className="p-12 text-center text-gray-500">
+                    <svg className="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 className="text-xl font-semibold mb-2">Atestado sin diligencias</h3>
+                    <p className="text-gray-400">Agrega diligencias para completar el atestado</p>
+                  </div>
+                ) : (
+                  <div className="divide-y-2 divide-gray-300">
                     {diligencias.map((diligencia, index) => (
-                      <div key={diligencia.id} className="mb-6 p-4 border-l-4 border-blue-500 bg-blue-50">
-                        <div className="flex justify-between items-start mb-3">
-                          <h5 className="font-semibold text-blue-900">
-                            DILIGENCIA {index + 1}
-                            {diligencia.plantilla_nombre && (
-                              <span className="text-sm font-normal text-blue-700 ml-2">
-                                ({diligencia.plantilla_nombre})
-                              </span>
-                            )}
-                          </h5>
-                          <span className="text-xs text-blue-600">
-                            {formatDateTime(diligencia.created_at)}
-                          </span>
+                      <div key={diligencia.id} className="p-8 bg-white">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 bg-gray-700 text-white rounded flex items-center justify-center text-lg font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-gray-900">DILIGENCIA {index + 1}</h2>
+                            <div className="flex items-center gap-4 text-gray-700">
+                              {diligencia.plantilla_nombre && (
+                                <span className="font-medium">Plantilla: {diligencia.plantilla_nombre}</span>
+                              )}
+                              <span className="text-sm">Fecha: {formatDateTime(diligencia.created_at)}</span>
+                            </div>
+                          </div>
                         </div>
                         
-                        <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                          {diligencia.texto_final || 'Sin contenido'}
+                        <div className="bg-gray-50 p-6 rounded border-2 border-gray-200">
+                          <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-justify font-mono text-sm">
+                            {diligencia.texto_final || 'Sin contenido'}
+                          </div>
                         </div>
 
                         {diligencia.valores && diligencia.valores.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-blue-200">
-                            <p className="text-xs text-blue-600 mb-2">Variables utilizadas:</p>
-                            <div className="flex flex-wrap gap-1">
+                          <div className="mt-4 bg-gray-100 p-4 rounded border border-gray-300">
+                            <h4 className="text-sm font-bold text-gray-800 mb-2">Palabras clave utilizadas:</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {diligencia.valores.map((valor, idx) => (
-                                <span key={idx} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                                  {valor.variable}: {valor.valor || '(vacío)'}
-                                </span>
+                                <div key={idx} className="bg-white p-2 rounded border border-gray-200">
+                                  <span className="text-xs font-bold text-gray-700">{valor.variable}:</span>
+                                  <span className="text-sm text-gray-900 ml-2">{valor.valor || '(vacío)'}</span>
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -663,19 +685,29 @@ const AtestadoDetail = () => {
                     ))}
                   </div>
                 )}
+
+                {/* Pie del documento */}
+                <div className="bg-gray-200 p-6 text-center border-t-2 border-gray-400">
+                  <p className="text-sm text-gray-700 font-medium">
+                    Documento generado el {formatDateTime(new Date().toISOString())}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Total de hojas: {diligencias.length + 1} (1 información básica + {diligencias.length} diligencias)
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal para agregar diligencia */}
+      {/* Modal para agregar diligencia - SIN VARIABLES */}
       {showAddDiligenciaModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
-            <div className="p-4 border-b">
+            <div className="p-4 border-b bg-gray-50">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Seleccionar Plantilla</h3>
+                <h3 className="text-lg font-semibold text-gray-800">Seleccionar Plantilla</h3>
                 <button
                   onClick={() => setShowAddDiligenciaModal(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -697,133 +729,108 @@ const AtestadoDetail = () => {
             
             <div className="p-4 max-h-96 overflow-y-auto">
               <div className="space-y-3">
-                {plantillasFiltradas.map(plantilla => {
-                  const variables = extractVariables(plantilla.content || '');
-                  return (
-                    <div
-                      key={plantilla.id}
-                      onClick={() => handleAddDiligencia(plantilla)}
-                      className="p-3 border rounded cursor-pointer hover:bg-gray-50 hover:border-blue-300 transition-colors"
-                    >
-                      <h4 className="font-medium text-sm mb-1">{plantilla.name}</h4>
-                      <p className="text-xs text-gray-600 mb-2">
-                        {plantilla.description || 'Sin descripción'}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>Variables: {variables.length}</span>
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                          Seleccionar
-                        </span>
-                      </div>
+                {plantillasFiltradas.map(plantilla => (
+                  <div
+                    key={plantilla.id}
+                    className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                    onClick={async () => {
+                      try {
+                        const diligenciaData = {
+                          templateId: plantilla.id,
+                          values: [],
+                          previewText: plantilla.content || ''
+                        };
+
+                        await apiService.createDiligencia(id, diligenciaData);
+                        await loadData();
+
+                        setShowAddDiligenciaModal(false);
+                        setSearchPlantillas('');
+
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Éxito',
+                          text: 'Diligencia creada correctamente',
+                          timer: 2000,
+                          showConfirmButton: false
+                        });
+                      } catch (error) {
+                        console.error('Error al crear diligencia:', error);
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'Error',
+                          text: 'Error al crear la diligencia'
+                        });
+                      }
+                    }}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-semibold text-gray-900">{plantilla.name}</h4>
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        {extractVariables(plantilla.content || '').length} variables
+                      </span>
                     </div>
-                  );
-                })}
+                    
+                    {plantilla.description && (
+                      <p className="text-sm text-gray-600 mb-2">{plantilla.description}</p>
+                    )}
+                    
+                    <div className="text-xs text-gray-500 line-clamp-2">
+                      {plantilla.content || 'Sin contenido'}
+                    </div>
+                  </div>
+                ))}
               </div>
-              
-              {plantillasFiltradas.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <p className="text-sm">No se encontraron plantillas</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal para variables de plantilla individual */}
-      {showVariablesModal && selectedPlantilla && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
-            <div className="p-4 border-b">
-              <h3 className="text-lg font-semibold">Completar Variables</h3>
-              <p className="text-sm text-gray-600">Plantilla: {selectedPlantilla.name}</p>
-            </div>
-            
-            <div className="p-4 max-h-96 overflow-y-auto">
-              {extractVariables(selectedPlantilla.content || '').map(variable => (
-                <div key={variable} className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {variable}
-                  </label>
-                  <input
-                    type="text"
-                    value={plantillaValues[variable] || ''}
-                    onChange={(e) => setPlantillaValues(prev => ({
-                      ...prev,
-                      [variable]: e.target.value
-                    }))}
-                    className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={`Ingrese valor para ${variable}`}
-                  />
-                </div>
-              ))}
-            </div>
-            
-            <div className="p-4 border-t flex justify-end gap-2">
-              <button
-                onClick={() => {
-                  setShowVariablesModal(false);
-                  setSelectedPlantilla(null);
-                  setPlantillaValues({});
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => createDiligenciaFromPlantilla(selectedPlantilla, plantillaValues)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                Crear Diligencia
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal para variables unificadas */}
+      {/* Modal para asignar variables unificadas */}
       {showUnifiedVariablesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
-            <div className="p-4 border-b">
-              <h3 className="text-lg font-semibold">Asignar Variables Globales</h3>
-              <p className="text-sm text-gray-600">
+            <div className="p-4 border-b bg-gray-50">
+              <h3 className="text-lg font-semibold text-gray-800">Asignar Palabras Clave</h3>
+              <p className="text-sm text-gray-600 mt-1">
                 Estas variables se aplicarán a todas las diligencias que las contengan
               </p>
             </div>
             
             <div className="p-4 max-h-96 overflow-y-auto">
-              {Object.keys(allVariables).map(variable => (
-                <div key={variable} className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {variable}
-                  </label>
-                  <input
-                    type="text"
-                    value={unifiedVariables[variable] || ''}
-                    onChange={(e) => setUnifiedVariables(prev => ({
-                      ...prev,
-                      [variable]: e.target.value
-                    }))}
-                    className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder={`Ingrese valor para ${variable}`}
-                  />
-                </div>
-              ))}
+              <div className="space-y-4">
+                {Object.keys(allVariables).map(variable => (
+                  <div key={variable}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {variable}
+                    </label>
+                    <input
+                      type="text"
+                      value={unifiedVariables[variable] || ''}
+                      onChange={(e) => setUnifiedVariables(prev => ({
+                        ...prev,
+                        [variable]: e.target.value
+                      }))}
+                      className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder={`Valor para ${variable}`}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
             
-            <div className="p-4 border-t flex justify-end gap-2">
+            <div className="p-4 border-t bg-gray-50 flex justify-end gap-2">
               <button
                 onClick={() => setShowUnifiedVariablesModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSaveUnifiedVariables}
-                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors"
               >
-                Aplicar a Todas las Diligencias
+                Asignar Variables
               </button>
             </div>
           </div>
@@ -833,50 +840,52 @@ const AtestadoDetail = () => {
       {/* Modal para editar diligencia */}
       {showEditModal && editingDiligencia && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
-            <div className="p-4 border-b">
-              <h3 className="text-lg font-semibold">Editar Diligencia</h3>
-              <p className="text-sm text-gray-600">
-                {editingDiligencia.plantilla_nombre || 'Diligencia personalizada'}
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b bg-gray-50">
+              <h3 className="text-lg font-semibold text-gray-800">Editar Diligencia</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {editingDiligencia.plantilla_nombre || 'Diligencia sin plantilla'}
               </p>
             </div>
             
             <div className="p-4 max-h-96 overflow-y-auto">
               {editingDiligencia.plantilla_content ? (
-                extractVariables(editingDiligencia.plantilla_content).map(variable => (
-                  <div key={variable} className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {variable}
-                    </label>
-                    <input
-                      type="text"
-                      value={editValues[variable] || ''}
-                      onChange={(e) => setEditValues(prev => ({
-                        ...prev,
-                        [variable]: e.target.value
-                      }))}
-                      className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder={`Ingrese valor para ${variable}`}
-                    />
-                  </div>
-                ))
+                <div className="space-y-4">
+                  {extractVariables(editingDiligencia.plantilla_content).map(variable => (
+                    <div key={variable}>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {variable}
+                      </label>
+                      <input
+                        type="text"
+                        value={editValues[variable] || ''}
+                        onChange={(e) => setEditValues(prev => ({
+                          ...prev,
+                          [variable]: e.target.value
+                        }))}
+                        className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={`Valor para ${variable}`}
+                      />
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  <p className="text-sm">Esta diligencia no tiene variables editables</p>
+                  <p>Esta diligencia no tiene variables para editar</p>
                 </div>
               )}
             </div>
             
-            <div className="p-4 border-t flex justify-end gap-2">
+            <div className="p-4 border-t bg-gray-50 flex justify-end gap-2">
               <button
                 onClick={handleCancelEdit}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSaveEditDiligencia}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
               >
                 Guardar Cambios
               </button>
