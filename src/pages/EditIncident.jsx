@@ -104,7 +104,7 @@ const EditIncident = () => {
             text: 'No se ha podido cerrar incidencia.',
             confirmButtonText: 'Aceptar'
           });
-          setIsSubmitting(true);
+          setIsSubmitting(false);
           console.log("No se ha podido cerrar incidencia")
         }
       }
@@ -240,7 +240,7 @@ const handleDniBlur = async (e) => {
             text: `Se ha añadido automáticamente a la incidencia.`,
             confirmButtonText: 'Aceptar'
           });
-          setIsSubmitting(true);
+          // No necesitamos setIsSubmitting aquí ya que no estamos enviando el formulario principal
         }
         // Limpia el formulario
         setNuevaPersona({
@@ -513,8 +513,11 @@ const handleMatriculaBlur = async (e) => {
       confirmButtonText: 'Sí, actualizar',
       cancelButtonText: 'Cancelar'
     });
-    setIsSubmitting(true);
-    if (!result.isConfirmed) return;
+
+    if (!result.isConfirmed) {
+      setIsSubmitting(false);
+      return;
+    }
 
     // Validación de campos obligatorios
     const camposObligatorios = [
@@ -530,7 +533,8 @@ const handleMatriculaBlur = async (e) => {
         text: `Por favor, completa el campo: ${campoFaltante.label}`,
         confirmButtonText: 'Aceptar'
       });
-      setIsSubmitting(true);
+      setIsSubmitting(false);
+      return;
     }
     // Validación personas y vehículos
     for (let i = 0; i < personas.length; i++) {
@@ -542,7 +546,8 @@ const handleMatriculaBlur = async (e) => {
           text: `La persona ${i + 1} debe tener todos los campos completos.`,
           confirmButtonText: 'Aceptar'
         });
-        setIsSubmitting(true);
+        setIsSubmitting(false);
+        return;
       }
     }
     for (let i = 0; i < vehiculos.length; i++) {
@@ -554,7 +559,8 @@ const handleMatriculaBlur = async (e) => {
           text: `El vehículo ${i + 1} debe tener todos los campos completos.`,
           confirmButtonText: 'Aceptar'
         });
-        setIsSubmitting(true);
+        setIsSubmitting(false);
+        return;
       }
     }
 
@@ -609,7 +615,7 @@ const handleMatriculaBlur = async (e) => {
           text: response.message || 'No se pudo actualizar la incidencia.',
           confirmButtonText: 'Aceptar'
         });
-        setIsSubmitting(true);
+        setIsSubmitting(false);
       }
     } catch (error) {
       Swal.close();
@@ -619,7 +625,7 @@ const handleMatriculaBlur = async (e) => {
         text: error.response?.data?.message || 'No se pudo actualizar la incidencia.',
         confirmButtonText: 'Aceptar'
       });
-      setIsSubmitting(true);
+      setIsSubmitting(false);
     }
   };
 
