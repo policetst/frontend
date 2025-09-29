@@ -58,21 +58,21 @@ const AtestadosList = () => {
           <div className="flex gap-3">
             <Link 
               to="/plantillas" 
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition-colors"
+              className="bg-purple-600 text-white px-4 py-2 rounded text-sm hover:bg-purple-700 transition-colors"
             >
-              Gestionar Plantillas
+              Diligencias
             </Link>
             <Link 
               to="/atestados/nuevo" 
-              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition-colors"
+              className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 transition-colors"
             >
-              + Nuevo Atestado
+            Crear Atestado
             </Link>
           </div>
         </div>
 
         {/* Filtros de búsqueda */}
-        <div className="bg-white rounded-lg shadow-sm border mb-6 p-6">
+        <div className="bg-white rounded shadow-sm border mb-6 p-6">
           <h2 className="text-lg font-semibold mb-4">Filtros de búsqueda</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -82,7 +82,7 @@ const AtestadosList = () => {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Buscar por número o descripción..."
-                className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -91,14 +91,14 @@ const AtestadosList = () => {
                 type="date"
                 value={filtroFecha}
                 onChange={(e) => setFiltroFecha(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
         </div>
 
         {/* Lista de atestados */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-white rounded shadow-sm border">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Lista de Atestados</h2>
           </div>
@@ -115,7 +115,7 @@ const AtestadosList = () => {
               {!busqueda && !filtroFecha && (
                 <Link 
                   to="/atestados/nuevo" 
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
                 >
                   Crear primer atestado
                 </Link>

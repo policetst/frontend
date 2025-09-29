@@ -74,11 +74,11 @@ function Login() {
     <div className="min-h-screen">
       {/* Desktop */}
       <div className="hidden lg:grid grid-cols-2 min-h-screen">
-        <div className="flex flex-col items-center justify-center p-8 bg-white">
+        <div className="flex flex-col items-center justify-center p-8 bg-gray-200">
           <div className="w-2/3 flex justify-center items-center">
-            <div className="w-full p-6 rounded border border-gray-400 shadow-xl">
+            <div className="w-full p-6 rounded border bg-white border-gray-400 shadow-xl">
               <div className="flex justify-center p-8 bg-[#002856] rounded-t-lg">
-                <img src="/SIL-logo-tech.png" alt="Logo" className="mb-6 w-50" />
+                <img src="/SIL-logo-tech.png" alt="Logo" className="mb-6 w-65" />
               </div>
               <form className="mt-8" onSubmit={handleSubmit}>
                 <div className="space-y-5">
@@ -92,8 +92,10 @@ function Login() {
                       name="username"
                       type="text"
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
-                      border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
+                      className="w-full p-3 text-black transition-all duration-200 cursor-default
+                      border-gray-400 border-1 rounded-md bg-gray-50 
+                      focus:outline-none focus:border-[#002856] focus:bg-white
+                      hover:bg-gray-100"
                     />
                   </div>
 
@@ -101,7 +103,7 @@ function Login() {
                     <div className="flex justify-between items-center">
                       <label htmlFor="password" className="text-base font-medium text-gray-900">Contraseña</label>
                       <Link to="/forgot" className="text-sm font-medium text-sky-500 underline">
-                        Olvidaste tu contraseña
+                        Recuperar contraseña
                       </Link>
                     </div>
                     <div className="relative text-gray-400 focus-within:text-gray-600">
@@ -114,8 +116,9 @@ function Login() {
                         type={visible ? 'text' : 'password'}
                         onChange={(e) => setPassword(e.target.value)}
                         value={password}
-                        className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 
-                        border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-gray-700 focus:bg-white"
+                        className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 cursor-default
+                        border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-[#002856] focus:bg-white 
+                        hover:bg-gray-200"
                       />
                       <button
                         type="button"
