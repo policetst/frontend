@@ -175,7 +175,7 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
                     className={`w-full mt-2 px-4 py-1 rounded 
                       ${isClosed 
                         ? 'bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white cursor-default' 
-                        : 'bg-[#002856] text-white hover:bg-[#0092CA] active:bg-[#3AAFA9]'}
+                        : 'bg-[#002856] text-white hover:bg-gray-300 active:bg-gray-100 hover:text-black active:text-black border active:border-black'}
                     `}
                   >
                     {isClosed ? 'Ver incidencia' : 'Editar incidencia'}

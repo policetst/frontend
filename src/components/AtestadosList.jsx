@@ -165,14 +165,14 @@ const AtestadosList = () => {
                         to={`/atestados/${atestado.id}/editar`} 
                         className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors"
                       >
-                        Editar
+                        Editar atestado
                       </Link>
-                      <Link
+                      {/* <Link
                         to={`/atestados/${atestado.id}/diligencias/nueva`} 
                         className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors"
                       >
                         + Diligencia
-                      </Link>
+                      </Link> */}
                     </div>
                   </div>
                 </div>
@@ -182,9 +182,9 @@ const AtestadosList = () => {
         </div>
 
         {/* Resumen */}
-        <div className="mt-6 text-center text-sm text-gray-600">
+        {/* <div className="mt-6 text-center text-sm text-gray-600">
           Mostrando {atestadosFiltrados.length} de {atestados.length} atestados
-        </div>
+        </div> */}
       </div>
     </div>
   );

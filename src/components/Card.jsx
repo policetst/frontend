@@ -17,7 +17,10 @@ function Card({ textoboton, urlimagen, descripcion, navto, alt, title }) { //* d
         <div className="flex justify-center">
           <Link
             to={navto}
-            className="inline-block text-center mt-5 px-6 py-2 w-50 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9]">
+            className="inline-block text-center mt-5 px-6 py-2 w-50 
+            bg-[#002856] text-white rounded border
+            hover:bg-gray-300 hover:text-black hover:border-[#002856]
+            active:bg-gray-100 active:text-black  active:border-gray-800">
             {textoboton}
           </Link>
         </div>

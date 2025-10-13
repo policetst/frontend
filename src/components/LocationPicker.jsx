@@ -30,13 +30,16 @@ function LocationPicker({ value, onLocationSelect }) {
   }
 
   return (
-    <div className="mt-2">
+    <div className="mt-1">
       <button
         type="button"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 min-h-[44px] touch-manipulation text-sm sm:text-base"
+        className="px-4 py-2 min-h-[4px] touch-manipulation text-sm sm:text-base
+        bg-[#002856] text-white rounded border
+        hover:bg-gray-300 hover:text-black hover:border-[#002856]
+        active:bg-gray-100 active:text-black  active:border-gray-800"
         onClick={() => setShowMap(true)}
       >
-        📍 Seleccionar en mapa
+      Seleccionar ubicación
       </button>
       {showMap && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center p-2">

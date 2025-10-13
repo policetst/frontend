@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/apiService';
+import { ArrowLeft } from 'lucide-react';
 
 const CrearAtestado = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     numero: '',
+    tipo: '',
     descripcion: '',
     fecha: new Date().toISOString().split('T')[0]
   });
@@ -48,13 +50,37 @@ const CrearAtestado = () => {
     }));
   };
 
+  const tipos = [
+    'Accidente de tráfico',
+    'Agresiones o amenazas',
+    'Desorden público',
+    'Robo a particular',
+    'Robo a comercio',
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-6">
         <div className="mb-6">
+          {/* 
+          Tomar el número de atestado que le vaya a corresponder 
+          */}
+          <div className='mb-4'>
+            <div className='flex items-center'>
+            <button
+            onClick={() => window.history.back()}
+            className='bg-gray-100 p-1 border border-gray-500 rounded '
+            >
+            <ArrowLeft/>
+            </button>
+            <p className='ml-3 text-lg'>Atrás</p>
+            </div>
+          </div>
+
           <h1 className="text-2xl font-bold text-gray-900">Crear Nuevo Atestado</h1>
           <p className="text-gray-600 mt-1">Complete la información básica del atestado</p>
         </div>
+        
         
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-6 border-b">
@@ -65,7 +91,7 @@ const CrearAtestado = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Número del Atestado *
+                  Nombre del atestado
                 </label>
                 <input
                   type="text"
@@ -76,6 +102,29 @@ const CrearAtestado = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Ej: 2024-001"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Tipo de atestado
+                </label>
+                <select
+                  type="text"
+                  name="tipo"
+                  value={formData.tipo}
+                  onChange={handleChange}
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ej: 2024-001"
+                >
+                  <option value="">
+                    
+                  </option>
+                  {tipos.map((tipo, idx) => (
+                    <option key={idx} value={tipo}>
+                      {tipo}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               
@@ -123,7 +172,7 @@ const CrearAtestado = () => {
             <div>
               <h3 className="text-sm font-semibold text-blue-800 mb-1">Información</h3>
               <p className="text-sm text-blue-700">
-                Una vez creado el atestado, podrás agregar diligencias y gestionar las variables necesarias.
+                Una vez creado el atestado, podrás agregar diligencias y asignar las claves necesarias.
                 El número del atestado debe ser único y seguir el formato establecido por su organización.
               </p>
             </div>
