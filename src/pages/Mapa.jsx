@@ -52,12 +52,12 @@ function Mapa() {
           placeholder="Buscar por número de incidencia"
           value={search}
           onChange={handleSearchChange}
-          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
+          className="w-full p-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
         />
         <select
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+          className="w-full p-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
           >
           <option value="">Filtrar por tipo</option>
             {[...new Set(incidents.map(i => i.type))].map(type => (
@@ -66,7 +66,7 @@ function Mapa() {
         </select>
 
 
-        <div className="mt-6 h-[500px] w-full">
+        <div className="mt-6 h-[600px] w-full border border-gray-400 rounded">
           <MapContainer
             center={[41.98, -1.27]}
             zoom={13}
@@ -80,7 +80,7 @@ function Mapa() {
             }}
           >
           <TileLayer
-            attribution='&copy; Arba Dev | SIL Tauste'
+            attribution='&copy; Arbadev | SIL Tauste'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           {filteredIncidents.map((incident) => {

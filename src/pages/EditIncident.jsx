@@ -638,16 +638,25 @@ const handleMatriculaBlur = async (e) => {
         {/* Formulario principal */}
         <div className="flex justify-center items-center">
           <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8">
-            <AddTeammate
-              incident_code={code}
-              team_mate_code={USER_CODE}
-              creator_user_code={creator_code}
-              team_mate={teammate}
-              onTeammateAdded={handleTeammateAdded}
-            />
-            <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white rounded-md shadow-md space-y-6">
+            <form onSubmit={handleSubmit} className="mx-auto p-4 bg-white border border-gray-400 rounded-sm shadow-md space-y-6">
               <div>
-                <h2 className="text-xl font-bold mb-2 text-center"> {code}</h2>
+                <div className="flex gap-4">
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex flex-col items-start">
+                      <h2 className="text-xl font-bold text-center">Incidencia:</h2>
+                      <h2 className="text-center">{code}</h2>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-end">
+                    <AddTeammate
+                      incident_code={code}
+                      team_mate_code={USER_CODE}
+                      creator_user_code={creator_code}
+                      team_mate={teammate}
+                      onTeammateAdded={handleTeammateAdded}
+                    />
+                  </div>
+                </div>
                 <hr className="border-t border-gray-300 my-4" />
                 <div className="mb-4">
                   <label className="block font-medium">Estado</label>
@@ -656,7 +665,7 @@ const handleMatriculaBlur = async (e) => {
                     value={form.status}
                     disabled={isFieldDisabled()}
                     onChange={handleStatusChange}
-                    className="w-full mt-1 p-2 border rounded-md"
+                    className="w-full mt-1 p-2 border border-gray-500 rounded-md"
                   >
                     <option value="Open">Abierta</option>
                     <option value="Closed">Cerrada</option>
@@ -674,7 +683,7 @@ const handleMatriculaBlur = async (e) => {
                         setForm({ ...form, location: e.target.value });
                       }
                     }}
-                    className={`w-full mt-1 p-2 border rounded-md ${
+                    className={`w-full mt-1 p-2 border border-gray-500 rounded-md ${
                       userdetails !== "Administrator" ? "bg-gray-100 cursor-not-allowed" : "bg-white"
                     }`}
                     placeholder="Latitud, Longitud"
@@ -691,7 +700,7 @@ const handleMatriculaBlur = async (e) => {
                   <Mapview chords={form.location} inc_code={code} />
                 </div>
                 {/* Contadores */}
-                <div className="flex justify-between mb-4">
+                {/* <div className="flex justify-between mb-4">
                   <div className="bg-blue-100 text-blue-800 rounded-lg px-4 py-2 text-sm font-medium flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -704,14 +713,14 @@ const handleMatriculaBlur = async (e) => {
                     </svg>
                     Vehículos: {vehiculos.length}
                   </div>
-                </div>
+                </div> */}
                 <div className="mb-4">
                   <label className="block font-medium">Tipo de incidencia</label>
                   <select
                     name="type"
                     value={form.type}
                     onChange={e => setForm({ ...form, type: e.target.value })}
-                    className={`w-full mt-1 p-2 border rounded-md ${isFieldDisabled() ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    className={`w-full mt-1 p-2 border border-gray-500 rounded-md ${isFieldDisabled() ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     disabled={isFieldDisabled()}
                   >
                     <option value="">-- Selecciona un tipo --</option>
@@ -728,10 +737,10 @@ const handleMatriculaBlur = async (e) => {
                     disabled={isFieldDisabled()}
                     onChange={e => setForm({ ...form, description: e.target.value })}
                     rows={4}
-                    className="w-full mt-1 p-2 border rounded-md"
+                    className="w-full mt-1 p-2 border border-gray-500 rounded-md"
                   />
                 </div>
-                <div className="flex items-center mb-4 p-4 bg-gray-50 mx-auto">
+                <div className="flex items-center mb-2 p-2 bg-gray-50 border border-gray-200 rounded mx-auto">
                   <div className="flex justify-between items-center w-full">
                     <div className="flex items-center justify-center">
                       <input
@@ -747,7 +756,10 @@ const handleMatriculaBlur = async (e) => {
                     <button
                       type="button"
                       onClick={handleReSend}
-                      className={`px-4 py-1 bg-[#002856] text-white rounded hover:bg-[#0092CA] active:bg-[#3AAFA9] ${isFieldDisabled() || form.brigade_field ? 'cursor-not-allowed opacity-50' : ''}`}
+                      className={`px-4 py-2
+                      bg-[#002856] text-white rounded border
+                      hover:bg-gray-300 hover:text-black hover:border-[#002856]
+                      active:bg-gray-100 active:text-black  active:border-gray-800 ${isFieldDisabled() || form.brigade_field ? 'cursor-not-allowed opacity-50' : ''}`}
                       disabled={isFieldDisabled() || form.brigade_field}
                     >
                       Reenviar
@@ -816,7 +828,10 @@ const handleMatriculaBlur = async (e) => {
                       <button
                       type="button"
                       onClick={agregarPersona}
-                      className={`mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400 ${isFieldDisabled() ? 'cursor-not-allowed opacity-50' : ''}`}
+                      className={`mt-2 px-13 py-2 
+                      bg-[#002856] text-white rounded border
+                      hover:bg-gray-300 hover:text-black hover:border-[#002856]
+                      active:bg-gray-100 active:text-black  active:border-gray-800 ${isFieldDisabled() ? 'cursor-not-allowed opacity-50' : ''}`}
                       disabled={isFieldDisabled()}
                     >
                         Agregar persona
@@ -914,7 +929,10 @@ const handleMatriculaBlur = async (e) => {
                     <button
                       type="button"
                       onClick={agregarVehiculo}
-                      className={`mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400 ${isFieldDisabled() ? 'cursor-not-allowed opacity-50' : ''}`}
+                      className={`mt-2 px-13 py-2 
+                      bg-[#002856] text-white rounded border
+                      hover:bg-gray-300 hover:text-black hover:border-[#002856]
+                      active:bg-gray-100 active:text-black  active:border-gray-800 ${isFieldDisabled() ? 'cursor-not-allowed opacity-50' : ''}`}
                       disabled={isFieldDisabled()}
                     >
                       Agregar vehículo
@@ -948,54 +966,54 @@ const handleMatriculaBlur = async (e) => {
                 )}
               </div>
               <hr className="border-t border-gray-300 mt-2 mb-4" />
-           {/* Sección de imágenes */}
-<div>
-  <h2 className="text-xl font-bold mb-2">
-    Imágenes ({existingImages.length + selectedImages.length})
-  </h2>
-  {/* Mostrar imágenes existentes */}
-  {existingImages.length > 0 && (
-    <div className="mb-4">
-      <div className="grid grid-cols-3 gap-4">
-        {existingImages.map((image, index) => (
-          <div key={index} className="relative group">
-            <img
-              src={image}
-              alt={`Imagen ${index + 1}`}
-              className="w-full h-40 object-cover rounded-md border border-gray-300 cursor-pointer"
-              onClick={() => openLightbox(image)}
-            />
-            <div className="absolute top-2 right-2">
-              <button
-                type="button"
-                disabled={isFieldDisabled()}
-                onClick={() => {
-                  if (isFieldDisabled()) return;
-                  setExistingImages(existingImages.filter((_, i) => i !== index));
-                  try { deleteImage(image); } catch (err) {}
-                }}
-                className={`bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity
-                  ${isFieldDisabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <XIcon className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )}
-  {/* Añadir imágenes nuevas */}
-  <ImageUpload onImagesChange={handleImagesChange} disabled={isFieldDisabled()} />
-</div>
+              {/* Sección de imágenes */}
+              <div>
+                <h2 className="text-xl font-bold mb-2">
+                  Imágenes ({existingImages.length + selectedImages.length})
+                </h2>
+                {/* Mostrar imágenes existentes */}
+                {existingImages.length > 0 && (
+                  <div className="mb-4">
+                    <div className="grid grid-cols-3 gap-4">
+                      {existingImages.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image}
+                            alt={`Imagen ${index + 1}`}
+                            className="w-full h-40 object-cover rounded-md border border-gray-300 cursor-pointer"
+                            onClick={() => openLightbox(image)}
+                          />
+                          <div className="absolute top-2 right-2">
+                            <button
+                              type="button"
+                              disabled={isFieldDisabled()}
+                              onClick={() => {
+                                if (isFieldDisabled()) return;
+                                setExistingImages(existingImages.filter((_, i) => i !== index));
+                                try { deleteImage(image); } catch (err) {}
+                              }}
+                              className={`bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity
+                                ${isFieldDisabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <XIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Añadir imágenes nuevas */}
+                <ImageUpload onImagesChange={handleImagesChange} disabled={isFieldDisabled()} />
+              </div>
 
               <button
                 type="submit"
                 disabled={isFieldDisabled() || isSubmitting}
-                className={`w-full px-4 py-2 rounded text-white 
+                className={`w-full px-4 py-3 rounded border
                 ${isFieldDisabled() || isSubmitting 
                   ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-blue-600 hover:bg-blue-700'}
+                  : 'bg-[#002856] text-white hover:bg-gray-300 hover:text-black hover:border-[#002856]'}
                   `}
                 >
                   {isFieldDisabled() 
