@@ -78,9 +78,8 @@ function AddTeammate({ incident_code, team_mate_code, creator_user_code, team_ma
         {loading ? 'Añadiendo...' : 'Añadirte como compañero'}
       </button>
       {team_mate && (
-        <div className='mt-2 text-sm text-gray-600'>
+        <div className='mt-1 text-sm text-gray-600'>
           Compañero asignado: {team_mate}
-          <hr className='w-full border-gray-300 my-2' />
         </div>
       )}
     </div>

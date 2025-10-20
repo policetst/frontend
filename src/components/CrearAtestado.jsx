@@ -78,16 +78,17 @@ const CrearAtestado = () => {
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900">Crear Nuevo Atestado</h1>
-          <p className="text-gray-600 mt-1">Complete la información básica del atestado</p>
+          <p className="text-gray-600 mt-1">Rellena información primordial del atestado</p>
         </div>
         
         
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="p-6 border-b">
+        <div className="mx-auto p-4 bg-white border border-gray-400 rounded-sm shadow-md space-y-6">
+          <div>
             <h2 className="text-lg font-semibold text-gray-800"><p>Atestado: </p><p>2024-002</p></h2>
+            <hr className="border-t border-gray-300 my-4" />
           </div>
           
-          <form onSubmit={handleSubmit} className="p-6">
+          <form onSubmit={handleSubmit} className="">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -99,7 +100,7 @@ const CrearAtestado = () => {
                   value={formData.numero}
                   onChange={handleChange}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-500 rounded px-3 py-2"
                   placeholder="Ej: 2024-001"
                 />
               </div>
@@ -113,7 +114,7 @@ const CrearAtestado = () => {
                   value={formData.tipo}
                   onChange={handleChange}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-500 rounded px-3 py-2"
                   placeholder="Ej: 2024-001"
                 >
                   <option value="">
@@ -139,7 +140,7 @@ const CrearAtestado = () => {
                 value={formData.descripcion}
                 onChange={handleChange}
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-500 rounded px-3 py-2"
                 placeholder="Descripción general del atestado..."
               />
             </div>
@@ -156,10 +157,13 @@ const CrearAtestado = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className={`px-4 py-1 rounded
+                ${loading ? 'bg-gray-100 border border-black text-black cursor-not-allowed' : 'bg-[#002856] text-white rounded border hover:bg-gray-300 hover:text-black hover:border-[#002856]'}
+                  `}
+                >
                 {loading ? 'Creando...' : 'Crear Atestado'}
               </button>
+              
             </div>
           </form>
         </div>

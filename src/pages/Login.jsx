@@ -76,7 +76,7 @@ function Login() {
       <div className="hidden lg:grid grid-cols-2 min-h-screen">
         <div className="flex flex-col items-center justify-center p-8 bg-gray-200">
           <div className="w-2/3 flex justify-center items-center">
-            <div className="w-full p-6 rounded border bg-white border-gray-400 shadow-xl">
+            <div className="w-full max-w-xl p-6 rounded border bg-white border-gray-400 shadow-xl">
               <div className="flex justify-center p-8 bg-[#002856] rounded-t-lg">
                 <img src="/SIL-logo-tech.png" alt="Logo" className="mb-6 w-65" />
               </div>
