@@ -161,7 +161,7 @@ function Login() {
           <img src="/SIL-logo-tech.png" alt="Logo de SIL" className="m-5" />
         </div>
 
-        <div className='w-full h-1.5 bg-gradient-to-r from-red-500 via-yellow-300 to-red-500'></div>
+        <div className='w-full h-1 bg-gradient-to-r from-red-500 via-yellow-300 to-red-500'></div>
 
         {/* <div className='w-full h-1 flex justify-center'>
           <div className='bg-red-500 w-45'></div>
