@@ -69,15 +69,17 @@ function AddTeammate({ incident_code, team_mate_code, creator_user_code, team_ma
     <div className='flex flex-col items-center justify-center'>
       <button
         disabled={buttonDisabled}
-        className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50'
+        className='mt-2 px-4 py-2 
+                bg-[#002856] text-white rounded border
+                hover:bg-gray-300 hover:text-black hover:border-[#002856]
+                active:bg-gray-100 active:text-black  active:border-gray-800'
         onClick={add_teammate}
       >
         {loading ? 'Añadiendo...' : 'Añadirte como compañero'}
       </button>
       {team_mate && (
-        <div className='mt-2 text-sm text-gray-600'>
+        <div className='mt-1 text-sm text-gray-600'>
           Compañero asignado: {team_mate}
-          <hr className='w-full border-gray-300 my-2' />
         </div>
       )}
     </div>

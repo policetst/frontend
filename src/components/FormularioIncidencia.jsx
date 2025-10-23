@@ -557,7 +557,10 @@ const FormularioIncidencia = () => {
               <button
                 type="button"
                 onClick={agregarPersona}
-                className="mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400"
+                className="mt-2 px-13 py-2 
+                bg-[#002856] text-white rounded border
+                hover:bg-gray-300 hover:text-black hover:border-[#002856]
+                active:bg-gray-100 active:text-black  active:border-gray-800"
               >
                 Agregar persona
               </button>
@@ -645,7 +648,10 @@ const FormularioIncidencia = () => {
                 <button
                   type="button"
                   onClick={agregarVehiculo}
-                  className="mt-2 px-13 py-2 bg-blue-900 text-white rounded hover:bg-cyan-600 active:bg-gray-400"
+                  className="mt-2 px-13 py-2 
+                  bg-[#002856] text-white rounded border
+                  hover:bg-gray-300 hover:text-black hover:border-[#002856]
+                  active:bg-gray-100 active:text-black  active:border-gray-800"
                 >
                   Agregar vehículo
                 </button>
@@ -692,8 +698,8 @@ const FormularioIncidencia = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full px-4 py-3 rounded text-white
-            ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-900 hover:bg-cyan-600'}
+            className={`w-full px-4 py-3 rounded
+            ${isSubmitting ? 'bg-gray-100 border border-black text-black cursor-not-allowed' : 'bg-[#002856] text-white rounded border hover:bg-gray-300 hover:text-black hover:border-[#002856]'}
               `}
             >
               {isSubmitting ? 'Creando...' : 'Crear incidencia'}
@@ -703,5 +709,6 @@ const FormularioIncidencia = () => {
     </div>
   );
 };
+
 
 export default FormularioIncidencia;
