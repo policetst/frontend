@@ -92,10 +92,9 @@ function Login() {
                       name="username"
                       type="text"
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full p-3 text-black transition-all duration-200 cursor-default
-                      border-gray-400 border-1 rounded-md bg-gray-50 
-                      focus:outline-none focus:border-[#002856] focus:bg-white
-                      hover:bg-gray-100"
+                      className="w-full p-3 text-black placeholder-gray-500 transition-all duration-200 cursor-default
+                        border border-gray-400 rounded-md bg-gray-50 focus:outline-none focus:border-[#002856] focus:bg-white 
+                        hover:bg-gray-200"
                     />
                   </div>
 
@@ -137,7 +136,9 @@ function Login() {
 
                   <button
                     type="submit"
-                    className="w-full px-4 py-4 font-semibold text-white bg-[#002856] rounded-md transition-all hover:opacity-80"
+                    className="w-full px-4 py-4 text-white bg-[#002856] rounded-md border
+                  hover:opacity-80
+                  active:bg-gray-100 active:text-black  active:border-gray-800"
                   >
                     Acceder
                   </button>
@@ -159,8 +160,16 @@ function Login() {
         <div className="flex justify-center bg-[#002856]">
           <img src="/SIL-logo-tech.png" alt="Logo de SIL" className="m-5" />
         </div>
+        <div className='w-full h-1 flex justify-center'>
+          <div className='bg-red-500 w-45'></div>
+          <div className='bg-yellow-500 w-45'></div>
+          <div className='bg-red-500 w-45'></div>
+        </div>
+ 
 
-        <div className="flex justify-center items-center">
+
+
+        <div className="flex justify-center mt-10">
           <div className="w-3/4 p-7 mt-[10%] rounded border border-gray-400 bg-white shadow-xl">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <h2 className="text-xl font-semibold text-center">Iniciar sesión</h2>
@@ -213,7 +222,9 @@ function Login() {
 
               <button
                 type="submit"
-                className="w-full px-4 py-4 font-semibold text-white bg-[#002856] rounded-md transition-all hover:opacity-80"
+                className="w-full px-4 py-4 text-white bg-[#002856] rounded border
+                  hover:bg-gray-300 hover:text-black hover:border-[#002856]
+                  active:bg-gray-100 active:text-black  active:border-gray-800"
               >
                 Acceder
               </button>
