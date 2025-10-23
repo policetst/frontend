@@ -160,15 +160,14 @@ function Login() {
         <div className="flex justify-center bg-[#002856]">
           <img src="/SIL-logo-tech.png" alt="Logo de SIL" className="m-5" />
         </div>
-        <div className='w-full h-1 flex justify-center'>
+
+        <div className='w-full h-1.5 bg-gradient-to-r from-red-500 via-yellow-300 to-red-500'></div>
+
+        {/* <div className='w-full h-1 flex justify-center'>
           <div className='bg-red-500 w-45'></div>
           <div className='bg-yellow-500 w-45'></div>
           <div className='bg-red-500 w-45'></div>
-        </div>
- 
-
-
-
+        </div> */}
         <div className="flex justify-center mt-10">
           <div className="w-3/4 p-7 mt-[10%] rounded border border-gray-400 bg-white shadow-xl">
             <form className="space-y-4" onSubmit={handleSubmit}>
