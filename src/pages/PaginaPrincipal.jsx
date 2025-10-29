@@ -6,11 +6,9 @@ function PaginaPrincipal() {
 
   
   return (
-    <div className="flex justify-center items-center sm:mt-25">
-      <div className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 p-4'>
+    <div className="flex justify-center">
+      <div className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4'>
         
-
-
         <Card 
         textoboton="Crear Incidencia"
         urlimagen="/crear-incidencia.jpg" descripcion="Registra una nueva incidencia" 
