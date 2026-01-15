@@ -3,6 +3,7 @@
   import { useCookies } from 'react-cookie';
   import '../index.css';
   import Notifications from '../components/Notifications';
+  import AIAssistant from '../components/AIAssistant';
   import { checkLoginStatus } from '../funcs/Users';
   import {
     Menu,
@@ -253,6 +254,9 @@ console.log('Estado de inicio de sesión:', isLoggedIn.must_change_password);
             </div>
           </footer>
         </div>
+
+        {/* AI Assistant - disponible en toda la aplicación */}
+        <AIAssistant />
       </div>
     );
   }

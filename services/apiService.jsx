@@ -163,6 +163,29 @@ class ApiService {
     });
     return response.data;
   }
+
+  // ==================== MÉTODOS PARA ASISTENTE IA ====================
+
+  async chatWithAI(message, conversationHistory = []) {
+    console.log('🤖 Llamando chatWithAI...', { message: message.substring(0, 50) + '...' });
+    const response = await this.api.post('/ai/chat', {
+      message,
+      conversationHistory
+    });
+    return response.data;
+  }
+
+  async getAISummary() {
+    console.log('🤖 Llamando getAISummary...');
+    const response = await this.api.get('/ai/summary');
+    return response.data;
+  }
+
+  async getAIPatternAnalysis() {
+    console.log('🤖 Llamando getAIPatternAnalysis...');
+    const response = await this.api.get('/ai/analyze-patterns');
+    return response.data;
+  }
 }
 
 export default new ApiService();
