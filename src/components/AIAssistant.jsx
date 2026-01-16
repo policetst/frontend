@@ -12,6 +12,7 @@ const AIAssistant = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -176,8 +177,12 @@ const AIAssistant = () => {
   }
 
   return (
-    <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${isMinimized ? 'w-72' : 'w-96'}`}>
-      <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+    <div className={`fixed z-50 transition-all duration-300 ${
+      isExpanded 
+        ? 'top-4 left-4 right-4 bottom-4' 
+        : `bottom-6 right-6 ${isMinimized ? 'w-72' : 'w-96'}`
+    }`}>
+      <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 h-full flex flex-col">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -195,8 +200,22 @@ const AIAssistant = () => {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            {!isMinimized && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                title={isExpanded ? 'Contraer' : 'Ampliar'}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isExpanded ? "M9 9h6m0 0v6m0-6l-6 6M15 3h6m0 0v6m0-6l-6 6M9 21H3m0 0v-6m0 6l6-6" : "M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"} />
+                </svg>
+              </button>
+            )}
             <button
-              onClick={() => setIsMinimized(!isMinimized)}
+              onClick={() => {
+                setIsMinimized(!isMinimized);
+                if (isExpanded) setIsExpanded(false);
+              }}
               className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
               title={isMinimized ? 'Expandir' : 'Minimizar'}
             >
@@ -214,7 +233,11 @@ const AIAssistant = () => {
               </svg>
             </button>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                setIsExpanded(false);
+                setIsMinimized(false);
+              }}
               className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
               title="Cerrar"
             >
@@ -228,7 +251,7 @@ const AIAssistant = () => {
         {!isMinimized && (
           <>
             {/* Messages */}
-            <div className="h-80 overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <div className={`${isExpanded ? 'flex-1' : 'h-80'} overflow-y-auto p-4 space-y-4 bg-gray-50`}>
               {messages.map((message, index) => (
                 <div
                   key={index}
