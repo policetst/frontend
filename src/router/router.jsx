@@ -23,6 +23,7 @@ import EditUser from '../pages/EditUser';
 import DiligenciaForm from "../components/DiligenciaForm";
 import AtestadosList from "../components/AtestadosList";
 import AtestadoDetail from "../components/AtestadosDetail";
+import AtestadoDetailEnhanced from "../components/AtestadoDetailEnhanced";
 import AtestadosDetailSimple from "../components/AtestadosDetailSimple";
 import CrearAtestado from "../components/CrearAtestado";
 import EditarAtestado from "../components/EditarAtestado";
@@ -104,6 +105,10 @@ const ROUTER = createHashRouter([
       },
       {
         path: "/atestados/:id",
+        element: <AtestadoDetailEnhanced />
+      },
+      {
+        path: "/atestados/:id/detail",
         element: <AtestadoDetail />
       },
       {

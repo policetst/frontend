@@ -5,6 +5,7 @@
  import DraggableDiligencia from './DraggableDiligencia';
  import AtestadoPrintView from './AtestadoPrintView';
  import AtestadoTicketView from './AtestadoTicketView';
+ import CroquisDiligencia from './CroquisDiligencia';
  import { extractVariables, replaceVariables } from '../utils/types';
  import Swal from 'sweetalert2';
  import './AtestadosDetail.css';
@@ -461,6 +462,16 @@
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Agregar
+              </button>
+              
+              <button
+                onClick={() => setShowCroquisModal(true)}
+                className="bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700 flex items-center justify-center gap-1 transition-colors"
+                title="Añadir Croquis Policial"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
               </button>
               
               {diligencias.length > 1 && (

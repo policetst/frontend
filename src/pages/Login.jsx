@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { EyeOff, Eye } from 'lucide-react';
 import '../index.css';
 
-const LOGIN_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000';
+const LOGIN_URL = import.meta.env.VITE_BASE_URL;
 
 function Login() {
   document.title = 'SIL Tauste - Login';

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/apiService';
+import RealtimeKeywordDetector from './RealtimeKeywordDetector';
 import { ArrowLeft } from 'lucide-react';
 
 const CrearAtestado = () => {
@@ -13,6 +14,7 @@ const CrearAtestado = () => {
     descripcion: '',
     fecha: new Date().toISOString().split('T')[0]
   });
+  const [detectedKeywords, setDetectedKeywords] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +32,11 @@ const CrearAtestado = () => {
     setLoading(true);
 
     try {
-      const response = await apiService.createAtestado(formData);
+      const dataToSend = {
+        ...formData,
+        palabras_clave: detectedKeywords
+      };
+      const response = await apiService.createAtestado(dataToSend);
       const atestadoId = response.atestado?.id || response.id;
       navigate(`/atestados/${atestadoId}`);
     } catch (error) {
@@ -143,6 +149,18 @@ const CrearAtestado = () => {
                 className="w-full border border-gray-500 rounded px-3 py-2"
                 placeholder="Descripción general del atestado..."
               />
+              
+              {/* Real-time keyword detection */}
+              {formData.descripcion && (
+                <div className="mt-3">
+                  <RealtimeKeywordDetector
+                    text={formData.descripcion}
+                    onKeywordsDetected={setDetectedKeywords}
+                    showInline={true}
+                    autoAdd={false}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t">
