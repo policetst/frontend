@@ -373,13 +373,13 @@ function AgentsStatsPanel({ incidents }) {
                   <span title="Incidencias con intervención de brigada">Brigada</span>
                 </th>
                 <th className="px-3 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
-                  <span title="Porcentaje de incidencias creadas respecto al total">% Total</span>
+                  <span title="% de incidencias en las que participó el agente (como creador o acompañante)">% Particip.</span>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {agentStats.map((ag, idx) => {
-                const pct = totalIncidencias > 0 ? ((ag.creadas / totalIncidencias) * 100).toFixed(1) : "0.0";
+                const pct = totalIncidencias > 0 ? ((ag.participadas / totalIncidencias) * 100).toFixed(1) : "0.0";
                 const isTop = idx === 0 && ag.creadas > 0;
                 return (
                   <tr

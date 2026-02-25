@@ -10,14 +10,14 @@ function SectionHeader({ icon, title, subtitle, color = "blue" }) {
   };
   const c = colors[color];
   return (
-    <div className={`flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm mb-5`}>
+    <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm mb-5">
       <div className={`w-1 self-stretch rounded-full flex-shrink-0 ${c.bar}`} />
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${c.icon}`}>
         {icon}
       </div>
       <div className="min-w-0">
         <h2 className={`text-base font-bold leading-tight ${c.title}`}>{title}</h2>
-        <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
+        {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
       </div>
     </div>
   );
@@ -44,9 +44,6 @@ function Estadisticas() {
         {/* ── Cabecera de página ── */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Estadísticas</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Consulta y analiza el registro de incidencias por agente, tipo y período.
-          </p>
           <hr className="border-t border-gray-200 mt-4" />
         </div>
 
@@ -66,7 +63,6 @@ function Estadisticas() {
                 icon="📊"
                 color="blue"
                 title="Mis estadísticas"
-                subtitle="Incidencias registradas por ti, agrupadas por mes o día. Filtra por año, mes y tipo."
               />
               <AgentEstadistic data={incidents} user_code={localStorage.getItem('username')} />
             </section>
@@ -87,7 +83,6 @@ function Estadisticas() {
                 icon="👥"
                 color="purple"
                 title="Estadísticas por agente"
-                subtitle="Participación, incidencias creadas y cerradas de todos los agentes del sistema."
               />
               <AgentsStatsPanel incidents={incidents} />
             </section>

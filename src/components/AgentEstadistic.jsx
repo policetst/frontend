@@ -114,9 +114,9 @@ function AgentEstadistic({ data, user_code }) {
   }, [data, user_code]);
 
   const years = useMemo(() => {
-    const fromData = Array.from(new Set(userIncidents.map(inc => getYear(inc.creation_date)).filter(Boolean)));
+    const fromData = Array.from(new Set(data.map(inc => getYear(inc.creation_date)).filter(Boolean)));
     return fromData.sort((a, b) => a - b);
-  }, [userIncidents]);
+  }, [data]);
 
   // Filtrado
   const filteredData = useMemo(() => {
