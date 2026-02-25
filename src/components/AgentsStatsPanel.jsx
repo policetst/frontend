@@ -53,10 +53,12 @@ function AgentsStatsPanel({ incidents }) {
     fetchUsers();
   }, []);
 
-  // Años disponibles en las incidencias
+  // Años disponibles — forzamos el año actual siempre presente
   const years = useMemo(() => {
-    return Array.from(new Set(incidents.map(inc => getYear(inc.creation_date))))
-      .sort((a, b) => a - b);
+    const currentYear = new Date().getFullYear();
+    const fromData = Array.from(new Set(incidents.map(inc => getYear(inc.creation_date)).filter(Boolean)));
+    if (!fromData.includes(currentYear)) fromData.push(currentYear);
+    return fromData.sort((a, b) => a - b);
   }, [incidents]);
 
   // Todos los tipos únicos
