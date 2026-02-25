@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { getUsers } from "../funcs/Incidents";
 
 const TIPO_ACRONIMOS = {
@@ -159,6 +160,25 @@ function AgentsStatsPanel({ incidents }) {
   const totalBrigada     = agentStats.reduce((acc, ag) => acc + ag.conBrigada, 0);
   const agentesActivos   = agentStats.filter(ag => ag.creadas > 0).length;
 
+  // Datos para el donut de tipos
+  const TIPO_COLORS = [
+    "#3b82f6", "#f59e0b", "#ef4444", "#10b981",
+    "#8b5cf6", "#06b6d4", "#f97316", "#ec4899", "#6366f1"
+  ];
+
+  const tiposData = useMemo(() => {
+    const counts = {};
+    filteredIncidents.forEach(inc => {
+      const tipo = inc.type || "Sin tipo";
+      counts[tipo] = (counts[tipo] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value, acr: TIPO_ACRONIMOS[name] || name }))
+      .sort((a, b) => b.value - a.value);
+  }, [filteredIncidents]);
+
+  const topTipo = tiposData[0] || null;
+
   const hasActiveFilters = filtroAnio || filtroMes || filtroTipo;
 
   return (
@@ -238,6 +258,95 @@ function AgentsStatsPanel({ incidents }) {
           </div>
         ))}
       </div>
+
+      {/* ── Gráfico de tipos ── */}
+      {tiposData.length > 0 && (
+        <div className="mb-6 bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+          <h4 className="text-sm font-semibold text-gray-600 mb-4">Distribución por tipo de incidencia</h4>
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+
+            {/* Donut */}
+            <div className="relative flex-shrink-0" style={{ width: 200, height: 200 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={tiposData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={tiposData.length > 1 ? 2 : 0}
+                    dataKey="value"
+                    strokeWidth={1}
+                  >
+                    {tiposData.map((entry, i) => (
+                      <Cell
+                        key={entry.name}
+                        fill={TIPO_COLORS[i % TIPO_COLORS.length]}
+                        opacity={i === 0 ? 1 : 0.75}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name) => [
+                      `${value} (${totalIncidencias > 0 ? ((value / totalIncidencias) * 100).toFixed(1) : 0}%)`,
+                      name
+                    ]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              {/* Centro del donut */}
+              {topTipo && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-2xl font-bold text-gray-800">
+                    {totalIncidencias > 0 ? ((topTipo.value / totalIncidencias) * 100).toFixed(0) : 0}%
+                  </span>
+                  <span className="text-xs text-gray-500 font-medium text-center leading-tight mt-0.5 px-2">
+                    {topTipo.acr}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Leyenda */}
+            <div className="flex-1 w-full space-y-2">
+              {tiposData.map((entry, i) => {
+                const pct = totalIncidencias > 0 ? ((entry.value / totalIncidencias) * 100) : 0;
+                const color = TIPO_COLORS[i % TIPO_COLORS.length];
+                const isTop = i === 0;
+                return (
+                  <div key={entry.name} className={`p-2 rounded-lg ${isTop ? "bg-gray-50 border border-gray-200" : ""}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                        <span className={`text-xs truncate ${isTop ? "font-semibold text-gray-800" : "text-gray-600"}`}>
+                          {entry.name}
+                        </span>
+                        {isTop && (
+                          <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">
+                            #1
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <span className="text-xs font-bold text-gray-700">{entry.value}</span>
+                        <span className="text-xs text-gray-400 w-10 text-right">{pct.toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    {/* Barra de progreso */}
+                    <div className="w-full bg-gray-100 rounded-full h-1.5">
+                      <div
+                        className="h-1.5 rounded-full transition-all"
+                        style={{ width: `${pct}%`, backgroundColor: color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Tabla ── */}
       {agentStats.length === 0 ? (

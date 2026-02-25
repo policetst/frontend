@@ -238,6 +238,21 @@ function AgentEstadistic({ data, user_code }) {
 
       {/* Gráfico */}
       <div className="bg-white rounded shadow p-4">
+        <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
+          <div>
+            <p className="text-sm font-semibold text-gray-700">
+              {view === "diario" ? "Incidencias por día" : "Incidencias por mes"}
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {view === "diario"
+                ? `Detalle diario de ${MESES.find(m => m.value === filtroMes)?.label || ""} ${filtroAnio}`
+                : filtroAnio ? `Año ${filtroAnio}` : "Todos los períodos"}
+            </p>
+          </div>
+          <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-medium border border-blue-100">
+            {filteredData.length} incidencia{filteredData.length !== 1 ? "s" : ""}
+          </span>
+        </div>
         {chartData.length === 0 ? (
           <div className="text-gray-500 py-10 text-center">
             {userIncidents.length === 0
