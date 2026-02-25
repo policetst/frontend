@@ -51,22 +51,36 @@ const datos = [
   { siglas: 'SC', significado: 'Seguridad ciudadana' },
   { siglas: 'ANI', significado: 'Animales' },
   { siglas: 'JUZ', significado: 'Juzgados' },
-  { siglas: 'ANI', significado: 'Animales' },
 ];
 
-
+const MESES = [
+  { value: "", label: "Todos los meses" },
+  { value: "1", label: "Enero" },
+  { value: "2", label: "Febrero" },
+  { value: "3", label: "Marzo" },
+  { value: "4", label: "Abril" },
+  { value: "5", label: "Mayo" },
+  { value: "6", label: "Junio" },
+  { value: "7", label: "Julio" },
+  { value: "8", label: "Agosto" },
+  { value: "9", label: "Septiembre" },
+  { value: "10", label: "Octubre" },
+  { value: "11", label: "Noviembre" },
+  { value: "12", label: "Diciembre" },
+];
 
 const getYear = dateStr => (new Date(dateStr)).getFullYear();
 const getMonth = dateStr => {
   const d = new Date(dateStr);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
+const getMonthNum = dateStr => (new Date(dateStr)).getMonth() + 1;
 
 function AgentEstadistic({ data, user_code }) {
-  const [view, setView] = useState("mensual");
+  const [filtroMes, setFiltroMes] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroAnio, setFiltroAnio] = useState("");
-  const [leyend, setLeyend] = useState();
+  const [leyend, setLeyend] = useState(false);
 
   // Solo incidencias donde el usuario es creador o compañero (normalizado)
   const userIncidents = useMemo(() => {
@@ -88,22 +102,36 @@ function AgentEstadistic({ data, user_code }) {
     Object.fromEntries(tipos.map((tipo, i) => [tipo, i + 1]))
   ), []);
 
-  // DATOS FILTRADOS por tipo y año
+  // DATOS FILTRADOS por tipo, año y mes
   const filteredData = useMemo(() => {
-    return userIncidents.filter(inc => (
-      (!filtroTipo || inc.type === filtroTipo) &&
-      (!filtroAnio || getYear(inc.creation_date) === Number(filtroAnio))
-    ));
-  }, [userIncidents, filtroTipo, filtroAnio]);
+    return userIncidents.filter(inc => {
+      const matchTipo = !filtroTipo || inc.type === filtroTipo;
+      const matchAnio = !filtroAnio || getYear(inc.creation_date) === Number(filtroAnio);
+      const matchMes = !filtroMes || getMonthNum(inc.creation_date) === Number(filtroMes);
+      return matchTipo && matchAnio && matchMes;
+    });
+  }, [userIncidents, filtroTipo, filtroAnio, filtroMes]);
+
+  // Vista del eje X: si hay mes seleccionado => mostrar días, si año => meses, si nada => meses
+  const view = filtroMes && filtroAnio ? "diario" : (filtroAnio ? "mensual" : "mensual-global");
 
   // Preparar datos para ScatterChart con los datos filtrados
   const scatterData = useMemo(() => {
-    return filteredData.map(inc => ({
-      x: view === "mensual" ? getMonth(inc.creation_date) : getYear(inc.creation_date),
-      y: tipoToY[inc.type],
-      type: inc.type,
-      fecha: inc.creation_date,
-    }));
+    return filteredData.map(inc => {
+      let x;
+      if (view === "diario") {
+        const d = new Date(inc.creation_date);
+        x = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+      } else {
+        x = getMonth(inc.creation_date);
+      }
+      return {
+        x,
+        y: tipoToY[inc.type],
+        type: inc.type,
+        fecha: inc.creation_date,
+      };
+    });
   }, [filteredData, view, tipoToY]);
 
   // Legend: cuántos de cada tipo en los datos filtrados
@@ -111,7 +139,9 @@ function AgentEstadistic({ data, user_code }) {
     const sumas = {};
     tipos.forEach(tipo => sumas[tipo] = 0);
     filteredData.forEach(inc => {
-      sumas[inc.type] += 1;
+      if (sumas[inc.type] !== undefined) {
+        sumas[inc.type] += 1;
+      }
     });
     const total = Object.values(sumas).reduce((acc, val) => acc + val, 0);
     return tipos.map(tipo => ({
@@ -123,64 +153,109 @@ function AgentEstadistic({ data, user_code }) {
   }, [filteredData]);
 
   const total = legendInfo.reduce((acc, curr) => acc + curr.value, 0);
-  const xValues = view === "mensual"
-    ? Array.from(new Set(filteredData.map(inc => getMonth(inc.creation_date))))
-        .sort((a, b) => a.localeCompare(b))
-    : Array.from(new Set(filteredData.map(inc => getYear(inc.creation_date))))
-        .sort((a, b) => a - b);
+
+  const xValues = Array.from(new Set(scatterData.map(d => d.x))).sort((a, b) => {
+    if (view === "diario") return a.localeCompare(b);
+    return a.localeCompare(b);
+  });
+
+  const hasActiveFilters = filtroTipo || filtroAnio || filtroMes;
 
   return (
     <div className="w-full mx-auto">
-      {/* <h2 className="text-2xl font-bold mb-6 text-center">
-        Incidencias individuales ({view === "mensual" ? "mensual" : "anual"})
-      </h2> */}
       {/* Filtros */}
       <div className="flex flex-wrap gap-3 mb-5 justify-center items-center">
-        <select
-          className="rounded border px-3 py-1 w-38"
-          value={view}
-          onChange={e => setView(e.target.value)}
-        >
-          <option value="mensual">Todos los meses</option>
-          <option value="anual">Enero</option>
-          <option>Febrero</option>
-          <option>Marzo</option>
-          <option>Abril</option>
-          <option>Mayo</option>
-          <option>Junio</option>
-          <option>Julio</option>
-          <option>Agosto</option>
-          <option>Septiembre</option>
-          <option>Octubre</option>
-          <option>Noviembre</option>
-          <option>Diciembre</option>
-        </select>
-        
-        <select
-          className="rounded border px-3 py-1 w-39"
-          value={filtroAnio}
-          onChange={e => setFiltroAnio(e.target.value)}
-        >
-          <option value="">Todos los años</option>
-          {years.map(y => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
-        <select
-          className="rounded border px-3 py-1 w-80"
-          value={filtroTipo}
-          onChange={e => setFiltroTipo(e.target.value)}
-        >
-          <option value="">Todos los tipos</option>
-          {tipos.map(tipo => (
-            <option key={tipo} value={tipo}>{tipo}</option>
-          ))}
-        </select>
+        {/* Filtro de año */}
+        <div className="flex flex-col items-start gap-1">
+          <label className="text-xs text-gray-500 font-medium ml-1">Año</label>
+          <select
+            className="rounded border px-3 py-1.5 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+            value={filtroAnio}
+            onChange={e => {
+              setFiltroAnio(e.target.value);
+              // Si quitamos el año, quitamos el mes también
+              if (!e.target.value) setFiltroMes("");
+            }}
+          >
+            <option value="">Todos los años</option>
+            {years.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Filtro de mes (solo si hay año seleccionado) */}
+        <div className="flex flex-col items-start gap-1">
+          <label className="text-xs text-gray-500 font-medium ml-1">Mes</label>
+          <select
+            className={`rounded border px-3 py-1.5 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 ${!filtroAnio ? "opacity-50 cursor-not-allowed" : ""}`}
+            value={filtroMes}
+            onChange={e => setFiltroMes(e.target.value)}
+            disabled={!filtroAnio}
+          >
+            {MESES.map(m => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Filtro de tipo */}
+        <div className="flex flex-col items-start gap-1">
+          <label className="text-xs text-gray-500 font-medium ml-1">Tipo de incidencia</label>
+          <select
+            className="rounded border px-3 py-1.5 text-sm bg-white shadow-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            value={filtroTipo}
+            onChange={e => setFiltroTipo(e.target.value)}
+          >
+            <option value="">Todos los tipos</option>
+            {tipos.map(tipo => (
+              <option key={tipo} value={tipo}>{tipo}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Botón limpiar filtros */}
+        {hasActiveFilters && (
+          <div className="flex flex-col items-start gap-1">
+            <label className="text-xs text-transparent font-medium ml-1">.</label>
+            <button
+              onClick={() => { setFiltroAnio(""); setFiltroMes(""); setFiltroTipo(""); }}
+              className="rounded border px-3 py-1.5 text-sm bg-red-50 text-red-600 border-red-200 hover:bg-red-100 transition shadow-sm"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Resumen de filtros activos */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2 mb-3 justify-center">
+          {filtroAnio && (
+            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+              Año: {filtroAnio}
+            </span>
+          )}
+          {filtroMes && (
+            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+              Mes: {MESES.find(m => m.value === filtroMes)?.label}
+            </span>
+          )}
+          {filtroTipo && (
+            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+              Tipo: {TIPO_ACRONIMOS[filtroTipo] || filtroTipo}
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="bg-white rounded shadow p-4 flex flex-col items-center justify-center">
         {scatterData.length === 0 || legendInfo.length === 0 ? (
-          <div className="text-gray-500">No hay datos para mostrar.</div>
+          <div className="text-gray-500 py-8">
+            {userIncidents.length === 0
+              ? "No tienes incidencias registradas."
+              : "No hay datos para los filtros seleccionados."}
+          </div>
         ) : (
           <>
             <div style={{ width: "100%", height: 380 }}>
@@ -192,7 +267,7 @@ function AgentEstadistic({ data, user_code }) {
                   <XAxis
                     dataKey="x"
                     type="category"
-                    name={view === "mensual" ? "Mes" : "Año"}
+                    name={view === "diario" ? "Día" : "Mes"}
                     ticks={xValues}
                     interval={0}
                     angle={-30}
@@ -226,16 +301,17 @@ function AgentEstadistic({ data, user_code }) {
                   ))}
                 </ScatterChart>
               </ResponsiveContainer>
-              
             </div>
-            <button 
-                onClick={() => setLeyend(prev => !prev)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md border transition ${
-                  leyend ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
-                }`}
-              >
-                {leyend ? 'Ocultar leyenda' : 'Ver leyenda'}
-              </button>
+
+            <button
+              onClick={() => setLeyend(prev => !prev)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md border transition ${
+                leyend ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+              }`}
+            >
+              {leyend ? 'Ocultar leyenda' : 'Ver leyenda'}
+            </button>
+
             <div className="flex justify-center mt-5">
               {leyend && (
                 <div>
@@ -258,7 +334,7 @@ function AgentEstadistic({ data, user_code }) {
                 </div>
               )}
             </div>
-            
+
             {/* Legend Tailwind */}
             <div className="mt-6 w-full flex flex-wrap justify-center gap-4">
               {legendInfo.map((entry) => (
@@ -287,7 +363,6 @@ function AgentEstadistic({ data, user_code }) {
           Total de incidencias: <span className="text-blue-700">{total}</span>
         </div>
       )}
-
     </div>
   );
 }

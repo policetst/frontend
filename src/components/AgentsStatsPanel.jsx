@@ -13,8 +13,30 @@ const TIPO_ACRONIMOS = {
   "Juzgados": "JUZ"
 };
 
+const MESES = [
+  { value: "", label: "Todos los meses" },
+  { value: "1", label: "Enero" },
+  { value: "2", label: "Febrero" },
+  { value: "3", label: "Marzo" },
+  { value: "4", label: "Abril" },
+  { value: "5", label: "Mayo" },
+  { value: "6", label: "Junio" },
+  { value: "7", label: "Julio" },
+  { value: "8", label: "Agosto" },
+  { value: "9", label: "Septiembre" },
+  { value: "10", label: "Octubre" },
+  { value: "11", label: "Noviembre" },
+  { value: "12", label: "Diciembre" },
+];
+
+const getYear = dateStr => (new Date(dateStr)).getFullYear();
+const getMonthNum = dateStr => (new Date(dateStr)).getMonth() + 1;
+
 function AgentsStatsPanel({ incidents }) {
   const [allUsers, setAllUsers] = useState([]);
+  const [filtroAnio, setFiltroAnio] = useState("");
+  const [filtroMes, setFiltroMes] = useState("");
+  const [filtroTipo, setFiltroTipo] = useState("");
 
   // Obtener todos los usuarios del sistema
   useEffect(() => {
@@ -31,33 +53,48 @@ function AgentsStatsPanel({ incidents }) {
     fetchUsers();
   }, []);
 
+  // Años disponibles en las incidencias
+  const years = useMemo(() => {
+    return Array.from(new Set(incidents.map(inc => getYear(inc.creation_date))))
+      .sort((a, b) => a - b);
+  }, [incidents]);
+
   // Todos los tipos únicos
   const tiposUnicos = useMemo(() => {
     const set = new Set(incidents.map(inc => inc.type));
     return Array.from(set);
   }, [incidents]);
 
-  // Estadísticas por agente (ahora incluye TODOS los usuarios)
+  // Incidencias filtradas por año, mes y tipo
+  const filteredIncidents = useMemo(() => {
+    return incidents.filter(inc => {
+      const matchAnio = !filtroAnio || getYear(inc.creation_date) === Number(filtroAnio);
+      const matchMes = !filtroMes || getMonthNum(inc.creation_date) === Number(filtroMes);
+      const matchTipo = !filtroTipo || inc.type === filtroTipo;
+      return matchAnio && matchMes && matchTipo;
+    });
+  }, [incidents, filtroAnio, filtroMes, filtroTipo]);
+
+  // Estadísticas por agente (con las incidencias ya filtradas)
   const agentStats = useMemo(() => {
-    // Inicializar stats para todos los usuarios
     const stats = {};
-    
-    // Primero, crear entrada para todos los usuarios con stats en 0
+
+    // Inicializar para todos los usuarios
     allUsers.forEach(user => {
       const userCode = user.user_code || user.code || user.username;
       if (userCode) {
-        stats[userCode] = { 
-          creadas: 0, 
-          cerradas: 0, 
-          tipos: {}, 
+        stats[userCode] = {
+          creadas: 0,
+          cerradas: 0,
+          tipos: {},
           conBrigada: 0,
           fullName: `${user.first_name || ''} ${user.last_name1 || ''} ${user.last_name2 || ''}`.trim() || userCode
         };
       }
     });
 
-    // Luego, procesar las incidencias para actualizar las estadísticas
-    incidents.forEach(inc => {
+    // Procesar incidencias filtradas
+    filteredIncidents.forEach(inc => {
       // Creador
       const creator = inc.creator_user_code || "Desconocido";
       if (!stats[creator]) {
@@ -88,28 +125,109 @@ function AgentsStatsPanel({ incidents }) {
       }
     });
 
-    // Convertir a array y ordenar por incidencias creadas (luego por nombre)
     return Object.entries(stats)
       .map(([code, st]) => ({ code, name: st.fullName, ...st }))
       .sort((a, b) => {
-        // Primero por incidencias creadas (descendente)
-        if (b.creadas !== a.creadas) {
-          return b.creadas - a.creadas;
-        }
-        // Si tienen las mismas incidencias creadas, ordenar por nombre
+        if (b.creadas !== a.creadas) return b.creadas - a.creadas;
         return a.name.localeCompare(b.name);
       });
-  }, [incidents, allUsers]);
+  }, [filteredIncidents, allUsers]);
 
-  const totalCreadas = agentStats.reduce((acc, ag) => acc + ag.creadas, 0);
+  // El total real es el número de incidencias (no la suma de participaciones, que doble-cuenta)
+  const totalIncidencias = filteredIncidents.length;
   const totalCerradas = agentStats.reduce((acc, ag) => acc + ag.cerradas, 0);
 
-  console.log("All users:", allUsers);
-  console.log("Agent stats:", agentStats);
+  const hasActiveFilters = filtroAnio || filtroMes || filtroTipo;
 
   return (
     <div className="mt-10 w-full mx-auto px-2 sm:px-4">
       <h3 className="text-lg sm:text-xl font-bold mb-4">Estadísticas por agente</h3>
+
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-3 mb-4 items-end">
+        {/* Filtro de año */}
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-gray-500 font-medium ml-1">Año</label>
+          <select
+            className="rounded border px-3 py-1.5 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+            value={filtroAnio}
+            onChange={e => {
+              setFiltroAnio(e.target.value);
+              if (!e.target.value) setFiltroMes("");
+            }}
+          >
+            <option value="">Todos los años</option>
+            {years.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Filtro de mes */}
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-gray-500 font-medium ml-1">Mes</label>
+          <select
+            className={`rounded border px-3 py-1.5 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 ${!filtroAnio ? "opacity-50 cursor-not-allowed" : ""}`}
+            value={filtroMes}
+            onChange={e => setFiltroMes(e.target.value)}
+            disabled={!filtroAnio}
+          >
+            {MESES.map(m => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Filtro de tipo */}
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-gray-500 font-medium ml-1">Tipo de incidencia</label>
+          <select
+            className="rounded border px-3 py-1.5 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+            value={filtroTipo}
+            onChange={e => setFiltroTipo(e.target.value)}
+          >
+            <option value="">Todos los tipos</option>
+            {tiposUnicos.map(tipo => (
+              <option key={tipo} value={tipo}>{tipo}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Limpiar filtros */}
+        {hasActiveFilters && (
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-transparent font-medium ml-1">.</label>
+            <button
+              onClick={() => { setFiltroAnio(""); setFiltroMes(""); setFiltroTipo(""); }}
+              className="rounded border px-3 py-1.5 text-sm bg-red-50 text-red-600 border-red-200 hover:bg-red-100 transition shadow-sm"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Tags de filtros activos */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2 mb-3">
+          {filtroAnio && (
+            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+              Año: {filtroAnio}
+            </span>
+          )}
+          {filtroMes && (
+            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+              Mes: {MESES.find(m => m.value === filtroMes)?.label}
+            </span>
+          )}
+          {filtroTipo && (
+            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+              Tipo: {TIPO_ACRONIMOS[filtroTipo] || filtroTipo}
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="overflow-x-auto -mx-2 sm:mx-0">
         <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
@@ -119,8 +237,8 @@ function AgentsStatsPanel({ incidents }) {
                   <th className="px-1 sm:px-3 py-2 text-left font-semibold text-gray-900">#</th>
                   <th className="px-1 sm:px-3 py-2 text-left font-semibold text-gray-900 min-w-[120px]">Agente</th>
                   <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900">Código</th>
-                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900">Creadas</th>
-                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden sm:table-cell">% total</th>
+                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900" title="Incidencias en las que participó (como creador o compañero)">Particip.</th>
+                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden sm:table-cell" title="Porcentaje sobre el total de incidencias">%</th>
                   <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900">Cerradas</th>
                   <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden sm:table-cell">% total</th>
                   <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden md:table-cell">Brigada</th>
@@ -151,7 +269,7 @@ function AgentsStatsPanel({ incidents }) {
                       <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap text-xs">{ag.code}</td>
                       <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap font-medium">{ag.creadas}</td>
                       <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap hidden sm:table-cell">
-                        {totalCreadas > 0 ? ((ag.creadas / totalCreadas) * 100).toFixed(1) : 0}%
+                        {totalIncidencias > 0 ? ((ag.creadas / totalIncidencias) * 100).toFixed(1) : 0}%
                       </td>
                       <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap font-medium">{ag.cerradas}</td>
                       <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap hidden sm:table-cell">
@@ -173,10 +291,10 @@ function AgentsStatsPanel({ incidents }) {
       </div>
       <div className="mt-4 text-center sm:text-right text-gray-500 text-xs sm:text-sm space-y-1 sm:space-y-0">
         <div className="sm:inline">
-          Total agentes: <span className="font-bold">{agentStats.length}</span>
+          Total agentes activos: <span className="font-bold">{agentStats.filter(ag => ag.creadas > 0).length}</span>
         </div>
         <div className="sm:inline sm:ml-4">
-          Creadas: <span className="font-bold">{totalCreadas}</span>
+          Total incidencias: <span className="font-bold">{totalIncidencias}</span>
         </div>
         <div className="sm:inline sm:ml-4">
           Cerradas: <span className="font-bold">{totalCerradas}</span>

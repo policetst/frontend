@@ -1,6 +1,17 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
  import 'leaflet/dist/leaflet.css';
+
+// Componente para actualizar el centro del mapa cuando cambien las coordenadas
+function MapUpdater({ position }) {
+  const map = useMap();
+  useEffect(() => {
+    if (position && position.length === 2) {
+      map.setView(position, map.getZoom());
+    }
+  }, [position, map]);
+  return null;
+}
 
 function Mapview({ chords, inc_code }) {
   // Separar y convertir a número
@@ -37,6 +48,7 @@ function Mapview({ chords, inc_code }) {
            {`Incidencia: ${inc_code ? inc_code : '*'}`}
             </Popup>
           </Marker>
+          <MapUpdater position={position} />
         </MapContainer>
       </div>
     </div>
