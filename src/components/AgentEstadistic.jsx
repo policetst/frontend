@@ -113,15 +113,10 @@ function AgentEstadistic({ data, user_code }) {
     );
   }, [data, user_code]);
 
-  // Lista de años: se construye desde TODOS los datos (no solo los del usuario)
-  // Así el año aparece aunque haya algún desajuste de código de usuario
-  // Además forzamos que el año actual siempre esté presente
   const years = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    const fromData = Array.from(new Set(data.map(inc => getYear(inc.creation_date)).filter(Boolean)));
-    if (!fromData.includes(currentYear)) fromData.push(currentYear);
+    const fromData = Array.from(new Set(userIncidents.map(inc => getYear(inc.creation_date)).filter(Boolean)));
     return fromData.sort((a, b) => a - b);
-  }, [data]);
+  }, [userIncidents]);
 
   // Filtrado
   const filteredData = useMemo(() => {

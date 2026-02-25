@@ -29,8 +29,24 @@ const MESES = [
   { value: "12", label: "Diciembre" },
 ];
 
-const getYear = dateStr => (new Date(dateStr)).getFullYear();
-const getMonthNum = dateStr => (new Date(dateStr)).getMonth() + 1;
+// Parseo seguro sin new Date() para evitar problemas de timezone (UTC vs local)
+const getYear     = d => d ? parseInt(d.substring(0, 4), 10) : null;
+const getMonthNum = d => d ? parseInt(d.substring(5, 7), 10) : null;
+
+// Mini badge de número con color
+function StatBadge({ value, color = "blue" }) {
+  const colors = {
+    blue:   "bg-blue-100 text-blue-800",
+    green:  "bg-green-100 text-green-800",
+    orange: "bg-orange-100 text-orange-800",
+    gray:   "bg-gray-100 text-gray-500",
+  };
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${colors[color]}`}>
+      {value}
+    </span>
+  );
+}
 
 function AgentsStatsPanel({ incidents }) {
   const [allUsers, setAllUsers] = useState([]);
@@ -38,7 +54,6 @@ function AgentsStatsPanel({ incidents }) {
   const [filtroMes, setFiltroMes] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
 
-  // Obtener todos los usuarios del sistema
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -53,119 +68,117 @@ function AgentsStatsPanel({ incidents }) {
     fetchUsers();
   }, []);
 
-  // Años disponibles — forzamos el año actual siempre presente
   const years = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    const fromData = Array.from(new Set(incidents.map(inc => getYear(inc.creation_date)).filter(Boolean)));
-    if (!fromData.includes(currentYear)) fromData.push(currentYear);
-    return fromData.sort((a, b) => a - b);
+    return Array.from(new Set(incidents.map(inc => getYear(inc.creation_date)).filter(Boolean)))
+      .sort((a, b) => a - b);
   }, [incidents]);
 
-  // Todos los tipos únicos
   const tiposUnicos = useMemo(() => {
-    const set = new Set(incidents.map(inc => inc.type));
+    const set = new Set(incidents.map(inc => inc.type).filter(Boolean));
     return Array.from(set);
   }, [incidents]);
 
-  // Incidencias filtradas por año, mes y tipo
   const filteredIncidents = useMemo(() => {
     return incidents.filter(inc => {
       const matchAnio = !filtroAnio || getYear(inc.creation_date) === Number(filtroAnio);
-      const matchMes = !filtroMes || getMonthNum(inc.creation_date) === Number(filtroMes);
+      const matchMes  = !filtroMes  || getMonthNum(inc.creation_date) === Number(filtroMes);
       const matchTipo = !filtroTipo || inc.type === filtroTipo;
       return matchAnio && matchMes && matchTipo;
     });
   }, [incidents, filtroAnio, filtroMes, filtroTipo]);
 
-  // Estadísticas por agente (con las incidencias ya filtradas)
+  // Estadísticas por agente
+  // - creadas:       incidencias donde es el creator_user_code
+  // - participadas:  incidencias donde es creator_user_code O team_mate
+  // - cerradas:      incidencias donde es el closure_user_code
   const agentStats = useMemo(() => {
     const stats = {};
 
-    // Inicializar para todos los usuarios
+    // Inicializar todos los usuarios del sistema
     allUsers.forEach(user => {
       const userCode = user.user_code || user.code || user.username;
       if (userCode) {
         stats[userCode] = {
           creadas: 0,
+          participadas: 0,
           cerradas: 0,
-          tipos: {},
           conBrigada: 0,
+          tipos: {},
           fullName: `${user.first_name || ''} ${user.last_name1 || ''} ${user.last_name2 || ''}`.trim() || userCode
         };
       }
     });
 
-    // Procesar incidencias filtradas
     filteredIncidents.forEach(inc => {
-      // Creador
-      const creator = inc.creator_user_code || "Desconocido";
-      if (!stats[creator]) {
-        stats[creator] = { creadas: 0, cerradas: 0, tipos: {}, conBrigada: 0, fullName: creator };
-      }
-      stats[creator].creadas += 1;
-      stats[creator].tipos[inc.type] = (stats[creator].tipos[inc.type] || 0) + 1;
-      if (inc.brigade_field) stats[creator].conBrigada += 1;
+      const creator = inc.creator_user_code;
+      const teamMate = inc.team_mate;
+      const closer = inc.closure_user_code;
 
-      // Team mate (si existe)
-      if (inc.team_mate) {
-        const teamMate = inc.team_mate;
-        if (!stats[teamMate]) {
-          stats[teamMate] = { creadas: 0, cerradas: 0, tipos: {}, conBrigada: 0, fullName: teamMate };
+      // Creador
+      if (creator) {
+        if (!stats[creator]) {
+          stats[creator] = { creadas: 0, participadas: 0, cerradas: 0, conBrigada: 0, tipos: {}, fullName: creator };
         }
-        stats[teamMate].creadas += 1;
+        stats[creator].creadas += 1;
+        stats[creator].participadas += 1;
+        stats[creator].tipos[inc.type] = (stats[creator].tipos[inc.type] || 0) + 1;
+        if (inc.brigade_field) stats[creator].conBrigada += 1;
+      }
+
+      // Acompañante (solo suma participadas, no creadas)
+      if (teamMate && teamMate !== creator) {
+        if (!stats[teamMate]) {
+          stats[teamMate] = { creadas: 0, participadas: 0, cerradas: 0, conBrigada: 0, tipos: {}, fullName: teamMate };
+        }
+        stats[teamMate].participadas += 1;
         stats[teamMate].tipos[inc.type] = (stats[teamMate].tipos[inc.type] || 0) + 1;
         if (inc.brigade_field) stats[teamMate].conBrigada += 1;
       }
 
       // Cerrador
-      if (inc.closure_user_code) {
-        const closer = inc.closure_user_code;
+      if (closer) {
         if (!stats[closer]) {
-          stats[closer] = { creadas: 0, cerradas: 0, tipos: {}, conBrigada: 0, fullName: closer };
+          stats[closer] = { creadas: 0, participadas: 0, cerradas: 0, conBrigada: 0, tipos: {}, fullName: closer };
         }
         stats[closer].cerradas += 1;
       }
     });
 
     return Object.entries(stats)
-      .map(([code, st]) => ({ code, name: st.fullName, ...st }))
+      .map(([code, st]) => ({ code, ...st }))
+      .filter(ag => ag.creadas > 0 || ag.participadas > 0 || ag.cerradas > 0)
       .sort((a, b) => {
         if (b.creadas !== a.creadas) return b.creadas - a.creadas;
-        return a.name.localeCompare(b.name);
+        return (a.fullName || a.code).localeCompare(b.fullName || b.code);
       });
   }, [filteredIncidents, allUsers]);
 
-  // El total real es el número de incidencias (no la suma de participaciones, que doble-cuenta)
   const totalIncidencias = filteredIncidents.length;
-  const totalCerradas = agentStats.reduce((acc, ag) => acc + ag.cerradas, 0);
+  const totalCreadas     = agentStats.reduce((acc, ag) => acc + ag.creadas, 0);
+  const totalCerradas    = agentStats.reduce((acc, ag) => acc + ag.cerradas, 0);
+  const totalBrigada     = agentStats.reduce((acc, ag) => acc + ag.conBrigada, 0);
+  const agentesActivos   = agentStats.filter(ag => ag.creadas > 0).length;
 
   const hasActiveFilters = filtroAnio || filtroMes || filtroTipo;
 
   return (
-    <div className="mt-10 w-full mx-auto px-2 sm:px-4">
-      <h3 className="text-lg sm:text-xl font-bold mb-4">Estadísticas por agente</h3>
+    <div className="mt-10 w-full mx-auto px-2 sm:px-0">
+      <h3 className="text-lg sm:text-xl font-bold mb-5">Estadísticas por agente</h3>
 
-      {/* Filtros */}
-      <div className="flex flex-wrap gap-3 mb-4 items-end">
-        {/* Filtro de año */}
+      {/* ── Filtros ── */}
+      <div className="flex flex-wrap gap-3 mb-5 items-end">
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500 font-medium ml-1">Año</label>
           <select
             className="rounded border px-3 py-1.5 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             value={filtroAnio}
-            onChange={e => {
-              setFiltroAnio(e.target.value);
-              if (!e.target.value) setFiltroMes("");
-            }}
+            onChange={e => { setFiltroAnio(e.target.value); if (!e.target.value) setFiltroMes(""); }}
           >
             <option value="">Todos los años</option>
-            {years.map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
+            {years.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
 
-        {/* Filtro de mes */}
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500 font-medium ml-1">Mes</label>
           <select
@@ -174,31 +187,25 @@ function AgentsStatsPanel({ incidents }) {
             onChange={e => setFiltroMes(e.target.value)}
             disabled={!filtroAnio}
           >
-            {MESES.map(m => (
-              <option key={m.value} value={m.value}>{m.label}</option>
-            ))}
+            {MESES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
         </div>
 
-        {/* Filtro de tipo */}
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500 font-medium ml-1">Tipo de incidencia</label>
           <select
-            className="rounded border px-3 py-1.5 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="rounded border px-3 py-1.5 text-sm bg-white shadow-sm w-52 focus:outline-none focus:ring-2 focus:ring-blue-300"
             value={filtroTipo}
             onChange={e => setFiltroTipo(e.target.value)}
           >
             <option value="">Todos los tipos</option>
-            {tiposUnicos.map(tipo => (
-              <option key={tipo} value={tipo}>{tipo}</option>
-            ))}
+            {tiposUnicos.map(tipo => <option key={tipo} value={tipo}>{tipo}</option>)}
           </select>
         </div>
 
-        {/* Limpiar filtros */}
         {hasActiveFilters && (
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-transparent font-medium ml-1">.</label>
+            <label className="text-xs text-transparent">.</label>
             <button
               onClick={() => { setFiltroAnio(""); setFiltroMes(""); setFiltroTipo(""); }}
               className="rounded border px-3 py-1.5 text-sm bg-red-50 text-red-600 border-red-200 hover:bg-red-100 transition shadow-sm"
@@ -211,96 +218,136 @@ function AgentsStatsPanel({ incidents }) {
 
       {/* Tags de filtros activos */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap gap-2 mb-3">
-          {filtroAnio && (
-            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
-              Año: {filtroAnio}
-            </span>
-          )}
-          {filtroMes && (
-            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
-              Mes: {MESES.find(m => m.value === filtroMes)?.label}
-            </span>
-          )}
-          {filtroTipo && (
-            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
-              Tipo: {TIPO_ACRONIMOS[filtroTipo] || filtroTipo}
-            </span>
-          )}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {filtroAnio && <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">Año: {filtroAnio}</span>}
+          {filtroMes  && <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">Mes: {MESES.find(m => m.value === filtroMes)?.label}</span>}
+          {filtroTipo && <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">Tipo: {TIPO_ACRONIMOS[filtroTipo] || filtroTipo}</span>}
         </div>
       )}
 
-      <div className="overflow-x-auto -mx-2 sm:mx-0">
-        <div className="inline-block min-w-full align-middle">
-          <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-            <table className="min-w-full divide-y divide-gray-300 bg-white text-xs sm:text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-1 sm:px-3 py-2 text-left font-semibold text-gray-900">#</th>
-                  <th className="px-1 sm:px-3 py-2 text-left font-semibold text-gray-900 min-w-[120px]">Agente</th>
-                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900">Código</th>
-                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900" title="Incidencias en las que participó (como creador o compañero)">Particip.</th>
-                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden sm:table-cell" title="Porcentaje sobre el total de incidencias">%</th>
-                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900">Cerradas</th>
-                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden sm:table-cell">% total</th>
-                  <th className="px-1 sm:px-3 py-2 text-center font-semibold text-gray-900 hidden md:table-cell">Brigada</th>
-                  {tiposUnicos.map(tipo => (
-                    <th key={tipo} className="px-1 sm:px-2 py-2 text-center font-semibold text-gray-900 hidden lg:table-cell">
-                      <span className="block sm:hidden">{TIPO_ACRONIMOS[tipo]?.substring(0, 2) || tipo.substring(0, 2)}</span>
-                      <span className="hidden sm:block">{TIPO_ACRONIMOS[tipo] || tipo}</span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {agentStats.length === 0 ? (
-                  <tr>
-                    <td colSpan={8 + tiposUnicos.length} className="text-center text-gray-500 py-8">
-                      No hay datos de agentes.
+      {/* ── Tarjetas resumen ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+        {[
+          { label: "Total incidencias", value: totalIncidencias, color: "border-blue-200 bg-blue-50",      text: "text-blue-700" },
+          { label: "Cerradas",          value: totalCerradas,    color: "border-green-200 bg-green-50",    text: "text-green-700" },
+          { label: "Con brigada",       value: totalBrigada,     color: "border-orange-200 bg-orange-50",  text: "text-orange-700" },
+        ].map(card => (
+          <div key={card.label} className={`rounded-xl border p-3 text-center ${card.color}`}>
+            <p className={`text-2xl font-bold ${card.text}`}>{card.value}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{card.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Tabla ── */}
+      {agentStats.length === 0 ? (
+        <div className="text-center text-gray-500 py-12 bg-white rounded-xl border">
+          No hay datos para los filtros seleccionados.
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+          <table className="min-w-full bg-white text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide w-8">#</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Agente</th>
+                <th className="px-3 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span title="Incidencias registradas como creador">Creadas</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
+                  <span title="Incidencias donde participó (creador + acompañante)">Particip.</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span title="Incidencias cerradas por el agente">Cerradas</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">
+                  <span title="Incidencias con intervención de brigada">Brigada</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
+                  <span title="Porcentaje de incidencias creadas respecto al total">% Total</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {agentStats.map((ag, idx) => {
+                const pct = totalIncidencias > 0 ? ((ag.creadas / totalIncidencias) * 100).toFixed(1) : "0.0";
+                const isTop = idx === 0 && ag.creadas > 0;
+                return (
+                  <tr
+                    key={ag.code}
+                    className={`hover:bg-gray-50 transition-colors ${isTop ? "bg-blue-50" : ""}`}
+                  >
+                    {/* # */}
+                    <td className="px-3 py-3 text-gray-400 text-xs font-medium">{idx + 1}</td>
+
+                    {/* Agente */}
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${isTop ? "bg-blue-500" : "bg-gray-400"}`}>
+                          {(ag.fullName || ag.code).charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800 leading-tight">{ag.fullName || ag.code}</p>
+                          <p className="text-xs text-gray-400">{ag.code}</p>
+                        </div>
+                        {isTop && (
+                          <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium hidden sm:inline">
+                            #1
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Creadas */}
+                    <td className="px-3 py-3 text-center">
+                      <StatBadge value={ag.creadas} color={ag.creadas > 0 ? "blue" : "gray"} />
+                    </td>
+
+                    {/* Participadas */}
+                    <td className="px-3 py-3 text-center hidden sm:table-cell">
+                      <StatBadge value={ag.participadas} color={ag.participadas > 0 ? "orange" : "gray"} />
+                    </td>
+
+                    {/* Cerradas */}
+                    <td className="px-3 py-3 text-center">
+                      <StatBadge value={ag.cerradas} color={ag.cerradas > 0 ? "green" : "gray"} />
+                    </td>
+
+                    {/* Brigada */}
+                    <td className="px-3 py-3 text-center hidden md:table-cell">
+                      <StatBadge value={ag.conBrigada} color={ag.conBrigada > 0 ? "orange" : "gray"} />
+                    </td>
+
+                    {/* % Total */}
+                    <td className="px-3 py-3 text-center hidden sm:table-cell">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-16 bg-gray-200 rounded-full h-1.5 hidden lg:block">
+                          <div
+                            className="bg-blue-400 h-1.5 rounded-full"
+                            style={{ width: `${Math.min(pct, 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-600 font-medium">{pct}%</span>
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  agentStats.map((ag, idx) => (
-                    <tr key={ag.code} className={`${ag.creadas > 0 && idx === 0 ? "bg-blue-50 font-semibold" : ag.creadas === 0 ? "bg-gray-50 text-gray-600" : ""} hover:bg-gray-50`}>
-                      <td className="px-1 sm:px-3 py-2 whitespace-nowrap">{idx + 1}</td>
-                      <td className="px-1 sm:px-3 py-2">
-                        <div className="truncate max-w-[120px] sm:max-w-none" title={ag.name}>
-                          {ag.name}
-                        </div>
-                      </td>
-                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap text-xs">{ag.code}</td>
-                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap font-medium">{ag.creadas}</td>
-                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap hidden sm:table-cell">
-                        {totalIncidencias > 0 ? ((ag.creadas / totalIncidencias) * 100).toFixed(1) : 0}%
-                      </td>
-                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap font-medium">{ag.cerradas}</td>
-                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap hidden sm:table-cell">
-                        {totalCerradas > 0 ? ((ag.cerradas / totalCerradas) * 100).toFixed(1) : 0}%
-                      </td>
-                      <td className="px-1 sm:px-3 py-2 text-center whitespace-nowrap hidden md:table-cell">{ag.conBrigada}</td>
-                      {tiposUnicos.map(tipo => (
-                        <td key={tipo} className="px-1 sm:px-2 py-2 text-center whitespace-nowrap hidden lg:table-cell">
-                          {ag.tipos[tipo] || 0}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
+      )}
+
+      {/* Leyenda de columnas */}
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
+        <span><span className="font-medium text-blue-600">Creadas:</span> incidencias donde el agente es el redactor</span>
+        <span className="hidden sm:inline"><span className="font-medium text-orange-500">Particip.:</span> incluye también cuando actúa como acompañante</span>
+        <span><span className="font-medium text-green-600">Cerradas:</span> incidencias que el agente ha cerrado</span>
       </div>
-      <div className="mt-4 text-center sm:text-right text-gray-500 text-xs sm:text-sm space-y-1 sm:space-y-0">
-        <div className="sm:inline">
-          Total agentes activos: <span className="font-bold">{agentStats.filter(ag => ag.creadas > 0).length}</span>
-        </div>
-        <div className="sm:inline sm:ml-4">
-          Total incidencias: <span className="font-bold">{totalIncidencias}</span>
-        </div>
-        <div className="sm:inline sm:ml-4">
-          Cerradas: <span className="font-bold">{totalCerradas}</span>
-        </div>
+
+      {/* Pie */}
+      <div className="mt-4 text-right text-gray-400 text-xs">
+        {agentesActivos} agente{agentesActivos !== 1 ? "s" : ""} con actividad · {totalIncidencias} incidencia{totalIncidencias !== 1 ? "s" : ""} en el período
       </div>
     </div>
   );
