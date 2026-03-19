@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Textarea({ 
+export const Textarea = React.forwardRef(({ 
   placeholder, 
   value, 
   onChange, 
@@ -8,9 +8,10 @@ export function Textarea({
   className = '',
   disabled = false,
   ...props 
-}) {
+}, ref) => {
   return (
     <textarea
+      ref={ref}
       placeholder={placeholder}
       value={value}
       onChange={onChange}
@@ -20,4 +21,6 @@ export function Textarea({
       {...props}
     />
   );
-}
+});
+
+Textarea.displayName = 'Textarea';

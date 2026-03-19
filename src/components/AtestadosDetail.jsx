@@ -1,5 +1,5 @@
  // pages/AtestadoDetail.jsx
- import React, { useState, useEffect, useMemo } from 'react';
+ import React, { useState, useEffect, useMemo, useRef } from 'react';
  import { useParams, Link } from 'react-router-dom';
  import apiService from '../../services/apiService';
  import DraggableDiligencia from './DraggableDiligencia';
@@ -20,6 +20,9 @@
    const [dragOverIndex, setDragOverIndex] = useState(null);
    const [showPrintView, setShowPrintView] = useState(false);
    const [showTicketView, setShowTicketView] = useState(false);
+   const [showReplicateModal, setShowReplicateModal] = useState(false);
+   const [replicateValues, setReplicateValues] = useState({});
+   const [replicateLoading, setReplicateLoading] = useState(false);
    const [reorderLoading, setReorderLoading] = useState(false);
    const [selectedPlantilla, setSelectedPlantilla] = useState(null);
    const [plantillaValues, setPlantillaValues] = useState({});
@@ -29,8 +32,29 @@
    const [showEditModal, setShowEditModal] = useState(false);
    const [editValues, setEditValues] = useState({});
    const [showAddDiligenciaModal, setShowAddDiligenciaModal] = useState(false);
+   const [showCroquisModal, setShowCroquisModal] = useState(false);
+   const [croquisMode, setCroquisMode] = useState('draw');
+   const [croquisFile, setCroquisFile] = useState(null);
+   const [croquisDescription, setCroquisDescription] = useState('');
+   const [croquisLoading, setCroquisLoading] = useState(false);
+   const [croquisElements, setCroquisElements] = useState([]);
+   const [draggingElementId, setDraggingElementId] = useState(null);
+   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+   const [croquisPalette] = useState([
+     { id: 'person', label: 'Testigo', emoji: '👤' },
+     { id: 'building', label: 'Edificio', emoji: '🏢' },
+     { id: 'weapon', label: 'Arma', emoji: '🔫' },
+     { id: 'animal', label: 'Animal', emoji: '🐕' },
+     { id: 'car', label: 'Vehículo', emoji: '🚗' }
+   ]);
+   const canvasRef = useRef(null);
+   const [isDrawing, setIsDrawing] = useState(false);
+   const [drawColor, setDrawColor] = useState('#000000');
+   const [brushSize, setBrushSize] = useState(2);
+   const [canvasSize, setCanvasSize] = useState({ width: 640, height: 320 });
    const [showUnifiedVariablesModal, setShowUnifiedVariablesModal] = useState(false);
    const [unifiedVariables, setUnifiedVariables] = useState({});
+   const [showKeywordValuesModal, setShowKeywordValuesModal] = useState(false);
 
   // Funciones de utilidad
   const formatDateTime = (dateString) => {
@@ -43,10 +67,190 @@
     return new Date(dateString).toLocaleDateString('es-ES');
   };
 
+  const readFileAsBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const startDrawing = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = drawColor;
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setIsDrawing(true);
+    canvas.dataset.lastX = x;
+    canvas.dataset.lastY = y;
+  };
+
+  const drawOnCanvas = (event) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const ctx = canvas.getContext('2d');
+    const previousX = parseFloat(canvas.dataset.lastX || 0);
+    const previousY = parseFloat(canvas.dataset.lastY || 0);
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    canvas.dataset.lastX = x;
+    canvas.dataset.lastY = y;
+  };
+
+  const stopDrawing = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.closePath();
+    setIsDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const addCroquisElement = (iconId) => {
+    const found = croquisPalette.find(el => el.id === iconId);
+    if (!found) return;
+    const nextId = `${iconId}-${Date.now()}`;
+    setCroquisElements(prev => [
+      ...prev,
+      {
+        id: nextId,
+        type: found.id,
+        icon: found.emoji,
+        x: 160,
+        y: 120
+      }
+    ]);
+  };
+
+  const startMoveElement = (event, elementId) => {
+    const croquisArea = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - croquisArea.left;
+    const y = event.clientY - croquisArea.top;
+    const element = croquisElements.find(el => el.id === elementId);
+    if (!element) return;
+    setDraggingElementId(elementId);
+    setDragOffset({ x: x - element.x, y: y - element.y });
+  };
+
+  const moveElement = (event) => {
+    if (!draggingElementId) return;
+    const croquisArea = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - croquisArea.left;
+    const y = event.clientY - croquisArea.top;
+    setCroquisElements(prev => prev.map(el => {
+      if (el.id !== draggingElementId) return el;
+      return { ...el, x: Math.max(0, Math.min(x - dragOffset.x, canvasSize.width - 32)), y: Math.max(0, Math.min(y - dragOffset.y, canvasSize.height - 32)) };
+    }));
+  };
+
+  const stopMove = () => {
+    setDraggingElementId(null);
+  };
+
+  const getCroquisImageFromElements = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '32px serif';
+    croquisElements.forEach(el => {
+      ctx.fillText(el.icon, el.x, el.y + 24);
+    });
+    return canvas.toDataURL('image/png');
+  };
+
+  const getCanvasDataUrl = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    return canvas.toDataURL('image/png');
+  };
+
+  const handleCreateCroquisDiligencia = async () => {
+    let croquisDataUrl = null;
+
+    if (croquisMode === 'draw') {
+      if (croquisElements.length === 0) {
+        Swal.fire('Error', 'Agregá al menos un elemento para el croquis.', 'error');
+        return;
+      }
+      croquisDataUrl = getCroquisImageFromElements();
+    } else {
+      if (!croquisFile) {
+        Swal.fire('Error', 'Seleccioná un archivo de croquis antes de guardar.', 'error');
+        return;
+      }
+      croquisDataUrl = await readFileAsBase64(croquisFile);
+    }
+
+    setCroquisLoading(true);
+    try {
+      const diligenciaData = {
+        templateId: null,
+        values: [],
+        previewText: croquisDescription || 'Croquis policial adjunto',
+        texto_final: croquisDescription || 'Croquis policial adjunto',
+        croquis: croquisDataUrl,
+        croquis_descripcion: croquisDescription || 'Croquis policial'
+      };
+
+      await apiService.createDiligencia(id, diligenciaData);
+      await loadData();
+      setShowCroquisModal(false);
+      setCroquisFile(null);
+      setCroquisDescription('');
+      setCroquisMode('draw');
+      clearCanvas();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: 'Croquis policial guardado como diligencia',
+        timer: 1800,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Error creando croquis diligencia:', error);
+      Swal.fire('Error', 'No se pudo guardar el croquis. Intentá de nuevo.', 'error');
+    } finally {
+      setCroquisLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
     loadPlantillas();
   }, [id]);
+
+  useEffect(() => {
+    if (showCroquisModal && croquisMode === 'draw') {
+      clearCanvas();
+    }
+  }, [showCroquisModal, croquisMode]);
 
   // Calcular variables unificadas
   const allVariables = useMemo(() => {
@@ -65,6 +269,22 @@
     });
 
     return Object.fromEntries(variablesMap);
+  }, [diligencias]);
+
+  const keywordValuesByDiligencia = useMemo(() => {
+    const map = {};
+    diligencias.forEach((diligencia) => {
+      (diligencia.valores || []).forEach((valor) => {
+        if (!valor.variable) return;
+        if (!map[valor.variable]) map[valor.variable] = [];
+        map[valor.variable].push({
+          diligenciaId: diligencia.id,
+          nombre: diligencia.plantilla_nombre || `Diligencia ${diligencia.id}`,
+          valor: valor.valor
+        });
+      });
+    });
+    return map;
   }, [diligencias]);
 
   const loadData = async () => {
@@ -345,6 +565,67 @@
     }
   };
 
+  const handleReplicateAtestado = async () => {
+    if (!atestado) return;
+    if (!window.confirm('¿Deseas replicar este atestado con los nuevos valores de palabras clave?')) {
+      return;
+    }
+
+    setReplicateLoading(true);
+    try {
+      const newAtestado = {
+        numero: `${atestado.numero || 'AT'} - copia`,
+        tipo: atestado.tipo || '',
+        descripcion: atestado.descripcion || '',
+        fecha: new Date().toISOString().split('T')[0]
+      };
+
+      const created = await apiService.createAtestado(newAtestado);
+      const newAtestadoId = created.atestado?.id || created.id;
+
+      for (const diligencia of diligencias) {
+        const variableMap = {};
+        (diligencia.valores || []).forEach((v) => {
+          variableMap[v.variable] = replicateValues[v.variable]?.trim() || v.valor || '';
+        });
+
+        const replacedPreview = replaceVariables(diligencia.previewText || '', replicateValues);
+        const replacedTextoFinal = replaceVariables(diligencia.texto_final || diligencia.previewText || '', replicateValues);
+
+        const replicatePayload = {
+          templateId: diligencia.plantilla_id || diligencia.templateId || null,
+          values: Object.entries(variableMap).map(([variable, value]) => ({ variable, value })),
+          previewText: replacedPreview || diligencia.previewText || '',
+          texto_final: replacedTextoFinal || diligencia.texto_final || '',
+          croquis: diligencia.croquis || null,
+          croquis_descripcion: diligencia.croquis_descripcion || ''
+        };
+
+        await apiService.createDiligencia(newAtestadoId, replicatePayload);
+      }
+
+      setShowReplicateModal(false);
+      setReplicateValues({});
+      Swal.fire({
+        icon: 'success',
+        title: 'Atestado replicado',
+        text: 'Se ha replicado el atestado con las nuevas palabras clave.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      navigate(`/atestados/${newAtestadoId}`);
+    } catch (error) {
+      console.error('Error al replicar atestado:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo replicar el atestado. Intenta nuevamente.'
+      });
+    } finally {
+      setReplicateLoading(false);
+    }
+  };
+
   const plantillasFiltradas = plantillas.filter(plantilla =>
     plantilla.name?.toLowerCase().includes(searchPlantillas.toLowerCase()) ||
     plantilla.description?.toLowerCase().includes(searchPlantillas.toLowerCase())
@@ -460,7 +741,16 @@
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Agregar
+                Agregar diligencia
+              </button>
+              <button
+                onClick={() => setShowCroquisModal(true)}
+                className="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 flex items-center justify-center gap-1 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M5 7v12a2 2 0 002 2h10a2 2 0 002-2V7M9 10h6M9 14h6" />
+                </svg>
+                Agregar croquis
               </button>
               
               {diligencias.length > 1 && (
@@ -476,6 +766,12 @@
                   {isReordering ? 'Finalizar' : 'Reordenar'}
                 </button>
               )}
+              <button
+                onClick={() => setShowReplicateModal(true)}
+                className="px-3 py-2 rounded text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+              >
+                Replicar atestado
+              </button>
             </div>
 
             {isReordering && (
@@ -486,15 +782,26 @@
             )}
 
             {Object.keys(allVariables).length > 0 && (
-              <button
-                onClick={handleShowUnifiedVariables}
-                className="w-full bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700 flex items-center justify-center gap-2 mt-2 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-                Palabras Clave ({Object.keys(allVariables).length})
-              </button>
+              <div className="grid grid-cols-1 gap-2">
+                <button
+                  onClick={handleShowUnifiedVariables}
+                  className="w-full bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700 flex items-center justify-center gap-2 mt-2 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  Palabras Clave ({Object.keys(allVariables).length})
+                </button>
+                <button
+                  onClick={() => setShowKeywordValuesModal(true)}
+                  className="w-full bg-indigo-600 text-white px-3 py-2 rounded text-sm hover:bg-indigo-700 flex items-center justify-center gap-2 mt-2 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  Ver valores por diligencia
+                </button>
+              </div>
             )}
           </div>
           
@@ -666,6 +973,11 @@
                           <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-justify font-mono text-sm">
                             {diligencia.texto_final || 'Sin contenido'}
                           </div>
+                          {diligencia.croquis && (
+                            <div className="mt-3 border rounded overflow-hidden bg-white">
+                              <img src={diligencia.croquis} alt="Croquis policial" className="w-full h-40 object-cover" />
+                            </div>
+                          )}
                         </div>
 
                         {diligencia.valores && diligencia.valores.length > 0 && (
@@ -700,6 +1012,56 @@
           </div>
         </div>
       </div>
+
+      {/* Modal para replicar atestado */}
+      {showReplicateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Replicar atestado</h3>
+                <p className="text-sm text-gray-600">Ingresa nuevos valores para las palabras clave antes de replicar.</p>
+              </div>
+              <button onClick={() => setShowReplicateModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div className="p-4 max-h-80 overflow-y-auto">
+              {Object.keys(allVariables).length === 0 ? (
+                <p className="text-sm text-gray-500">No se encontraron palabras clave para replicar.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {Object.keys(allVariables).map(variable => (
+                    <div key={variable}>
+                      <label className="block text-xs font-semibold text-gray-700">{variable}</label>
+                      <input
+                        type="text"
+                        value={replicateValues[variable] || ''}
+                        onChange={(e) => setReplicateValues(prev => ({ ...prev, [variable]: e.target.value }))}
+                        className="w-full border rounded px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder={`Nuevo valor para ${variable}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t bg-gray-50 flex justify-end gap-2">
+              <button
+                onClick={() => setShowReplicateModal(false)}
+                className="px-3 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleReplicateAtestado}
+                disabled={replicateLoading}
+                className="px-3 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
+              >
+                {replicateLoading ? 'Replicando...' : 'Replicar atestado'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal para agregar diligencia - SIN VARIABLES */}
       {showAddDiligenciaModal && (
@@ -786,6 +1148,129 @@
         </div>
       )}
 
+      {/* Modal para Croquis Policial */}
+      {showCroquisModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden">
+            <div className="p-4 border-b bg-gray-50 flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Agregar croquis policial</h3>
+                <p className="text-sm text-gray-600 mt-1">Dibuja en el croquis o subí una imagen, y guardá como diligencia.</p>
+              </div>
+              <button onClick={() => setShowCroquisModal(false)} className="text-gray-400 hover:text-gray-700">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-4 space-y-3">
+              <div className="flex gap-2 text-xs">
+                <button
+                  onClick={() => setCroquisMode('draw')}
+                  className={`px-3 py-2 rounded ${croquisMode === 'draw' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}>
+                  Crear croquis
+                </button>
+                <button
+                  onClick={() => setCroquisMode('upload')}
+                  className={`px-3 py-2 rounded ${croquisMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}>
+                  Subir imagen
+                </button>
+              </div>
+
+              {croquisMode === 'draw' ? (
+                <div className="border rounded p-3 bg-gray-50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-xs text-gray-600 mr-2">Arrastrá elementos al área y movelos con el mouse.</p>
+                    <button onClick={() => setCroquisElements([])} className="px-2 py-1 text-xs bg-red-500 text-white rounded">Limpiar</button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {croquisPalette.map(item => (
+                      <button
+                        key={item.id}
+                        onClick={() => addCroquisElement(item.id)}
+                        className="border rounded p-2 text-center hover:bg-gray-100"
+                      >
+                        <div className="text-2xl">{item.emoji}</div>
+                        <div className="text-xs text-gray-600">{item.label}</div>
+                      </button>
+                    ))}
+                  </div>
+                  <div
+                    className="relative border border-gray-300 rounded bg-white h-64"
+                    style={{ width: canvasSize.width, height: canvasSize.height }}
+                    onMouseMove={moveElement}
+                    onMouseUp={stopMove}
+                    onMouseLeave={stopMove}
+                  >
+                    {croquisElements.length === 0 && (
+                      <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-xs">Agregá un elemento para comenzar</div>
+                    )}
+                    {croquisElements.map(element => (
+                      <div
+                        key={element.id}
+                        style={{ left: element.x, top: element.y }}
+                        className="absolute cursor-move select-none"
+                        onMouseDown={(e) => startMoveElement(e, element.id)}
+                      >
+                        <span className="text-2xl">{element.icon}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="border rounded p-3 bg-gray-50">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Archivo de croquis (PNG, JPG, SVG)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setCroquisFile(e.target.files[0] || null)}
+                    className="w-full border rounded px-3 py-2 text-sm"
+                  />
+                  {croquisFile && (
+                    <div className="mt-2 p-2 bg-white border rounded text-xs text-gray-700">
+                      Archivo: {croquisFile.name}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción de croquis</label>
+                <textarea
+                  rows={3}
+                  maxLength={700}
+                  value={croquisDescription}
+                  onChange={(e) => setCroquisDescription(e.target.value)}
+                  className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Ej. croquis del lugar del siniestro con orientación..."
+                />
+              </div>
+            </div>
+
+            <div className="p-4 border-t bg-gray-50 flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowCroquisModal(false);
+                  setCroquisFile(null);
+                  setCroquisDescription('');
+                }}
+                className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCreateCroquisDiligencia}
+                disabled={croquisLoading}
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {croquisLoading ? 'Guardando...' : 'Guardar croquis'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal para asignar variables unificadas */}
       {showUnifiedVariablesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -832,6 +1317,47 @@
               >
                 Asignar Variables
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showKeywordValuesModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b bg-gray-50 flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Valores de palabras clave</h3>
+                <p className="text-sm text-gray-600">Muestra los valores asignados y diligencia de origen.</p>
+              </div>
+              <button className="text-gray-500 hover:text-gray-700" onClick={() => setShowKeywordValuesModal(false)}>✕</button>
+            </div>
+            <div className="p-4 max-h-76 overflow-y-auto">
+              {Object.keys(keywordValuesByDiligencia).length === 0 ? (
+                <div className="text-sm text-gray-500">No hay valores de palabras clave asignados en este atestado.</div>
+              ) : (
+                <div className="space-y-3">
+                  {Object.entries(keywordValuesByDiligencia).map(([variable, entries]) => (
+                    <div key={variable} className="border rounded p-3 bg-gray-50">
+                      <div className="font-semibold text-sm">{variable}</div>
+                      <div className="mt-1 text-xs text-gray-700">
+                        {entries.map((entry, i) => (
+                          <div className="flex justify-between gap-2" key={`${variable}-${entry.diligenciaId}-${i}`}>
+                            <span className="font-medium">{entry.nombre}</span>
+                            <span className="text-green-700">{entry.valor || '(vacío)'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t text-right">
+              <button
+                className="px-3 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+                onClick={() => setShowKeywordValuesModal(false)}
+              >Cerrar</button>
             </div>
           </div>
         </div>

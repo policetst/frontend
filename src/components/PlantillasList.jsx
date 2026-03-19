@@ -129,8 +129,8 @@ const PlantillasList = () => {
             return (
               <div key={plantilla.id} className="bg-white border rounded p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg mb-1">
+                  <Link to={`/plantillas/${plantilla.id}/editar`} className="flex-1 group">
+                    <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors">
                       {plantilla.name || 'Sin nombre'}
                     </h3>
                     <p className="text-gray-600 text-sm mb-2">
@@ -143,7 +143,7 @@ const PlantillasList = () => {
                         <span>Actualizada: {formatDate(plantilla.updated_at)}</span>
                       )}
                     </div>
-                  </div>
+                  </Link>
                 </div>
 
                 {/* Variables */}
@@ -174,15 +174,10 @@ const PlantillasList = () => {
 
                 {/* Acciones */}
                 <div className="flex gap-2">
-                  <Link 
-                    to={`/plantillas/${plantilla.id}/editar`} 
-                    className="text-green-500 hover:text-green-700 font-medium"
-                  >
-                    Editar
-                  </Link>
                   <button
                     onClick={() => handleDelete(plantilla.id, plantilla.name)}
-                    className="text-red-500 hover:text-red-700 font-medium"
+                    className="px-4 py-2 bg-red-600 text-white rounded border border-red-700
+                    hover:bg-red-700 transition-colors text-sm font-medium"
                   >
                     Eliminar
                   </button>

@@ -8,6 +8,10 @@ import ROUTER from "./router/router.jsx";
 import { CookiesProvider } from 'react-cookie';
 import "./index.css";
 
+if (typeof window !== 'undefined' && !window.global) {
+  window.global = window;
+}
+
 createRoot(document.getElementById("root")).render( //* Renderizar el componente raíz de la aplicación en el elemento con id root de index.html*/
   <StrictMode>
     <CookiesProvider>

@@ -240,9 +240,9 @@ const DiligenciasList = () => {
                 {diligenciasFiltradas.map((diligencia) => (
                   <tr key={diligencia.id} className="hover:bg-gray-50">
                     <td className="border border-gray-300 px-4 py-2">
-                      <span className="font-medium text-blue-600">
+                      <Link to={`/diligencias/${diligencia.id}`} className="font-medium text-blue-600 hover:underline">
                         #{diligencia.numero || diligencia.id}
-                      </span>
+                      </Link>
                     </td>
                     <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">
                       {formatDateTime(diligencia.created_at)}
@@ -264,20 +264,8 @@ const DiligenciasList = () => {
                     </td>
                     <td className="border border-gray-300 px-4 py-2">
                       <div className="flex gap-2">
-                        <Link 
-                          to={`/diligencias/${diligencia.id}`} 
-                          className="text-blue-500 hover:text-blue-700 text-sm font-medium"
-                        >
-                          Ver
-                        </Link>
-                        <Link 
-                          to={`/diligencias/${diligencia.id}/editar`} 
-                          className="text-green-500 hover:text-green-700 text-sm font-medium"
-                        >
-                          Editar
-                        </Link>
                         <button 
-                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                          className="px-3 py-1.5 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 transition-colors"
                           onClick={() => {
                             if (confirm('¿Estás seguro de que quieres eliminar esta diligencia?')) {
                               // Implementar eliminación

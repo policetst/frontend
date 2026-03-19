@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Input({ 
+export const Input = React.forwardRef(({ 
   type = 'text', 
   placeholder, 
   value, 
@@ -8,9 +8,10 @@ export function Input({
   className = '',
   disabled = false,
   ...props 
-}) {
+}, ref) => {
   return (
     <input
+      ref={ref}
       type={type}
       placeholder={placeholder}
       value={value}
@@ -20,4 +21,6 @@ export function Input({
       {...props}
     />
   );
-}
+});
+
+Input.displayName = 'Input';
