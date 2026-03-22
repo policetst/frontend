@@ -12,7 +12,8 @@ const DraggableDiligencia = ({
   onEdit,
   onDelete,
   isReordering = false,
-  compact = false
+  compact = false,
+  isFinal = false
 }) => {
   const handleDragStart = (e) => {
     if (!isReordering) return;
@@ -49,7 +50,11 @@ const DraggableDiligencia = ({
         `}
       >
         <div className="flex items-start justify-between mb-2">
+<<<<<<< Updated upstream
           <div className="flex items-center gap-2 flex-1 min-w-0">
+=======
+          <div className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer group" onClick={() => !isReordering && !isFinal && onEdit(diligencia)}>
+>>>>>>> Stashed changes
             {isReordering && (
               <div className="flex flex-col items-center text-gray-400 flex-shrink-0">
                 <div className="w-1 h-1 bg-gray-500 rounded-full mb-1"></div>
@@ -76,6 +81,7 @@ const DraggableDiligencia = ({
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
+<<<<<<< Updated upstream
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -104,6 +110,29 @@ const DraggableDiligencia = ({
         </div>
 
         <div className="text-xs text-gray-800 line-clamp-2 leading-relaxed font-mono">
+=======
+            {!isFinal && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(diligencia.id);
+                }}
+                className="text-red-500 hover:text-red-700 p-2 rounded hover:bg-red-50 transition-colors"
+                title="Eliminar diligencia"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div 
+          onClick={() => !isReordering && !isFinal && onEdit(diligencia)}
+          className={`text-xs text-gray-800 line-clamp-2 leading-relaxed font-mono mb-2 ${(!isReordering && !isFinal) ? 'cursor-pointer hover:text-blue-600' : ''}`}
+        >
+>>>>>>> Stashed changes
           {diligencia.texto_final || 'Sin contenido'}
         </div>
 

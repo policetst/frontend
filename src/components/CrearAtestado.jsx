@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/apiService';
+import Swal from 'sweetalert2';
 import { ArrowLeft } from 'lucide-react';
 
 const CrearAtestado = () => {
@@ -18,12 +19,22 @@ const CrearAtestado = () => {
     e.preventDefault();
     
     if (!formData.numero.trim()) {
-      alert('El número del atestado es obligatorio');
+      Swal.fire({
+        title: 'Campo obligatorio',
+        text: 'El número del atestado es obligatorio',
+        icon: 'warning',
+        confirmButtonColor: '#002856',
+      });
       return;
     }
 
     if (!formData.fecha) {
-      alert('La fecha del atestado es obligatoria');
+      Swal.fire({
+        title: 'Campo obligatorio',
+        text: 'La fecha del atestado es obligatoria',
+        icon: 'warning',
+        confirmButtonColor: '#002856',
+      });
       return;
     }
 
@@ -36,7 +47,12 @@ const CrearAtestado = () => {
     } catch (error) {
       console.error('Error al crear atestado:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
-      alert('Error: ' + errorMessage);
+      Swal.fire({
+        title: 'Error',
+        text: 'Error: ' + errorMessage,
+        icon: 'error',
+        confirmButtonColor: '#002856',
+      });
     } finally {
       setLoading(false);
     }

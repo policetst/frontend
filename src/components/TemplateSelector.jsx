@@ -68,19 +68,7 @@ export function TemplateSelector({
 
   return (
     <div className="space-y-4">
-      {/* Plantilla seleccionada actualmente */}
-      {selectedTemplate && (
-        <Card className="border-l-4 border-l-green-500 bg-green-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base text-green-800">
-              Plantilla seleccionada
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TemplatePreview template={selectedTemplate} compact />
-          </CardContent>
-        </Card>
-      )}
+
 
       {/* Controles de búsqueda y filtros */}
       <Card>
@@ -197,15 +185,7 @@ export function TemplateSelector({
         )}
       </div>
 
-      {/* Dialog de preview */}
-      <Dialog open={previewTemplate !== null} onOpenChange={() => setPreviewTemplate(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Preview de plantilla</DialogTitle>
-          </DialogHeader>
-          {previewTemplate && <TemplatePreview template={previewTemplate} />}
-        </DialogContent>
-      </Dialog>
+
     </div>
   )
 }

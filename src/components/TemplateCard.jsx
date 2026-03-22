@@ -43,37 +43,11 @@ export function TemplateCard({
       </CardHeader>
       
       <CardContent>
-        <div className="space-y-3">
-          <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border-l-3 border-l-blue-200 max-h-16 overflow-y-auto">
-            {variableParts.slice(0, 3).map((part, index) => (
-              <span key={index} className={part.isVariable ? 'bg-yellow-200 px-1 rounded font-semibold' : ''}>
-                {part.isVariable ? `{${part.text}}` : part.text}
-              </span>
-            ))}
-            {variableParts.length > 3 && (
-              <span className="text-gray-400">...</span>
-            )}
-          </div>
-          
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 pt-2 border-t">
             <div className="text-xs text-gray-500">
               {template.content.length} caracteres
             </div>
             <div className="flex gap-2">
-              {onPreview && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onPreview(template)
-                  }}
-                  className="text-xs h-7"
-                >
-                  <Eye className="h-3 w-3 mr-1" />
-                  Preview
-                </Button>
-              )}
               {onSelect && (
                 <Button
                   variant={isSelected ? "default" : "outline"}
@@ -89,7 +63,6 @@ export function TemplateCard({
               )}
             </div>
           </div>
-        </div>
       </CardContent>
     </Card>
   )

@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiService from '../../services/apiService';
+import Swal from 'sweetalert2';
+import { FileText, Calendar, Trash2, Tag, Info } from 'lucide-react';
 
 const DiligenciasList = () => {
   const [diligencias, setDiligencias] = useState([]);
@@ -22,7 +24,12 @@ const DiligenciasList = () => {
       setDiligencias([]);
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al cargar las diligencias');
+      Swal.fire({
+        title: 'Error',
+        text: 'Error al cargar las diligencias',
+        icon: 'error',
+        confirmButtonColor: '#002856',
+      });
     } finally {
       setLoading(false);
     }
@@ -165,56 +172,29 @@ const DiligenciasList = () => {
         </div>
       </div>
 
-      {/* Sección Ver diligencias */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 mt-6">
-        <h2 className="text-lg font-semibold mb-4">Ver diligencias</h2>
-        
-        {/* Filtros adicionales */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div>
-            <select className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">Buscar por número</option>
-            </select>
-          </div>
-          <div>
-            <select className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">Fecha</option>
-            </select>
-          </div>
-          <div>
-            <select 
-              value={filtroResultado}
-              onChange={(e) => setFiltroResultado(e.target.value)}
-              className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Resultado</option>
-              <option value="completada">Completada</option>
-              <option value="pendiente">Pendiente</option>
-              <option value="en_proceso">En proceso</option>
-            </select>
-          </div>
-          <div>
-            <select className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">Tipo</option>
-              <option value="atestado">Atestado</option>
-              <option value="denuncia">Denuncia</option>
-              <option value="citacion">Citación</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Tabla de resultados */}
+        {/* Sección Ver diligencias redesigned */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mt-6">
+          <h2 className="text-lg font-semibold mb-4">Ver diligencias</h2>
+          
+          {/* Lista de diligencias como tarjetas */}
         {diligenciasFiltradas.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500 mb-4">No hay diligencias que coincidan con los filtros.</p>
-            <Link 
-              to="/plantillas/nueva"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Crear Primera Diligencia
-            </Link>
+          <div className="p-12 text-center text-gray-500 bg-white rounded-lg border">
+            <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-semibold mb-2">No hay diligencias</h3>
+            <p className="text-gray-400 mb-4">
+              {busqueda || filtroFecha || filtroResultado ? 'No se encontraron diligencias que coincidan con los filtros' : 'Aún no se han registrado diligencias'}
+            </p>
+            {!busqueda && !filtroFecha && (
+              <Link 
+                to="/plantillas"
+                className="bg-[#002856] text-white px-6 py-2 rounded shadow-md hover:bg-blue-700 transition-all font-bold"
+              >
+                Crear Diligencia (desde Plantillas)
+              </Link>
+            )}
           </div>
         ) : (
+<<<<<<< Updated upstream
           <div className="overflow-x-auto">
             <table className="w-full border-collapse border border-gray-300">
               <thead>
@@ -287,12 +267,80 @@ const DiligenciasList = () => {
                         >
                           Eliminar
                         </button>
+=======
+          <div className="grid grid-cols-1 gap-4">
+            {diligenciasFiltradas.map((diligencia) => (
+              <div key={diligencia.id} className="bg-white rounded-lg shadow-sm border p-5 hover:shadow-md transition-all group">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Link to={`/diligencias/${diligencia.id}`} className="text-lg font-bold text-[#002856] hover:underline decoration-2">
+                        Diligencia #{diligencia.numero || diligencia.id}
+                      </Link>
+                      <span className={`inline-block px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ring-1 ${
+                        diligencia.resultado === 'completada' ? 'bg-green-100 text-green-800 ring-green-600/20' :
+                        diligencia.resultado === 'pendiente' ? 'bg-yellow-100 text-yellow-800 ring-yellow-600/20' :
+                        'bg-blue-100 text-blue-800 ring-blue-600/20'
+                      }`}>
+                        {diligencia.resultado || 'Sin estado'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 font-medium">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        {formatDateTime(diligencia.created_at)}
+>>>>>>> Stashed changes
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-gray-400" />
+                        <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs border border-slate-200">
+                          {diligencia.plantilla_nombre || 'Sin plantilla'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {diligencia.content && (
+                      <p className="mt-3 text-xs text-gray-500 line-clamp-1 italic bg-slate-50 p-2 rounded border border-slate-100">
+                        {diligencia.content.substring(0, 100)}...
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 ml-4">
+                    <button 
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors flex-shrink-0"
+                      title="Eliminar diligencia"
+                      onClick={async () => {
+                        const result = await Swal.fire({
+                          title: '¿Estás seguro?',
+                          text: 'Se eliminará esta diligencia de forma permanente.',
+                          icon: 'warning',
+                          showCancelButton: true,
+                          confirmButtonColor: '#002856',
+                          cancelButtonColor: '#d33',
+                          confirmButtonText: 'Sí, eliminar',
+                          cancelButtonText: 'Cancelar'
+                        });
+
+                        if (result.isConfirmed) {
+                          // Implementar eliminación real aquí
+                          console.log('Eliminar diligencia:', diligencia.id);
+                          Swal.fire({
+                            title: 'Eliminada',
+                            text: 'Funcionalidad de borrado en desarrollo',
+                            icon: 'info',
+                            confirmButtonColor: '#002856'
+                          });
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

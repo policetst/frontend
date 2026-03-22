@@ -27,7 +27,6 @@ import AtestadosDetailSimple from "../components/AtestadosDetailSimple";
 import CrearAtestado from "../components/CrearAtestado";
 import EditarAtestado from "../components/EditarAtestado";
 import PlantillasList from "../components/PlantillasList";
-import CrearPlantilla from "../components/CrearPlantilla";
 import EditarPlantilla from "../components/EditarPlantilla";
 
 const ROUTER = createHashRouter([
@@ -125,10 +124,6 @@ const ROUTER = createHashRouter([
       {
         path: "/plantillas",
         element: <PlantillasList />
-      },
-      {
-        path: "/plantillas/nueva",
-        element: <CrearPlantilla />
       },
       {
         path: "/plantillas/:id/editar",

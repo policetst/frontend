@@ -1,4 +1,7 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 const AtestadoPrintView = ({ atestado, diligencias, onClose }) => {
   const formatDate = (dateString) => {
@@ -117,10 +120,28 @@ const AtestadoPrintView = ({ atestado, diligencias, onClose }) => {
                     </p>
                   </div>
                   
-                  <div className="prose max-w-none">
-                    <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                  <div className="prose max-w-none prose-slate print:prose-p:my-1 print:prose-table:my-2">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm, remarkBreaks]}
+                      components={{
+                        table: ({node, ...props}) => (
+                          <div className="overflow-x-auto my-4 print:my-2">
+                            <table className="min-w-full border-2 border-gray-400 border-collapse" {...props} />
+                          </div>
+                        ),
+                        th: ({node, ...props}) => <th className="bg-gray-100 px-3 py-2 text-left text-xs font-bold text-gray-800 border-2 border-gray-400" {...props} />,
+                        td: ({node, ...props}) => <td className="px-3 py-2 text-sm text-gray-900 border-2 border-gray-400" {...props} />,
+                        p: ({node, ...props}) => <p className="leading-relaxed mb-4 print:mb-2 whitespace-pre-wrap" {...props} />,
+                        strong: ({node, ...props}) => <strong className="font-bold text-gray-900" style={{ fontWeight: 'bold' }} {...props} />,
+                        em: ({node, ...props}) => <em className="italic text-gray-800" style={{ fontStyle: 'italic' }} {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-lg font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mt-6 mb-3" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc ml-8 my-4 space-y-1 block print:my-2" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal ml-8 my-4 space-y-1 block print:my-2" {...props} />,
+                        li: ({node, ...props}) => <li className="text-gray-800" {...props} />,
+                      }}
+                    >
                       {diligencia.texto_final || diligencia.content || 'Sin contenido'}
-                    </div>
+                    </ReactMarkdown>
                   </div>
                   
                   {diligencia.valores && Array.isArray(diligencia.valores) && diligencia.valores.length > 0 && diligencia.valores.some(valor => valor && valor.variable) && (
