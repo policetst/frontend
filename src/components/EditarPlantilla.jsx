@@ -17,6 +17,8 @@ import {
   Eye, Edit3, Save, X, Trash2, ArrowLeft, Info, HelpCircle,
   Tag, FileText
 } from 'lucide-react';
+import TableGeneratorModal from './TableGeneratorModal';
+
 
 const EditarPlantilla = () => {
   const { id } = useParams();
@@ -31,7 +33,10 @@ const EditarPlantilla = () => {
   });
   const [errors, setErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
+  const [activeTab, setActiveTab] = useState('edit'); // 'edit' or 'preview'
+  const [isTableModalOpen, setIsTableModalOpen] = useState(false);
   const textareaRef = useRef(null);
+
 
   useEffect(() => {
     loadPlantilla();
@@ -410,10 +415,11 @@ const EditarPlantilla = () => {
                   </div>
 
                   <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm">
-                    <button type="button" title="Insertar Tabla" onClick={() => addFormat('\n| Concepto | Información |\n|---|---|\n| {Fato_1} | {Respuesta_1} |\n| {Fato_2} | {Respuesta_2} |\n')} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
+                    <button type="button" title="Insertar Tabla" onClick={() => setIsTableModalOpen(true)} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
                       <Table className="w-4 h-4" /> <span className="text-xs font-bold">TABLA</span>
                     </button>
                   </div>
+
 
                   <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm">
                     <button type="button" title="Recuadro Central" onClick={() => addFormat('\n[[ {Texto_dentro_del_recuadro} ]]\n')} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
@@ -427,6 +433,24 @@ const EditarPlantilla = () => {
                     </button>
                   </div>
 
+                  <div className="flex bg-slate-200/50 p-1 rounded-lg border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('edit')}
+                      className={`px-4 py-1.5 text-[10px] font-black tracking-widest rounded-md flex items-center gap-2 transition-all ${activeTab === 'edit' ? 'bg-white text-blue-700 shadow-sm scale-110 z-10' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      <Edit3 className="w-3 h-3" /> REDACCIÓN
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('preview')}
+                      className={`px-4 py-1.5 text-[10px] font-black tracking-widest rounded-md flex items-center gap-2 transition-all ${activeTab === 'preview' ? 'bg-white text-blue-700 shadow-sm scale-110 z-10' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      <Eye className="w-3 h-3" /> VISTA PREVIA
+                    </button>
+                  </div>
+
+
                   <div className="h-4 w-[1px] bg-slate-200 mx-1" />
 
                   <div className="flex items-center gap-2">
@@ -439,27 +463,26 @@ const EditarPlantilla = () => {
                       defaultValue=""
                     >
                       <option value="" disabled>📋 INSERTAR BLOQUES POLICIALES...</option>
-                      
-                      <optgroup label="--- PROCEDIMIENTO GENERAL ---">
-                        <option value="[[ DILIGENCIA DE INICIO ]]\n\nEn la localidad de {Poblacion}, siendo las {Hora_Inicio} horas del día {Fecha_Inicio}, el Agente con carné profesional número {Num_Agente}, actuando como Instructor, procede a la apertura del presente atestado por los hechos que se detallarán a continuación.\n">📝 Diligencia de Inicio</option>
-                        <option value="\n[[ DILIGENCIA DE CIERRE Y REMISIÓN ]]\n\nY para que conste, se cierra la presente diligencia a las {Hora_Cierre} horas del día {Fecha_Cierre}, procediendo a su remisión al Juzgado de Instrucción en funciones de Guardia de {Localidad_Juzgado}.\n">🏁 Cierre y Remisión</option>
+                            <optgroup label="--- PROCEDIMIENTO GENERAL ---">
+                        <option value={"[[ DILIGENCIA DE INICIO ]]\n\nEn la localidad de {Poblacion}, siendo las {Hora_Inicio} horas del día {Fecha_Inicio}, el Agente con carné profesional número {Num_Agente}, actuando como Instructor, procede a la apertura del presente atestado por los hechos que se detallarán a continuación.\n"}>📝 Diligencia de Inicio</option>
+                        <option value={"\n[[ DILIGENCIA DE CIERRE Y REMISIÓN ]]\n\nY para que conste, se cierra la presente diligencia a las {Hora_Cierre} horas del día {Fecha_Cierre}, procediendo a su remisión al Juzgado de Instrucción en funciones de Guardia de {Localidad_Juzgado}.\n"}>🏁 Cierre y Remisión</option>
                       </optgroup>
 
                       <optgroup label="--- IDENTIFICACIÓN Y DATOS ---">
-                        <option value="\n--- DATOS PERSONALES ---\nNombre: {Nombre}\nApellidos: {Apellidos}\nDNI/NIE: {Documento_Identidad}\nFecha Nacimiento: {Fecha_Nacimiento}\nNatural de: {Natural_de}\nDomicilio: {Domicilio}\nTeléfono: {Telefono}\n">👤 Identificación Persona</option>
-                        <option value="\n--- DATOS VEHÍCULO ---\nMarca: {Marca}\nModelo: {Modelo}\nMatrícula: {Matricula}\nColor: {Color}\nBastidor: {Num_Bastidor}\n">🚗 Datos Vehículo</option>
-                        <option value="\n--- UBICACIÓN Y TIEMPO ---\nLugar: {Lugar_Hechos}\nCía/Vía: {Calle_o_Punto_Kilometrico}\nLocalidad: {Poblacion}\nFecha: {Fecha_Hechos}\nHora: {Hora_Hechos}\n">📍 Perímetro/Ubicación</option>
+                        <option value={"\n--- DATOS PERSONALES ---\nNombre: {Nombre}\nApellidos: {Apellidos}\nDNI/NIE: {Documento_Identidad}\nFecha Nacimiento: {Fecha_Nacimiento}\nNatural de: {Natural_de}\nDomicilio: {Domicilio}\nTeléfono: {Telefono}\n"}>👤 Identificación Persona</option>
+                        <option value={"\n--- DATOS VEHÍCULO ---\nMarca: {Marca}\nModelo: {Modelo}\nMatrícula: {Matricula}\nColor: {Color}\nBastidor: {Num_Bastidor}\n"}>🚗 Datos Vehículo</option>
+                        <option value={"\n--- UBICACIÓN Y TIEMPO ---\nLugar: {Lugar_Hechos}\nCía/Vía: {Calle_o_Punto_Kilometrico}\nLocalidad: {Poblacion}\nFecha: {Fecha_Hechos}\nHora: {Hora_Hechos}\n"}>📍 Perímetro/Ubicación</option>
                       </optgroup>
 
                       <optgroup label="--- DECLARACIONES Y DERECHOS ---">
-                        <option value="\n[[ DILIGENCIA DE DECLARACIÓN DE TESTIGO ]]\n\nInstruido de la obligación legal de decir verdad y de las penas con las que la Ley castiga el delito de falso testimonio en causa judicial, manifiesta:\n\nPREGUNTADO: {Pregunta_1}\nRESPUESTA: {Respuesta_1}\n">🗣️ Declaración Testigo</option>
-                        <option value="\n[[ OFRECIMIENTO DE ACCIONES (Art. 109 LECrim) ]]\n\nSe informa al ofendido/perjudicado de su derecho a mostrarse parte en el proceso, pudiendo nombrar Abogado y Procurador o solicitar la designación de oficio, así como de su derecho a la restitución de la cosa, reparación del daño e indemnización.\n">⚖️ Ofrecimiento Acciones</option>
-                        <option value="\n--- LECTURA DE DERECHOS (Art. 520 LECrim) ---\nSe procede a la lectura de los derechos que le asisten según el Art. 520 de la LECrim:\n1. Derecho a guardar silencio.\n2. Derecho a no declarar contra sí mismo.\n3. Derecho a designar abogado.\n4. Derecho a que se ponga en conocimiento de un familiar el hecho de la detención.\n5. Derecho a ser asistido por intérprete gratuito (si procede).\n">🛡️ Lectura Derechos (Detenido)</option>
+                        <option value={"\n[[ DILIGENCIA DE DECLARACIÓN DE TESTIGO ]]\n\nInstruido de la obligación legal de decir verdad y de las penas con las que la Ley castiga el delito de falso testimonio en causa judicial, manifiesta:\n\nPREGUNTADO: {Pregunta_1}\nRESPUESTA: {Respuesta_1}\n"}>🗣️ Declaración Testigo</option>
+                        <option value={"\n[[ OFRECIMIENTO DE ACCIONES (Art. 109 LECrim) ]]\n\nSe informa al ofendido/perjudicado de su derecho a mostrarse parte en el proceso, pudiendo nombrar Abogado y Procurador o solicitar la designación de oficio, así como de su derecho a la restitución de la cosa, reparación del daño e indemnización.\n"}>⚖️ Ofrecimiento Acciones</option>
+                        <option value={"\n--- LECTURA DE DERECHOS (Art. 520 LECrim) ---\nSe procede a la lectura de los derechos que le asisten según el Art. 520 de la LECrim:\n1. Derecho a guardar silencio.\n2. Derecho a no declarar contra sí mismo.\n3. Derecho a designar abogado.\n4. Derecho a que se ponga en conocimiento de un familiar el hecho de la detención.\n5. Derecho a ser asistido por intérprete gratuito (si procede).\n"}>🛡️ Lectura Derechos (Detenido)</option>
                       </optgroup>
 
                       <optgroup label="--- TRAFICO Y ALCOHOLEMIA ---">
-                        <option value="\n[[ PRUEBA DE ALCOHOLEMIA ]]\n\nETILÓMETRO: {Modelo_Etilometro}\nEXPIRA: {Fecha_Calibracion}\n\n1ª PRUEBA: {Resultado_1} mg/l a las {Hora_1}\n2ª PRUEBA: {Resultado_2} mg/l a las {Hora_2}\n\nSÍNTOMAS QUE PRESENTA: {Sintomatologia_Detectada}\n">🍺 Acta Alcoholemia</option>
-                        <option value="\n[[ DILIGENCIA DE CITACIÓN ]]\n\nPor la presente se cita a D/Dña {Nombre_Citado} para que comparezca el próximo día {Fecha_Cita} a las {Hora_Cita} horas ante {Lugar_Comparecencia} (Juzgado/Dependencia Policial) en relación con las presentes actuaciones.\n">📅 Citación Formal</option>
+                        <option value={"\n[[ PRUEBA DE ALCOHOLEMIA ]]\n\nETILÓMETRO: {Modelo_Etilometro}\nEXPIRA: {Fecha_Calibracion}\n\n1ª PRUEBA: {Resultado_1} mg/l a las {Hora_1}\n2ª PRUEBA: {Resultado_2} mg/l a las {Hora_2}\n\nSÍNTOMS QUE PRESENTA: {Sintomatologia_Detectada}\n"}>🍺 Acta Alcoholemia</option>
+                        <option value={"\n[[ DILIGENCIA DE CITACIÓN ]]\n\nPor la presente se cita a D/Dña {Nombre_Citado} para que comparezca el próximo día {Fecha_Cita} a las {Hora_Cita} horas ante {Lugar_Comparecencia} (Juzgado/Dependencia Policial) en relación con las presentes actuaciones.\n"}>📅 Citación Formal</option>
                       </optgroup>
                     </select>
                   </div>
@@ -489,146 +512,138 @@ const EditarPlantilla = () => {
                 </div>
               </div>
 
-              {/* Side-by-Side View Toggle */}
-              <div className="bg-white border-b px-4 py-1.5 flex justify-end gap-4 items-center h-10 shadow-sm z-0">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Modo de visualización:</span>
-                <div className="flex items-center bg-slate-100 rounded p-1 p-0.5">
-                  <button 
-                    type="button"
-                    onClick={() => setShowPreview(false)}
-                    className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded transition-all ${!showPreview ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    <Edit3 className="w-3.5 h-3.5" /> Editor
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => setShowPreview(true)}
-                    className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded transition-all ${showPreview ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    <Eye className="w-3.5 h-3.5" /> Ver en Paralelo
-                  </button>
-                </div>
-              </div>
-
-              {/* Editor / Preview Area */}
-              <div className="flex flex-1 min-h-0">
-                {/* Editor Surface */}
-                <div className={`flex flex-col flex-1 border-r transition-all duration-300 ${showPreview ? 'w-1/2' : 'w-full'}`}>
-                   <div className="p-4 flex-1 flex flex-col min-h-0 bg-white">
-                    <div className="bg-slate-50/80 rounded border border-slate-100 p-2 text-[10px] text-slate-500 mb-2 font-mono flex items-center gap-2">
-                       <Info className="w-3 h-3" /> Usa las llaves <strong>{'{'} variable {'}'}</strong> para añadir campos que se preguntarán al usar la diligencia.
-                    </div>
-                    <Textarea
-                      id="content"
-                      name="content"
-                      ref={textareaRef}
-                      value={formData.content}
-                      onChange={(e) => updateContent(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Empieza a redactar la diligencia policial..."
-                      className={`flex-1 w-full resize-none font-mono text-base leading-relaxed p-4 bg-transparent outline-none focus:ring-0 border-none transition-all placeholder:text-slate-300 ${errors.content ? 'text-red-900' : 'text-slate-800'}`}
-                      style={{ fontVariantLigatures: 'none' }}
-                    />
-                    {errors.content && (
-                      <div className="p-2 bg-red-50 border border-red-100 rounded text-red-600 text-[11px] font-bold flex items-center gap-2">
-                        <X className="w-3 h-3" /> {errors.content}
+              {/* Smart Live Editor Area */}
+              <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-white border-t">
+                {/* Editor Container Style as a Sheet */}
+                <div className="flex-1 overflow-y-auto p-4 flex justify-center bg-slate-100/50 scroll-smooth custom-scrollbar">
+                  <div className="w-full max-w-4xl min-h-full bg-white shadow-xl border border-slate-200 relative police-document-sheet p-0 flex flex-col">
+                    
+                    {/* Toolbar Internal */}
+                    <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b px-4 py-2 flex items-center justify-between shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="px-2 py-1 bg-blue-600 text-white text-[10px] font-bold rounded uppercase tracking-widest">Editor Inteligente</div>
+                        <span className="text-[10px] text-slate-400 font-medium">Autodetectando Markdown...</span>
                       </div>
-                    )}
-                   </div>
-                   <div className="bg-slate-50 px-4 py-1.5 border-t flex justify-between items-center text-[10px] font-bold text-slate-400">
-                     <span className="flex items-center gap-4">
-                       <span className="flex items-center gap-1 uppercase tracking-tight"><Tag className="w-3 h-3" /> Variables detectadas: {variablesDetectadas.length}</span>
-                       <span className="flex items-center gap-1 uppercase tracking-tight"><FileText className="w-3 h-3" /> Caracteres: {formData.content.length}</span>
-                     </span>
-                   </div>
-                </div>
-
-                {/* Preview Surface */}
-                {showPreview && (
-                  <div className="w-1/2 bg-[#fdfdfd] overflow-y-auto animate-in slide-in-from-right-1 duration-300">
-                    <div className="sticky top-0 bg-[#fdfdfd]/95 backdrop-blur px-6 py-2 border-b flex items-center gap-2 z-10 shadow-sm">
-                       <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                       <span className="text-[10px] font-bold uppercase tracking-widest text-[#002856]">Vista Previa en Tiempo Real</span>
+                      <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase">
+                        <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> Variables: {variablesDetectadas.length}</span>
+                        <span className="flex items-center gap-1"><FileText className="w-3 h-3" /> Caracteres: {formData.content.length}</span>
+                      </div>
                     </div>
-                    <div className="p-8 pb-32 prose prose-slate max-w-none prose-sm sm:prose-base font-sans overflow-x-hidden">
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkGfm, remarkBreaks]}
-                        components={{
-                          table: ({node, ...props}) => (
-                            <div className="overflow-x-auto my-6">
-                              <table className="min-w-full divide-y divide-[#002856]/20 border-collapse border border-[#002856]/20 shadow-sm" {...props} />
-                            </div>
-                          ),
-                          th: ({node, ...props}) => <th className="bg-[#002856]/5 px-4 py-2 text-left text-xs font-bold text-[#002856] border border-[#002856]/20" {...props} />,
-                          td: ({node, ...props}) => <td className="px-4 py-2 text-sm text-gray-800 border border-[#002856]/20" {...props} />,
-                          p: ({node, children, ...props}) => {
-                            // Extraer texto plano
-                            const flatten = (items) => {
-                              if (!items) return '';
-                              return React.Children.toArray(items).reduce((acc, item) => {
-                                if (typeof item === 'string') return acc + item;
-                                if (item.props && item.props.children) return acc + flatten(item.props.children);
-                                return acc;
-                              }, '');
-                            };
-                            
-                            const textContent = flatten(children).trim();
-                            const isBox = textContent.includes('╔') || textContent.includes('║') || textContent.includes('╚');
-                            
-                            // Nuevo: Deteción de recuadro estilo [[ texto ]]
-                            const isModernBox = textContent.startsWith('[[') && textContent.endsWith(']]');
-                            
-                            if (isModernBox) {
-                              return (
-                                <div className="my-8 mx-auto max-w-[80%] p-6 border-2 border-[#002856] rounded shadow-sm bg-white text-center font-bold text-lg text-[#002856] flex items-center justify-center min-h-[80px] whitespace-pre-wrap">
-                                   <div className="variables-ready">
-                                     {/* Modificamos los hijos para quitar los corchetes [[ ]] visualmente */}
-                                     {React.Children.map(children, (child, i) => {
-                                       if (typeof child === 'string') {
-                                         if (i === 0) return child.replace(/^\[\[/, '');
-                                         if (i === React.Children.count(children) - 1) return child.replace(/\]\]$/, '');
-                                         return child;
-                                       }
-                                       return child;
-                                     })}
-                                   </div>
-                                </div>
-                              );
-                            }
 
-                            if (isBox) {
-                              return (
-                                <div className="my-6 p-6 border-2 border-[#002856] rounded-md bg-blue-50/10 font-mono text-[11px] leading-tight whitespace-pre overflow-x-auto shadow-sm border-dashed">
-                                  {children}
-                                </div>
-                              );
-                            }
-                            return <p className="leading-relaxed mb-6 whitespace-pre-wrap text-[#2d3748] text-base" {...props}>{children}</p>;
-                          },
-                          strong: ({node, ...props}) => <strong className="font-bold text-[#002856] bg-blue-50/30 px-0.5 rounded" {...props} />,
-                          em: ({node, ...props}) => <em className="italic text-slate-700" {...props} />,
-                          h3: ({node, ...props}) => <h3 className="text-xl font-bold text-[#002856] border-b-2 border-[#002856]/10 pb-2 mt-8 mb-4 flex items-center gap-2" {...props} />,
-                          ul: ({node, ...props}) => <ul className="list-disc ml-6 my-4 space-y-2 block text-slate-700" {...props} />,
-                          ol: ({node, ...props}) => <ol className="list-decimal ml-6 my-4 space-y-2 block text-slate-700" {...props} />,
-                          li: ({node, ...props}) => <li className="pl-1" {...props} />,
-                          hr: ({node, ...props}) => <hr className="my-8 border-t border-slate-200" {...props} />,
-                        }}
-                      >
-                        {formData.content 
-                          ? formData.content
-                              .replace(/\\n/g, '\n') // Reemplazar \n literal por salto de línea real
-                              .replace(/\{([^}]+)\}/g, '**[$1_VALOR]**') 
-                          : '_Sin contenido para mostrar_'}
-                      </ReactMarkdown>
+                    <div className="flex-1 relative bg-white overflow-hidden min-h-[850px] flex flex-col">
+                      <div className="flex-1 relative p-12 overflow-y-auto">
+
+                        {activeTab === 'edit' ? (
+                          <div className="relative w-full h-full min-h-[600px]">
+                            {/* UNDERLAY: The actual textarea */}
+                            <Textarea
+                              id="content"
+                              name="content"
+                              ref={textareaRef}
+                              value={formData.content}
+                              onChange={(e) => updateContent(e.target.value)}
+                              onKeyDown={handleKeyDown}
+                              placeholder="Escribe la plantilla de la diligencia aquí..."
+                              className="absolute inset-0 w-full h-full resize-none bg-transparent border-none focus:ring-0 text-slate-800 caret-blue-600 z-10"
+                              style={{ 
+                                fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                                fontSize: '16px',
+                                lineHeight: '26px',
+                                padding: 0,
+                                margin: 0,
+                                fontVariantLigatures: 'none',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                              }}
+                            />
+
+                            {/* OVERLAY: The "Tint" layer with syntax highlights */}
+                            <div 
+                              className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-20"
+                              aria-hidden="true"
+                              style={{ 
+                                fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                                fontSize: '16px',
+                                lineHeight: '26px',
+                                padding: 0,
+                                margin: 0,
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                              }}
+                            >
+                              {formData.content.split('\n').map((line, i) => {
+                                let processed = line
+                                  .replace(/&/g, '&amp;')
+                                  .replace(/</g, '&lt;')
+                                  .replace(/>/g, '&gt;');
+                                
+                                processed = processed.replace(/\{([^}]+)\}/g, '<span class="bg-blue-400/20 text-blue-800/80">{$1}</span>');
+                                processed = processed.replace(/\*\*([^*]+)\*\*/g, '<span class="border-b border-indigo-300">**$1**</span>');
+                                processed = processed.replace(/\[\[(.*?)\]\]/g, '<span class="bg-slate-800/10 border border-slate-200">[[ $1 ]]</span>');
+                                
+                                if (line.startsWith('### ')) {
+                                  processed = `<span class="bg-slate-50/50 border-b border-slate-100">${processed}</span>`;
+                                }
+                                return (
+                                  <div key={i} dangerouslySetInnerHTML={{ __html: processed || '&nbsp;' }} style={{ minHeight: '26px' }} />
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="prose prose-slate max-w-none official-markdown-render animate-in fade-in duration-300">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm, remarkBreaks]}
+                              components={{
+                                p: ({ children }) => {
+                                  // Manejar bloques especiales [[ ... ]]
+                                  const text = React.Children.toArray(children).join('');
+                                  if (text.startsWith('[[') && text.endsWith(']]')) {
+                                    return (
+                                      <div className="my-6 p-6 border-4 border-gray-900 text-center font-black uppercase tracking-tight bg-gray-50 scale-[1.02] transform transition-transform">
+                                        {text.replace(/\[\[|\]\]/g, '')}
+                                      </div>
+                                    );
+                                  }
+                                  return <p className="mb-4 leading-relaxed text-gray-800">{children}</p>;
+                                },
+                                h3: ({ children }) => (
+                                  <h3 className="text-xl font-black text-gray-900 border-b-2 border-gray-900 pb-1 mt-8 mb-4 uppercase tracking-tighter italic">
+                                    {children}
+                                  </h3>
+                                ),
+                                strong: ({ children }) => <strong className="font-black text-gray-900 decoration-blue-500/30 underline decoration-2">{children}</strong>,
+                                hr: () => <hr className="my-8 border-t-2 border-dashed border-gray-300" />,
+                                table: ({ children }) => (
+                                  <div className="overflow-x-auto my-6 border-2 border-gray-900">
+                                    <table className="min-w-full divide-y divide-gray-900">{children}</table>
+                                  </div>
+                                ),
+                                th: ({ children }) => <th className="bg-gray-100 px-4 py-2 text-left text-xs font-black uppercase tracking-widest text-gray-900 border-r border-gray-900">{children}</th>,
+                                td: ({ children }) => <td className="px-4 py-2 text-sm border-r border-gray-900 text-gray-800">{children}</td>
+                              }}
+                            >
+                              {formData.content}
+                            </ReactMarkdown>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
+
+      <TableGeneratorModal 
+        isOpen={isTableModalOpen} 
+        onClose={() => setIsTableModalOpen(false)} 
+        onInsert={(markdown) => addFormat(markdown)} 
+      />
     </div>
+
   );
 };
 

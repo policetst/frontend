@@ -259,7 +259,6 @@ export default function DiligenciaForm() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-<<<<<<< Updated upstream
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {variables.map((variable) => (
                       <div key={variable}>
@@ -272,71 +271,6 @@ export default function DiligenciaForm() {
                         {renderField(variable)}
                       </div>
                     ))}
-=======
-                  <div className="mb-2 flex flex-wrap items-center gap-2 border-b pb-2">
-                    <Label className="text-xs font-semibold text-gray-700">Herramientas:</Label>
-                    <select
-                      className="border rounded px-2 py-1 text-sm bg-white"
-                      onChange={(e) => { if (e.target.value) { addKeywordToEditor(e.target.value); e.target.value = '' } }}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>Variables...</option>
-                      {variables.map((v) => <option key={v} value={v}>{v}</option>)}
-                    </select>
-                    <button type="button" onClick={() => addKeywordToEditor(variables[0] || 'variable')} className="text-xs rounded bg-blue-600 text-white px-2 py-1 hover:bg-blue-700 shadow-sm">+ variable</button>
-                    <div className="h-4 w-[1px] bg-gray-300 mx-1" />
-                    <button type="button" title="Negrita" className="text-xs rounded border border-gray-300 px-2 py-1 hover:bg-gray-100 font-bold" onClick={() => addFormat('**', '**')}>B</button>
-                    <button type="button" title="Cursiva" className="text-xs rounded border border-gray-300 px-2 py-1 hover:bg-gray-100 italic" onClick={() => addFormat('*', '*')}>I</button>
-                    <button type="button" title="Título" className="text-xs rounded border border-gray-300 px-2 py-1 hover:bg-gray-100 font-bold" onClick={() => addFormat('### ')}>T</button>
-                    <div className="h-4 w-[1px] bg-gray-300 mx-1" />
-                    <button type="button" title="Lista" className="text-xs rounded border border-gray-300 px-2 py-1 hover:bg-gray-100" onClick={() => addFormat('\n- ')}>• Lista</button>
-                    <button type="button" title="Lista numerada" className="text-xs rounded border border-gray-300 px-2 py-1 hover:bg-gray-100" onClick={() => addFormat('\n1. ')}>1. Lista</button>
-                    <div className="h-4 w-[1px] bg-gray-300 mx-1" />
-                    <button type="button" title="Añadir Tabla" className="text-xs rounded border border-gray-300 px-2 py-1 hover:bg-gray-100" onClick={() => addFormat('\n| Concepto | Información |\n|---|---|\n| {Etiqueta1} | {Valor1} |\n| {Etiqueta2} | {Valor2} |\n')}>田 Tabla</button>
-                    <button type="button" title="Bloque de Firma" className="text-xs rounded border border-gray-300 px-2 py-1 hover:bg-gray-100" onClick={() => addFormat('\n\nEL AGENTE (Número {Num}):\t\t\tEL INTERESADO:\n\n\n\n[Firma]\t\t\t\t\t\t[Firma]\n')}>✎ Firma</button>
-                    <div className="h-4 w-[1px] bg-gray-300 mx-1" />
-                    <button 
-                      type="button" 
-                      onClick={() => setShowPreview(!showPreview)} 
-                      className={`text-xs rounded px-2.5 py-1 flex items-center gap-1 transition-colors ${showPreview ? 'bg-indigo-600 text-white shadow-inner' : 'bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50'}`}
-                    >
-                      {showPreview ? '📝 Editor' : '👁️ Preview'}
-                    </button>
-                  </div>
-
-                  <div className="h-[60vh] flex flex-col min-h-0 bg-white border rounded overflow-hidden">
-                    {!showPreview ? (
-                      <textarea
-                        ref={richEditorRef}
-                        value={editorText}
-                        onChange={(e) => setEditorText(e.target.value)}
-                        className="flex-1 w-full p-6 font-mono text-sm leading-snug border-none focus:ring-0 resize-none outline-none"
-                        style={{ fontVariantLigatures: 'none' }}
-                        placeholder="Escribe la diligencia aquí..."
-                      />
-                    ) : (
-                      <div className="flex-1 overflow-y-auto p-8 prose prose-slate max-w-none prose-sm sm:prose-base font-sans bg-gray-50 shadow-inner">
-                        <ReactMarkdown 
-                          remarkPlugins={[remarkGfm, remarkBreaks]}
-                          components={{
-                            table: ({node, ...props}) => (
-                              <div className="overflow-x-auto my-4 border rounded">
-                                <table className="min-w-full divide-y divide-gray-300 border-collapse" {...props} />
-                              </div>
-                            ),
-                            th: ({node, ...props}) => <th className="bg-gray-100 px-3 py-2 text-left text-xs font-bold text-gray-700 border" {...props} />,
-                            td: ({node, ...props}) => <td className="px-3 py-2 text-sm text-gray-800 border" {...props} />,
-                            p: ({node, ...props}) => <p className="leading-relaxed mb-4 whitespace-pre-wrap" {...props} />,
-                            strong: ({node, ...props}) => <strong className="font-bold text-gray-900" {...props} />,
-                            em: ({node, ...props}) => <em className="italic text-gray-800" {...props} />,
-                            h3: ({node, ...props}) => <h3 className="text-lg font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mt-6 mb-3" {...props} />,
-                          }}
-                        >
-                          {editorText || '_Sin contenido para mostrar_'}
-                        </ReactMarkdown>
-                      </div>
-                    )}
->>>>>>> Stashed changes
                   </div>
                 </CardContent>
               </Card>

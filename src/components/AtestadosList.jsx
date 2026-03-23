@@ -2,21 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiService from '../../services/apiService';
-<<<<<<< Updated upstream
-import { ArrowLeft } from 'lucide-react';
-=======
 import Swal from 'sweetalert2';
-
 import { ArrowLeft, FileText, Eye } from 'lucide-react';
->>>>>>> Stashed changes
 
 const AtestadosList = () => {
   const [atestados, setAtestados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState('');
   const [filtroFecha, setFiltroFecha] = useState('');
-<<<<<<< Updated upstream
-=======
   const [activeTab, setActiveTab] = useState(localStorage.getItem('atestados_active_tab') || 'templates');
   
   useEffect(() => {
@@ -41,7 +34,6 @@ const AtestadosList = () => {
     'Robo a particular',
     'Robo a comercio',
   ];
->>>>>>> Stashed changes
 
   useEffect(() => {
     loadAtestados();
@@ -64,8 +56,6 @@ const AtestadosList = () => {
     }
   };
 
-<<<<<<< Updated upstream
-=======
   const fetchDiligenciasOnHover = async (atestadoId) => {
     const atestado = atestados.find(a => a.id === atestadoId);
     // Si ya tenemos las diligencias o ya estamos cargando (opcional), no hacemos nada
@@ -149,8 +139,6 @@ const AtestadosList = () => {
       }
     }
   };
-
->>>>>>> Stashed changes
   const formatDate = (dateString) => {
     if (!dateString) return 'No especificada';
     return new Date(dateString).toLocaleDateString('es-ES');
@@ -198,26 +186,6 @@ const AtestadosList = () => {
         <div className="mb-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">Gestión de Atestados</h1>
           <div className="flex gap-3">
-<<<<<<< Updated upstream
-            <Link 
-              to="/plantillas" 
-              className="mt-2 px-4 py-2 
-                bg-[#002856] text-white rounded border
-                hover:bg-gray-300 hover:text-black hover:border-[#002856]
-                active:bg-gray-100 active:text-black  active:border-gray-800"
-            >
-              Diligencias
-            </Link>
-            <Link 
-              to="/atestados/nuevo" 
-              className="mt-2 px-4 py-2 
-                bg-[#002856] text-white rounded border
-                hover:bg-gray-300 hover:text-black hover:border-[#002856]
-                active:bg-gray-100 active:text-black  active:border-gray-800"
-            >
-            Crear Atestado
-            </Link>
-=======
             {activeTab === 'templates' && (
               <>
                 <Link 
@@ -225,22 +193,21 @@ const AtestadosList = () => {
                   className="mt-2 px-4 py-2 
                     bg-white text-[#002856] rounded border border-[#002856]
                     hover:bg-[#002856] hover:text-white
-                    transition-all duration-200"
+                    transition-all duration-200 shadow-sm"
                 >
-                  Plantillas de Diligencias
+                  Gestión de Diligencias
                 </Link>
                 <button 
                   onClick={() => setIsModalOpen(true)}
                   className="mt-2 px-4 py-2 
                     bg-[#002856] text-white rounded border border-[#002856]
                     hover:bg-blue-700
-                    transition-all duration-200 shadow-md"
+                    transition-all duration-200 shadow-md transform hover:scale-[1.02] active:scale-95"
                 >
-                  Crear Atestado
+                  + Crear Atestado
                 </button>
               </>
             )}
->>>>>>> Stashed changes
           </div>
         </div>
 
@@ -309,19 +276,13 @@ const AtestadosList = () => {
               <p className="text-gray-400 mb-4">
                 {busqueda || filtroFecha ? 'No se encontraron atestados que coincidan con los filtros' : 'Aún no has creado ningún atestado'}
               </p>
-<<<<<<< Updated upstream
-              {!busqueda && !filtroFecha && (
-                <Link 
-                  to="/atestados/nuevo" 
-=======
               {!busqueda && !filtroFecha && activeTab === 'templates' && (
                 <button 
                   onClick={() => setIsModalOpen(true)}
->>>>>>> Stashed changes
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
                 >
                   Crear primer atestado
-                </Link>
+                </button>
               )}
             </div>
           ) : (
@@ -331,8 +292,10 @@ const AtestadosList = () => {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Atestado #{atestado.numero || atestado.id}
+                        <h3 className="text-lg font-bold text-gray-900 hover:text-[#002856] transition-colors">
+                          <Link to={`/atestados/${atestado.id}`}>
+                            Atestado #{atestado.numero || atestado.id}
+                          </Link>
                         </h3>
                         {atestado.is_final ? (
                           <span className="bg-[#002856]/10 text-[#002856] px-2 py-1 rounded text-xs font-bold ring-1 ring-[#002856]/20">
@@ -346,9 +309,12 @@ const AtestadosList = () => {
                       
                       <div className="text-sm text-gray-600 mb-2">
                         <div className="flex items-center gap-4">
-                          <span>
+                          <Link 
+                            to={`/atestados/${atestado.id}`}
+                            className="hover:text-[#002856] transition-colors flex items-center gap-1"
+                          >
                             📄 {atestado.total_diligencias || 0} diligencia{(atestado.total_diligencias || 0) !== 1 ? 's' : ''}
-                          </span>
+                          </Link>
                           <span>
                             📅 Creado: {formatDate(atestado.created_at)}
                           </span>
@@ -363,42 +329,6 @@ const AtestadosList = () => {
                     </div>
                     
                     <div className="flex gap-2 ml-4">
-<<<<<<< Updated upstream
-                      <Link
-                        to={`/atestados/${atestado.id}`} 
-                        className="mt-2 px-3 py-2 
-                        bg-[#002856] text-white rounded border
-                        hover:bg-gray-300 hover:text-black hover:border-[#002856]
-                        active:bg-gray-100 active:text-black  active:border-gray-800"
-                      >
-                        Acceder
-                      </Link>
-                      <Link
-                        to={`/atestados/${atestado.id}/editar`} 
-                        className="mt-2 px-3 py-2 
-                        bg-[#002856] text-white rounded border
-                        hover:bg-gray-300 hover:text-black hover:border-[#002856]
-                        active:bg-gray-100 active:text-black  active:border-gray-800"
-                      >
-                        Editar atestado
-                      </Link>
-                      {/* <Link
-                        to={`/atestados/${atestado.id}/diligencias/nueva`} 
-                        className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors"
-                      >
-                        + Diligencia
-                      </Link> */}
-=======
-                      {atestado.is_final && (
-                        <Link
-                          to={`/atestados/${atestado.id}`}
-                          className="px-4 py-2 bg-green-600 text-white rounded border border-green-700
-                          hover:bg-green-700 transition-colors text-sm font-bold flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Imprimir
-                        </Link>
-                      )}
                       
                       <button
                         onClick={() => handleDelete(atestado.id)}
@@ -409,7 +339,6 @@ const AtestadosList = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
->>>>>>> Stashed changes
                     </div>
                   </div>
                 </div>

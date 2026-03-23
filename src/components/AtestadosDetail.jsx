@@ -1,11 +1,6 @@
- // pages/AtestadoDetail.jsx
-<<<<<<< Updated upstream
- import React, { useState, useEffect, useMemo } from 'react';
- import { useParams, Link } from 'react-router-dom';
-=======
- import React, { useState, useEffect, useMemo, useRef } from 'react';
- import { useParams, Link, useNavigate } from 'react-router-dom';
->>>>>>> Stashed changes
+// pages/AtestadoDetail.jsx
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
  import apiService from '../../services/apiService';
  import DraggableDiligencia from './DraggableDiligencia';
  import AtestadoPrintView from './AtestadoPrintView';
@@ -40,13 +35,10 @@ import remarkBreaks from 'remark-breaks';
    const [showAddDiligenciaModal, setShowAddDiligenciaModal] = useState(false);
    const [showUnifiedVariablesModal, setShowUnifiedVariablesModal] = useState(false);
    const [unifiedVariables, setUnifiedVariables] = useState({});
-<<<<<<< Updated upstream
-=======
-       const [showKeywordValuesModal, setShowKeywordValuesModal] = useState(false);
+    const [showKeywordValuesModal, setShowKeywordValuesModal] = useState(false);
     const [showUsedPreview, setShowUsedPreview] = useState(false);
     const [isFinalizing, setIsFinalizing] = useState(false);
     const [finalPreviewDiligencias, setFinalPreviewDiligencias] = useState([]);
->>>>>>> Stashed changes
 
   // Funciones de utilidad
   const formatDateTime = (dateString) => {
@@ -361,8 +353,6 @@ import remarkBreaks from 'remark-breaks';
     }
   };
 
-<<<<<<< Updated upstream
-=======
 
   const handleApplyUnifiedVariables = () => {
     const processed = diligencias.map(d => {
@@ -484,8 +474,6 @@ import remarkBreaks from 'remark-breaks';
       setReplicateLoading(false);
     }
   };
-
->>>>>>> Stashed changes
   const plantillasFiltradas = plantillas.filter(plantilla =>
     plantilla.name?.toLowerCase().includes(searchPlantillas.toLowerCase()) ||
     plantilla.description?.toLowerCase().includes(searchPlantillas.toLowerCase())
@@ -580,31 +568,6 @@ import remarkBreaks from 'remark-breaks';
               </span>
             </div>
             
-<<<<<<< Updated upstream
-            <div className="flex gap-2 mb-3">
-              <button
-                onClick={() => setShowAddDiligenciaModal(true)}
-                className="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 flex items-center justify-center gap-1 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Agregar
-              </button>
-              
-              {diligencias.length > 1 && (
-                <button
-                  onClick={handleReorderToggle}
-                  disabled={reorderLoading}
-                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                    isReordering
-                      ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
-                  } disabled:opacity-50`}
-                >
-                  {isReordering ? 'Finalizar' : 'Reordenar'}
-                </button>
-=======
             <div className="flex flex-col gap-3 mb-3">
               {!atestado?.is_final && (
                 <div className="flex gap-2 mb-1">
@@ -668,7 +631,6 @@ import remarkBreaks from 'remark-breaks';
                     🎫 Ticket Rápido
                   </button>
                 </div>
->>>>>>> Stashed changes
               )}
             </div>
 
@@ -679,7 +641,6 @@ import remarkBreaks from 'remark-breaks';
               </div>
             )}
 
-<<<<<<< Updated upstream
             {Object.keys(allVariables).length > 0 && (
               <button
                 onClick={handleShowUnifiedVariables}
@@ -691,8 +652,6 @@ import remarkBreaks from 'remark-breaks';
                 Palabras Clave ({Object.keys(allVariables).length})
               </button>
             )}
-=======
->>>>>>> Stashed changes
           </div>
           
           <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -769,159 +728,140 @@ import remarkBreaks from 'remark-breaks';
           </div>
         </div>
 
-        {/* Panel central - Vista de documento oficial */}
-        <div className="flex-1 flex flex-col bg-gray-100">
-          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <div className="max-w-4xl mx-auto">
-              {/* Documento oficial del atestado */}
-              <div className="police-full-document bg-white shadow-lg border border-gray-300 overflow-hidden">
-                {/* Encabezado oficial */}
-                <div className="bg-gray-800 text-white p-6 text-center">
-                  <h1 className="text-2xl font-bold mb-2">ATESTADO POLICIAL</h1>
-                  <div className="text-lg font-semibold">Nº {atestado?.numero || 'Sin número'}</div>
-                  <div className="text-sm opacity-90 mt-2">
-                    Fecha: {formatDate(atestado?.fecha)}
-                  </div>
+        {/* Panel central - Vista de documento oficial estilo "hojas reales" */}
+        <div className="flex-1 flex flex-col bg-gray-200 overflow-y-auto custom-scrollbar">
+          <div className="py-8 px-4 flex flex-col items-center">
+            
+            {/* HOJA 1: INFORMACIÓN BÁSICA DEL ATESTADO */}
+            <div className="atestado-page shadow-2xl">
+              <div className="atestado-page-header">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Dependencia Policial</span>
+                  <h1 className="text-xl font-black text-gray-900 leading-none">ATESTADO POLICIAL</h1>
                 </div>
-
-                {/* Información básica como primera hoja */}
-                <div className="p-8 border-b-2 border-gray-300 bg-white">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-gray-700 text-white rounded flex items-center justify-center text-lg">
-                      📋
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-900">INFORMACIÓN BÁSICA</h2>
-                      <p className="text-gray-700">Datos generales del atestado</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div className="space-y-4">
-                      <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                        <label className="block text-sm font-bold text-gray-800 mb-1">NÚMERO DE ATESTADO</label>
-                        <div className="text-lg font-bold text-gray-900">{atestado?.numero || 'No especificado'}</div>
-                      </div>
-                      
-                      <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                        <label className="block text-sm font-bold text-gray-800 mb-1">FECHA</label>
-                        <div className="text-lg font-bold text-gray-900">{formatDate(atestado?.fecha)}</div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                        <label className="block text-sm font-bold text-gray-800 mb-1">FECHA DE CREACIÓN</label>
-                        <div className="text-lg font-bold text-gray-900">{formatDateTime(atestado?.created_at)}</div>
-                      </div>
-                      
-                      {atestado?.updated_at && (
-                        <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                          <label className="block text-sm font-bold text-gray-800 mb-1">ÚLTIMA MODIFICACIÓN</label>
-                          <div className="text-lg font-bold text-gray-900">{formatDateTime(atestado?.updated_at)}</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {atestado?.descripcion && (
-                    <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                      <label className="block text-sm font-bold text-gray-800 mb-2">DESCRIPCIÓN</label>
-                      <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">{atestado.descripcion}</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Diligencias como hojas numeradas */}
-                {diligencias.length === 0 ? (
-                  <div className="p-12 text-center text-gray-500">
-                    <svg className="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <h3 className="text-xl font-semibold mb-2">Atestado sin diligencias</h3>
-                    <p className="text-gray-400">Agrega diligencias para completar el atestado</p>
-                  </div>
-                ) : (
-                  <div className="divide-y-2 divide-gray-300">
-                    {diligencias.map((diligencia, index) => (
-                      <div key={diligencia.id} className="p-8 bg-white">
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="w-10 h-10 bg-gray-700 text-white rounded flex items-center justify-center text-lg font-bold">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <h2 className="text-xl font-bold text-gray-900">DILIGENCIA {index + 1}</h2>
-                            <div className="flex items-center gap-4 text-gray-700">
-                              {diligencia.plantilla_nombre && (
-                                <span className="font-medium">Plantilla: {diligencia.plantilla_nombre}</span>
-                              )}
-                              <span className="text-sm">Fecha: {formatDateTime(diligencia.created_at)}</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-gray-50 p-8 rounded border-2 border-gray-200 prose prose-slate max-w-none prose-sm sm:prose-base font-sans mt-2">
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkGfm, remarkBreaks]}
-                            components={{
-                              table: ({node, ...props}) => (
-                                <div className="overflow-x-auto my-4 border rounded">
-                                  <table className="min-w-full divide-y divide-gray-300 border-collapse" {...props} />
-                                </div>
-                              ),
-                              th: ({node, ...props}) => <th className="bg-gray-100 px-3 py-2 text-left text-xs font-bold text-gray-700 border" {...props} />,
-                              td: ({node, ...props}) => <td className="px-3 py-2 text-sm text-gray-800 border" {...props} />,
-                              p: ({node, ...props}) => <p className="leading-relaxed mb-4 whitespace-pre-wrap" {...props} />,
-                              strong: ({node, ...props}) => <strong className="font-bold text-gray-900" style={{ fontWeight: 'bold' }} {...props} />,
-                              em: ({node, ...props}) => <em className="italic text-gray-800" style={{ fontStyle: 'italic' }} {...props} />,
-                              h3: ({node, ...props}) => <h3 className="text-lg font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mt-6 mb-3" {...props} />,
-                              ul: ({node, ...props}) => <ul className="list-disc ml-8 my-4 space-y-2 block" {...props} />,
-                              ol: ({node, ...props}) => <ol className="list-decimal ml-8 my-4 space-y-2 block" {...props} />,
-                              li: ({node, ...props}) => <li className="text-gray-800 pl-1" {...props} />,
-                            }}
-                          >
-                            {diligencia.texto_final || 'Sin contenido'}
-<<<<<<< Updated upstream
-                          </div>
-=======
-                          </ReactMarkdown>
-                          {diligencia.croquis && (
-                            <div className="mt-3 border rounded overflow-hidden bg-white">
-                              <img src={diligencia.croquis} alt="Croquis policial" className="w-full h-40 object-cover" />
-                            </div>
-                          )}
->>>>>>> Stashed changes
-                        </div>
-
-                        {diligencia.valores && diligencia.valores.length > 0 && (
-                          <div className="mt-4 bg-gray-100 p-4 rounded border border-gray-300">
-                            <h4 className="text-sm font-bold text-gray-800 mb-2">Palabras clave utilizadas:</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                              {diligencia.valores.map((valor, idx) => (
-                                <div key={idx} className="bg-white p-2 rounded border border-gray-200">
-                                  <span className="text-xs font-bold text-gray-700">{valor.variable}:</span>
-                                  <span className="text-sm text-gray-900 ml-2">{valor.valor || '(vacío)'}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Pie del documento */}
-                <div className="bg-gray-200 p-6 text-center border-t-2 border-gray-400">
-                  <p className="text-sm text-gray-700 font-medium">
-                    Documento generado el {formatDateTime(new Date().toISOString())}
-                  </p>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Total de hojas: {diligencias.length + 1} (1 información básica + {diligencias.length} diligencias)
-                  </p>
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase">Número</span>
+                  <span className="text-lg font-black text-blue-900 leading-none">#{atestado?.numero}</span>
                 </div>
               </div>
+
+              <div className="flex-1 flex flex-col justify-center py-10">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-2xl mx-auto w-full">
+                  <div className="space-y-6">
+                    <div className="border-l-4 border-gray-100 pl-4 py-1">
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">FECHA DEL HECHO</label>
+                      <div className="text-lg font-bold text-gray-800">{formatDate(atestado?.fecha)}</div>
+                    </div>
+                    
+                    <div className="border-l-4 border-gray-100 pl-4 py-1">
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">FECHA DE APERTURA</label>
+                      <div className="text-lg font-bold text-gray-800">{formatDateTime(atestado?.created_at)}</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="border-l-4 border-gray-100 pl-4 py-1">
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">TOTAL DILIGENCIAS</label>
+                      <div className="text-lg font-bold text-gray-800">{diligencias.length} Documentos</div>
+                    </div>
+                    
+                    <div className="border-l-4 border-gray-100 pl-4 py-1">
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">TIPO DE ATESTADO</label>
+                      <div className="text-lg font-bold text-blue-800 italic">{atestado?.tipo || "General"}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {atestado?.descripcion && (
+                  <div className="mt-16 bg-gray-50/50 p-8 border border-gray-100 rounded-sm italic">
+                    <label className="block text-[9px] font-black text-gray-400 uppercase mb-3 not-italic">RESUMEN / DESCRIPCIÓN:</label>
+                    <p className="text-gray-700 leading-relaxed text-center text-lg">&ldquo;{atestado.descripcion}&rdquo;</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="atestado-page-footer">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
+                  <span className="font-bold">INICIO DEL EXPEDIENTE</span>
+                </div>
+                <div className="font-black text-gray-900">Página 1 de {diligencias.length + 1}</div>
+              </div>
             </div>
+
+            {/* DILIGENCIAS: CADA UNA EN SU HOJA */}
+            {diligencias.map((diligencia, index) => (
+              <div key={diligencia.id} className="atestado-page shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="atestado-page-header">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Atestado #{atestado?.numero}</span>
+                    <h2 className="text-xl font-black text-gray-900 leading-none">DILIGENCIA {index + 1}</h2>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase">Referencia</span>
+                    <span className="text-[11px] font-bold text-gray-600 truncate max-w-[150px]">{diligencia.plantilla_nombre || 'General'}</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 py-4">
+                  <div className="official-text-clean">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm, remarkBreaks]}
+                      components={{
+                        table: ({node, ...props}) => (
+                          <div className="overflow-x-auto my-6 border border-gray-200">
+                            <table className="min-w-full divide-y divide-gray-300 border-collapse" {...props} />
+                          </div>
+                        ),
+                        th: ({node, ...props}) => <th className="bg-gray-50 px-3 py-2 text-left text-[11px] font-black text-gray-600 border uppercase tracking-widest" {...props} />,
+                        td: ({node, ...props}) => <td className="px-3 py-2 text-sm text-gray-800 border" {...props} />,
+                        p: ({node, ...props}) => <p className="mb-4 whitespace-pre-wrap" {...props} />,
+                        strong: ({node, ...props}) => <strong className="font-bold text-gray-950" style={{ fontWeight: 'bold' }} {...props} />,
+                        em: ({node, ...props}) => <em className="italic text-gray-800" style={{ fontStyle: 'italic' }} {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-base font-black text-gray-900 border-b border-gray-900 pb-1 mt-8 mb-4 uppercase" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc ml-8 my-4 space-y-2 block" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal ml-8 my-4 space-y-2 block" {...props} />,
+                        li: ({node, ...props}) => <li className="pl-1" {...props} />,
+                      }}
+                    >
+                      {diligencia.texto_final || 'Sin contenido'}
+                    </ReactMarkdown>
+
+                    {diligencia.croquis && (
+                      <div className="mt-8 border-2 border-gray-100 p-2 rounded bg-gray-50/50">
+                        <img src={diligencia.croquis} alt="Croquis Policial" className="max-w-full h-auto mx-auto shadow-sm" />
+                        <div className="text-center text-[9px] font-bold text-gray-400 mt-2 uppercase tracking-widest">Documento Gráfico Adjunto</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-12 pt-10 grid grid-cols-2 gap-8 mb-10 opacity-30 grayscale pointer-events-none">
+                  <div className="text-center">
+                    <div className="h-0.5 w-full bg-gray-400 mb-2"></div>
+                    <span className="text-[8px] font-black uppercase">Firma del Agente / Sello</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="h-0.5 w-full bg-gray-400 mb-2"></div>
+                    <span className="text-[8px] font-black uppercase">Vº Bº Superior</span>
+                  </div>
+                </div>
+
+                <div className="atestado-page-footer">
+                  <span className="font-bold">FECHA: {formatDate(atestado?.fecha)} • REF: {diligencia.id}</span>
+                  <div className="font-black text-gray-900">Página {index + 2} de {diligencias.length + 1}</div>
+                </div>
+              </div>
+            ))}
+
+            {diligencias.length === 0 && (
+              <div className="text-center py-20 opacity-20">
+                <span className="text-8xl">📭</span>
+                <p className="mt-4 font-black">EXPEDIENTE SIN DILIGENCIAS ADJUNTAS</p>
+              </div>
+            )}
+
           </div>
         </div>
       </div>

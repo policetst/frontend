@@ -50,11 +50,7 @@ const DraggableDiligencia = ({
         `}
       >
         <div className="flex items-start justify-between mb-2">
-<<<<<<< Updated upstream
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-=======
           <div className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer group" onClick={() => !isReordering && !isFinal && onEdit(diligencia)}>
->>>>>>> Stashed changes
             {isReordering && (
               <div className="flex flex-col items-center text-gray-400 flex-shrink-0">
                 <div className="w-1 h-1 bg-gray-500 rounded-full mb-1"></div>
@@ -81,36 +77,6 @@ const DraggableDiligencia = ({
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
-<<<<<<< Updated upstream
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(diligencia);
-              }}
-              className="text-gray-600 hover:text-gray-800 p-1 rounded hover:bg-gray-200 transition-colors"
-              title="Editar diligencia"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(diligencia.id);
-              }}
-              className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-100 transition-colors"
-              title="Eliminar diligencia"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div className="text-xs text-gray-800 line-clamp-2 leading-relaxed font-mono">
-=======
             {!isFinal && (
               <button
                 onClick={(e) => {
@@ -132,7 +98,6 @@ const DraggableDiligencia = ({
           onClick={() => !isReordering && !isFinal && onEdit(diligencia)}
           className={`text-xs text-gray-800 line-clamp-2 leading-relaxed font-mono mb-2 ${(!isReordering && !isFinal) ? 'cursor-pointer hover:text-blue-600' : ''}`}
         >
->>>>>>> Stashed changes
           {diligencia.texto_final || 'Sin contenido'}
         </div>
 
