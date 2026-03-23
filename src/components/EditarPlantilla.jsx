@@ -35,7 +35,9 @@ const EditarPlantilla = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [activeTab, setActiveTab] = useState('edit'); // 'edit' or 'preview'
   const [isTableModalOpen, setIsTableModalOpen] = useState(false);
+  const [showMetaFields, setShowMetaFields] = useState(false);
   const textareaRef = useRef(null);
+
 
 
   useEffect(() => {
@@ -367,35 +369,58 @@ const EditarPlantilla = () => {
               {/* Toolbar Section */}
               <div className="bg-slate-50 border-b p-3 space-y-3 shadow-sm z-10">
                 {/* Basic Info Inputs */}
-                <div className="flex flex-wrap gap-4 items-center">
-                  <div className="flex-1 min-w-[250px]">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Label htmlFor="name" className="text-xs font-bold text-slate-600 uppercase">Nombre de Diligencia</Label>
+                {/* Header Information Toggleable */}
+                {showMetaFields ? (
+                  <div className="flex flex-wrap gap-4 mb-4 animate-in slide-in-from-top duration-300">
+                    <div className="flex-1 min-w-[250px]">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Label htmlFor="name" className="text-xs font-bold text-slate-600 uppercase tracking-widest">Nombre de la Plantilla</Label>
+                      </div>
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Nombre de la plantilla"
+                        className={`h-9 text-sm focus:ring-2 focus:ring-blue-500 transition-all ${errors.name ? 'border-red-500 shadow-sm shadow-red-100' : 'border-slate-200'}`}
+                      />
                     </div>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Nombre de la plantilla"
-                      className={`h-9 text-sm focus:ring-2 focus:ring-blue-500 transition-all ${errors.name ? 'border-red-500 shadow-sm shadow-red-100' : 'border-slate-200'}`}
-                    />
-                  </div>
-                  <div className="flex-[1.5] min-w-[300px]">
-                     <div className="flex items-center gap-2 mb-1.5">
-                      <Label htmlFor="description" className="text-xs font-bold text-slate-600 uppercase">Descripción / Uso</Label>
+                    <div className="flex-[1.5] min-w-[300px]">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Label htmlFor="description" className="text-xs font-bold text-slate-600 uppercase">Descripción / Uso</Label>
+                      </div>
+                      <Textarea
+                        id="description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        placeholder="Cuándo se debe usar esta diligencia..."
+                        rows={1}
+                        className="h-9 min-h-[36px] text-sm resize-none focus:ring-2 focus:ring-blue-500 transition-all border-slate-200"
+                      />
                     </div>
-                    <Textarea
-                      id="description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      placeholder="Cuándo se debe usar esta diligencia..."
-                      rows={1}
-                      className="h-9 min-h-[36px] text-sm resize-none focus:ring-2 focus:ring-blue-500 transition-all border-slate-200"
-                    />
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-50">
+                    <div className="flex items-center gap-2.5 text-slate-500">
+                      <div className="bg-blue-100 p-1.5 rounded-lg text-blue-600">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter block leading-none mb-1">Diligencia que se edita</span>
+                        <span className="text-sm font-bold text-slate-700 uppercase tracking-wider block leading-none">{formData.name}</span>
+                      </div>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => setShowMetaFields(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition-all uppercase tracking-widest"
+                    >
+                      Editar Info ✎
+                    </button>
+                  </div>
+                )}
+
 
                 {/* Rich Tools */}
                 <div className="flex flex-wrap gap-2 items-center border-t pt-3">
@@ -432,6 +457,17 @@ const EditarPlantilla = () => {
                       <PenTool className="w-4 h-4" /> <span className="text-xs font-bold">BLOQUE FIRMA</span>
                     </button>
                   </div>
+
+                  <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm ml-auto">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowMetaFields(!showMetaFields)} 
+                      className={`px-3 py-1.5 rounded flex items-center gap-1.5 transition-all ${showMetaFields ? 'bg-blue-600 text-white' : 'hover:bg-slate-50 text-slate-600'}`}
+                    >
+                      <Info className="w-4 h-4" /> <span className="text-xs font-bold uppercase">Datos Plantilla</span>
+                    </button>
+                  </div>
+
 
                   <div className="flex bg-slate-200/50 p-1 rounded-lg border border-slate-200">
                     <button
