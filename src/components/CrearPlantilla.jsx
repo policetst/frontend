@@ -12,7 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
-import { Tag, FileText, X, ArrowLeft, Save, Bold, Heading, List, ListOrdered, Table, PenTool, Square, Minus, Info, Edit3, Eye } from 'lucide-react';
+import { Tag, FileText, X, ArrowLeft, Save, Bold, Heading, List, ListOrdered, Table, PenTool, Square, Minus, Info, Edit3, Eye, CheckSquare } from 'lucide-react';
+
 import TableGeneratorModal from './TableGeneratorModal';
 
 
@@ -28,6 +29,14 @@ const CrearPlantilla = () => {
   const [activeTab, setActiveTab] = useState('edit'); // 'edit' or 'preview'
   const [isTableModalOpen, setIsTableModalOpen] = useState(false);
   const textareaRef = useRef(null);
+  const overlayRef = useRef(null);
+
+  const handleScrollSync = (e) => {
+    if (overlayRef.current) {
+      overlayRef.current.scrollTop = e.target.scrollTop;
+      overlayRef.current.scrollLeft = e.target.scrollLeft;
+    }
+  };
 
 
   const updateContent = (newContent) => {
@@ -300,6 +309,8 @@ const CrearPlantilla = () => {
                 </div>
                 <button type="button" onClick={() => setIsTableModalOpen(true)} className="bg-white border px-2 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"><Table className="w-4 h-4" /> TABLA</button>
                 <button type="button" onClick={() => addFormat('\n[[ {Texto_del_recuadro} ]]\n')} className="bg-white border px-2 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"><Square className="w-4 h-4" /> RECUADRO</button>
+                <button type="button" onClick={() => addFormat('\n[ ] SI    [ ] NO\n')} className="bg-white border px-2 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"><CheckSquare className="w-4 h-4" /> SI/NO</button>
+
 
                 <div className="ml-4 flex bg-slate-200/50 p-1 rounded-lg border border-slate-200">
                   <button
@@ -337,8 +348,8 @@ const CrearPlantilla = () => {
             </div>
 
             {/* Smart Integrated Editor Area */}
-            <div className="flex-1 overflow-y-auto p-4 flex justify-center bg-slate-200/30 scroll-smooth">
-              <div className="w-full max-w-4xl min-h-full bg-white shadow-xl border border-slate-200 relative police-document-sheet p-0 flex flex-col">
+            <div className="flex-1 p-4 flex justify-center bg-slate-200/30 min-h-0">
+              <div className="w-full max-w-4xl h-full bg-white shadow-xl border border-slate-200 relative police-document-sheet p-0 flex flex-col">
                 <div className="sticky top-0 z-30 bg-white/95 border-b px-6 py-2 flex justify-between items-center">
                   <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Editor con Autodetección</span>
                   <div className="flex gap-4 text-[10px] font-bold text-slate-400">
@@ -347,11 +358,11 @@ const CrearPlantilla = () => {
                   </div>
                 </div>
 
-                <div className="flex-1 relative bg-white overflow-hidden min-h-[850px] flex flex-col">
-                  <div className="flex-1 relative p-12 overflow-y-auto">
+                <div className="flex-1 relative bg-white overflow-hidden flex flex-col min-h-0">
+                  <div className={`flex-1 relative p-6 md:p-12 flex flex-col min-h-0 ${activeTab === 'preview' ? 'overflow-y-auto custom-scrollbar' : ''}`}>
 
                     {activeTab === 'edit' ? (
-                      <div className="relative w-full h-full min-h-[600px]">
+                      <div className="relative flex-1 w-full h-full min-h-0">
                         {/* BOTTOM LAYER: Visible editable text */}
                         <Textarea
                           id="content"
@@ -360,8 +371,9 @@ const CrearPlantilla = () => {
                           value={formData.content}
                           onChange={(e) => updateContent(e.target.value)}
                           onKeyDown={handleKeyDown}
+                          onScroll={handleScrollSync}
                           placeholder="Empieza a redactar la diligencia..."
-                          className="absolute inset-0 w-full h-full resize-none bg-transparent border-none focus:ring-0 text-slate-800 caret-blue-600 z-10"
+                          className="absolute inset-0 w-full h-full resize-none bg-transparent border-none focus:ring-0 text-slate-800 caret-blue-600 z-10 overflow-y-auto custom-scrollbar"
                           style={{ 
                             fontFamily: 'Consolas, Monaco, "Courier New", monospace',
                             fontSize: '16px',
@@ -376,7 +388,8 @@ const CrearPlantilla = () => {
 
                         {/* TOP LAYER: Transparent syntax overlay */}
                         <div 
-                          className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-20"
+                          ref={overlayRef}
+                          className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-20 overflow-y-auto scrollbar-invisible"
                           aria-hidden="true"
                           style={{ 
                             fontFamily: 'Consolas, Monaco, "Courier New", monospace',

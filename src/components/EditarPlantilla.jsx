@@ -15,8 +15,9 @@ import {
   Bold, Italic, Heading, List, ListOrdered, Table, 
   PenTool, Square, Minus, User, Car, Scale, MapPin, 
   Eye, Edit3, Save, X, Trash2, ArrowLeft, Info, HelpCircle,
-  Tag, FileText
+  Tag, FileText, CheckSquare
 } from 'lucide-react';
+
 import TableGeneratorModal from './TableGeneratorModal';
 
 
@@ -37,6 +38,14 @@ const EditarPlantilla = () => {
   const [isTableModalOpen, setIsTableModalOpen] = useState(false);
   const [showMetaFields, setShowMetaFields] = useState(false);
   const textareaRef = useRef(null);
+  const overlayRef = useRef(null);
+
+  const handleScrollSync = (e) => {
+    if (overlayRef.current) {
+      overlayRef.current.scrollTop = e.target.scrollTop;
+      overlayRef.current.scrollLeft = e.target.scrollLeft;
+    }
+  };
 
 
 
@@ -401,25 +410,17 @@ const EditarPlantilla = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-50">
-                    <div className="flex items-center gap-2.5 text-slate-500">
-                      <div className="bg-blue-100 p-1.5 rounded-lg text-blue-600">
-                        <FileText className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter block leading-none mb-1">Diligencia que se edita</span>
-                        <span className="text-sm font-bold text-slate-700 uppercase tracking-wider block leading-none">{formData.name}</span>
-                      </div>
+                  <div className="flex items-center gap-2.5 text-slate-500 mb-4 pb-2 border-b border-slate-50">
+                    <div className="bg-blue-100 p-1.5 rounded-lg text-blue-600">
+                      <FileText className="w-4 h-4" />
                     </div>
-                    <button 
-                      type="button" 
-                      onClick={() => setShowMetaFields(true)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition-all uppercase tracking-widest"
-                    >
-                      Editar Info ✎
-                    </button>
+                    <div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter block leading-none mb-1">Diligencia que se edita</span>
+                      <span className="text-sm font-bold text-slate-700 uppercase tracking-wider block leading-none">{formData.name}</span>
+                    </div>
                   </div>
                 )}
+
 
 
                 {/* Rich Tools */}
@@ -453,7 +454,14 @@ const EditarPlantilla = () => {
                   </div>
 
                   <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm">
+                    <button type="button" title="Insertar Selector SI/NO" onClick={() => addFormat('\n[ ] SI    [ ] NO\n')} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
+                      <CheckSquare className="w-4 h-4" /> <span className="text-xs font-bold uppercase">SI/NO</span>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm">
                     <button type="button" title="Firmas" onClick={() => addFormat('\n\nEL AGENTE (Número {Num}):\t\t\tEL INTERESADO:\n\n\n\n[Firma]\t\t\t\t\t\t[Firma]\n')} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
+
                       <PenTool className="w-4 h-4" /> <span className="text-xs font-bold">BLOQUE FIRMA</span>
                     </button>
                   </div>
@@ -551,8 +559,8 @@ const EditarPlantilla = () => {
               {/* Smart Live Editor Area */}
               <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-white border-t">
                 {/* Editor Container Style as a Sheet */}
-                <div className="flex-1 overflow-y-auto p-4 flex justify-center bg-slate-100/50 scroll-smooth custom-scrollbar">
-                  <div className="w-full max-w-4xl min-h-full bg-white shadow-xl border border-slate-200 relative police-document-sheet p-0 flex flex-col">
+                <div className="flex-1 p-4 flex justify-center bg-slate-100/50 min-h-0">
+                  <div className="w-full max-w-4xl h-full bg-white shadow-xl border border-slate-200 relative police-document-sheet p-0 flex flex-col">
                     
                     {/* Toolbar Internal */}
                     <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b px-4 py-2 flex items-center justify-between shadow-sm">
@@ -566,11 +574,11 @@ const EditarPlantilla = () => {
                       </div>
                     </div>
 
-                    <div className="flex-1 relative bg-white overflow-hidden min-h-[850px] flex flex-col">
-                      <div className="flex-1 relative p-12 overflow-y-auto">
+                    <div className="flex-1 relative bg-white overflow-hidden flex flex-col min-h-0">
+                      <div className={`flex-1 relative p-6 md:p-12 flex flex-col min-h-0 ${activeTab === 'preview' ? 'overflow-y-auto custom-scrollbar' : ''}`}>
 
                         {activeTab === 'edit' ? (
-                          <div className="relative w-full h-full min-h-[600px]">
+                          <div className="relative flex-1 w-full h-full min-h-0">
                             {/* UNDERLAY: The actual textarea */}
                             <Textarea
                               id="content"
@@ -579,8 +587,9 @@ const EditarPlantilla = () => {
                               value={formData.content}
                               onChange={(e) => updateContent(e.target.value)}
                               onKeyDown={handleKeyDown}
+                              onScroll={handleScrollSync}
                               placeholder="Escribe la plantilla de la diligencia aquí..."
-                              className="absolute inset-0 w-full h-full resize-none bg-transparent border-none focus:ring-0 text-slate-800 caret-blue-600 z-10"
+                              className="absolute inset-0 w-full h-full resize-none bg-transparent border-none focus:ring-0 text-slate-800 caret-blue-600 z-10 overflow-y-auto custom-scrollbar"
                               style={{ 
                                 fontFamily: 'Consolas, Monaco, "Courier New", monospace',
                                 fontSize: '16px',
@@ -595,7 +604,8 @@ const EditarPlantilla = () => {
 
                             {/* OVERLAY: The "Tint" layer with syntax highlights */}
                             <div 
-                              className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-20"
+                              ref={overlayRef}
+                              className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-20 overflow-y-auto scrollbar-invisible"
                               aria-hidden="true"
                               style={{ 
                                 fontFamily: 'Consolas, Monaco, "Courier New", monospace',

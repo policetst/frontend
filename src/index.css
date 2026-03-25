@@ -102,6 +102,15 @@ main {
   background: #64748b;
 }
 
+/* Scrollbar invisible para el overlay de sintaxis */
+.scrollbar-invisible::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollbar-invisible::-webkit-scrollbar-track,
+.scrollbar-invisible::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
 /* Estilos para documentos policiales - Diseño sobrio y profesional */
 .police-document-sheet {
   position: relative;
