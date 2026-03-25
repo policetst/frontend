@@ -10,6 +10,13 @@ function MostrarIncidencia() {
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroStatus, setFiltroStatus] = useState(""); 
   const [busqueda, setBusqueda] = useState("");               
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
+  // Reset pagination when any filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filtroFecha, filtroTipo, filtroStatus, busqueda]);
 
   useEffect(() => {
     const fetchIncidents = async () => {
@@ -66,6 +73,9 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
   return fechaOk && tipoOk && statusOk && busquedaOk;
 });
 
+  const totalPages = Math.ceil(incidenciasFiltradas.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentIncidencias = incidenciasFiltradas.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div>
@@ -130,7 +140,7 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
 
           {/* Lista de incidencias */}
           <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-4">
-            {incidenciasFiltradas.map((incidencia) => {
+            {currentIncidencias.map((incidencia) => {
               const isClosed = incidencia.status === 'Closed';
 
               return (
@@ -191,7 +201,28 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
             )}
           </div>
 
-
+          {/* Controles de paginación */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 mt-8 pb-8">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-white border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center font-medium shadow-sm transition-colors"
+              >
+                Anterior
+              </button>
+              <div className="text-sm text-gray-700 font-bold bg-gray-100 px-4 py-2 rounded-md">
+                Página {currentPage} de {totalPages}
+              </div>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-white border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center font-medium shadow-sm transition-colors"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
 
           </div>
         </div>
