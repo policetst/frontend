@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
 import { getIconByType } from '../utils/iconByType';
 import L from 'leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 
 function Mapa() {
   document.title = 'SIL Tauste - Mapa';
@@ -83,6 +84,7 @@ function Mapa() {
             attribution='&copy; Arbadev | SIL Tauste'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <MarkerClusterGroup chunkedLoading>
           {filteredIncidents.map((incident) => {
             const [lat, lng] = incident.location.split(',').map(Number);
             if (isNaN(lat) || isNaN(lng)) return null;
@@ -106,6 +108,7 @@ function Mapa() {
               </Marker>
           );
           })}
+          </MarkerClusterGroup>
           </MapContainer>
         </div>
         </div>

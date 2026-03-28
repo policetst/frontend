@@ -11,6 +11,12 @@ function Vehiculos() {
   const [people, setPeople] = useState([]);
   const [showVehicles, setShowVehicles] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, showVehicles]);
 
   useEffect(() => {
     fetch(import.meta.env.VITE_VEHICLES_URL, {
@@ -43,6 +49,12 @@ function Vehiculos() {
   const filteredPeople = people.filter((p) =>
     `${p.first_name} ${p.last_name1} ${p.last_name2} ${p.dni} ${p.phone_number}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const activeList = showVehicles ? filteredVehicles : filteredPeople;
+  const totalPages = Math.ceil(activeList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentPeople = filteredPeople.slice(startIndex, startIndex + itemsPerPage);
+  const currentVehicles = filteredVehicles.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="flex justify-center">
@@ -97,7 +109,7 @@ function Vehiculos() {
             <h2 className="text-2xl font-bold text-center xl:text-left">Personas</h2>
             <hr className="border-t border-gray-300 mt-4 mb-6" />
             <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-1 gap-6">
-              {filteredPeople.map((persona) => (
+              {currentPeople.map((persona) => (
                 <PeopleCard
                   key={persona.dni}
                   dni={persona.dni}
@@ -117,7 +129,7 @@ function Vehiculos() {
             <h2 className="text-2xl font-bold text-center xl:text-left">Vehículos</h2>
             <hr className="border-t border-gray-300 mt-4 mb-6"/>
             <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-1 gap-6">
-              {filteredVehicles.map((vehicle) => (
+              {currentVehicles.map((vehicle) => (
                 <VehicleCard
                   key={vehicle.license_plate}
                   brand={vehicle.brand}
@@ -127,6 +139,29 @@ function Vehiculos() {
                 />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Controles de paginación */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-8 pb-8">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center font-medium shadow-sm transition-colors"
+            >
+              Anterior
+            </button>
+            <div className="text-sm text-gray-700 font-bold bg-gray-100 px-4 py-2 rounded-md">
+              Página {currentPage} de {totalPages}
+            </div>
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center font-medium shadow-sm transition-colors"
+            >
+              Siguiente
+            </button>
           </div>
         )}
 
