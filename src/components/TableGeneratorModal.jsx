@@ -58,16 +58,17 @@ const TableGeneratorModal = ({ isOpen, onClose, onInsert }) => {
 
 
   const generateMarkdownTable = () => {
-    const headerRow = headers.map(h => h.isKeyword ? `{${h.name}}` : h.name);
-    let markdown = '\n| ' + headerRow.join(' | ') + ' |\n';
-    markdown += '| ' + headers.map(() => '---').join(' | ') + ' |\n';
+    const separator = '    '; // 4 spaces
+    const headerRow = headers.map(h => h.isKeyword ? `{${h.name.toUpperCase()}}` : h.name.toUpperCase());
+    let markdown = '\n' + headerRow.join(separator) + '\n';
     
     for (let r = 0; r < rows; r++) {
-      markdown += '| ' + headers.map(h => {
+      markdown += '- ' + headers.map(h => {
           const baseName = h.name.replace(/\s+/g, '_').replace(/[^\w]/g, '');
           return `{${baseName || 'campo'}_${r + 1}}`;
-      }).join(' | ') + ' |\n';
+      }).join(separator) + '\n';
     }
+    markdown += '\n';
     
     onInsert(markdown);
     onClose();

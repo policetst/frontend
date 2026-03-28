@@ -1,4 +1,4 @@
-// Función para extraer variables de un texto
+  // Función para extraer variables de un texto
 export function extractVariables(text) {
     const regex = /\{([^}]+)\}/g;
     const variables = [];
@@ -12,6 +12,44 @@ export function extractVariables(text) {
     
     return variables;
   }
+
+  // Función para parsear tablas pseudo-markdown más amigables
+  export const parseCustomTable = (text) => {
+  if (!text) return text;
+  
+  // Detects tables formatted as:
+  // HEADER 1    HEADER 2
+  // - val 1    val 2
+  // - val 3    val 4
+  // Allows at least 3 spaces, a tab, or a pipe as separators.
+  const tableRegex = /^([^\n]*?(?: {3,}|\t|\|)[^\n]*)\n((?:-[^\n]*(?: {3,}|\t|\|)[^\n]*(?:\n|$))+)/gm;
+  
+  return text.replace(tableRegex, (match, headerLine, rowsBlock) => {
+      // Avoid matching standard markdown tables
+      if (headerLine.trim().startsWith('|') && headerLine.includes('|---|')) {
+         return match;
+      }
+      
+      const splitColumns = (str) => str.split(/ {3,}|\t|\|/).map(s => s.trim());
+      const headers = splitColumns(headerLine);
+      
+      let mdTable = '\n| ' + headers.join(' | ') + ' |\n';
+      mdTable += '| ' + headers.map(() => '---').join(' | ') + ' |\n';
+      
+      const lines = rowsBlock.trim().split('\n');
+      for (const line of lines) {
+         let lineStr = line.trim();
+         if (lineStr.startsWith('-')) {
+             lineStr = lineStr.substring(1).trim();
+         }
+         const row = splitColumns(lineStr);
+         const paddedRow = headers.map((_, idx) => row[idx] || '');
+         mdTable += '| ' + paddedRow.join(' | ') + ' |\n';
+      }
+      
+      return mdTable + '\n';
+  });
+};
   
   // Función para reemplazar variables en un texto
   export function replaceVariables(text, values) {

@@ -3,7 +3,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/apiService';
 import Swal from 'sweetalert2';
-import { extractVariables, validateTemplate } from '../utils/types';
+import { extractVariables, validateTemplate, parseCustomTable } from '../utils/types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Label } from './ui/Label';
@@ -343,64 +343,103 @@ const CrearPlantilla = () => {
 
                   </select>
                   <button type="button" onClick={() => addKeywordToEditor('nueva_variable')} className="bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-900 transition-all"><Tag className="w-3.5 h-3.5" /> + VARIABLE</button>
+                  
+                  <button type="button" onClick={() => {
+                    Swal.fire({
+                      title: 'Guía de Redacción',
+                      html: `
+                        <div class="text-left text-sm space-y-4 font-serif text-gray-800">
+                          <div class="bg-gray-50 border p-3 rounded-lg">
+                            <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">⌨️</span> 1. Formato Rápido (Negritas y Títulos)</strong>
+                            <p class="leading-relaxed">Selecciona el texto que desees con el ratón y pulsa los botones de <b>Negrita</b> (B) o <b>Título</b> (H). El sistema añadirá los caracteres de formato alrededor por ti, o puedes añadirlos antes de empezar a escribir.</p>
+                          </div>
+                          
+                          <div class="bg-gray-50 border p-3 rounded-lg">
+                            <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">📊</span> 2. Tablas Visibles Policiales</strong>
+                            <p class="leading-relaxed mb-2">Una tabla se dibuja separando columnas con espacios (con darle a la barra espaciadora 4 veces es suficiente) o usando la tecla TAB. Los encabezados no llevan guión inicial, pero las filas de debajo sí:</p>
+                            <div class="bg-white p-2 border border-blue-200 rounded font-mono text-[11px] leading-relaxed">
+                              CONCEPTO    DETALLES<br/>
+                              - Fuego    Extinto<br/>
+                              - Heridos    Ninguno
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-2">* El Generador de Tablas (botón TABLA) lo armará por ti automáticamente.</p>
+                          </div>
+
+                          <div class="bg-gray-50 border p-3 rounded-lg">
+                            <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">🏷️</span> 3. Variables Mágicas</strong>
+                            <p class="leading-relaxed">Selecciona una palabra, haz clic en <b>+ VARIABLE</b> y la palabra se rodeará con llaves <code>{ }</code>. El sistema detectará automáticamente eso como un dato a rellenar justo antes de imprimir el atestado final.</p>
+                          </div>
+                        </div>
+                      `,
+                      confirmButtonColor: '#002856',
+                      confirmButtonText: 'Entendido',
+                      width: '600px'
+                    });
+                  }} className="bg-blue-100 text-blue-800 p-1.5 rounded-full hover:bg-blue-200 transition-colors ml-1" title="Ayuda sobre redacción">
+                    <Info className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </div>
 
             {/* Smart Integrated Editor Area */}
-            <div className="flex-1 p-4 flex justify-center bg-slate-200/30 min-h-0">
-              <div className="w-full max-w-4xl h-full bg-white shadow-xl border border-slate-200 relative police-document-sheet p-0 flex flex-col">
-                <div className="sticky top-0 z-30 bg-white/95 border-b px-6 py-2 flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Editor con Autodetección</span>
-                  <div className="flex gap-4 text-[10px] font-bold text-slate-400">
-                    <span>VARIABLES: {variablesDetectadas.length}</span>
-                    <span>CARACTERES: {formData.content.length}</span>
-                  </div>
+            <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-slate-200">
+              {/* TOOLBAR FIXED */}
+              <div className="z-30 bg-white/95 border-b px-6 py-2 flex justify-between items-center shadow-sm shrink-0">
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded">Documento (A4)</span>
+                <div className="flex gap-4 text-[10px] font-bold text-slate-400">
+                  <span>VARIABLES: {variablesDetectadas.length}</span>
+                  <span>CARACTERES: {formData.content.length}</span>
                 </div>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto custom-scrollbar flex justify-center py-8">
+                <div className="w-full max-w-[210mm] min-h-[297mm] bg-white shadow-2xl border border-slate-300 relative flex flex-col shrink-0">
+                  
+                  <div className="flex-1 relative bg-white flex flex-col min-h-0">
+                    <div className={`flex-1 relative px-8 py-10 md:px-[25mm] md:py-[20mm] flex flex-col min-h-0 ${activeTab === 'preview' ? 'overflow-y-auto custom-scrollbar' : ''}`}>
 
-                <div className="flex-1 relative bg-white overflow-hidden flex flex-col min-h-0">
-                  <div className={`flex-1 relative p-6 md:p-12 flex flex-col min-h-0 ${activeTab === 'preview' ? 'overflow-y-auto custom-scrollbar' : ''}`}>
+                      {activeTab === 'edit' ? (
+                        <div className="relative flex-1 w-full h-full min-h-0">
+                          {/* BOTTOM LAYER: Visible editable text */}
+                          <Textarea
+                            id="content"
+                            name="content"
+                            ref={textareaRef}
+                            value={formData.content}
+                            onChange={(e) => updateContent(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            onScroll={handleScrollSync}
+                            placeholder="Empieza a redactar la diligencia..."
+                            className="absolute inset-0 w-full h-full resize-none bg-transparent border-none focus:ring-0 text-slate-800 caret-blue-600 z-10 overflow-y-auto custom-scrollbar"
+                            style={{ 
+                              fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                              fontSize: '16px',
+                              lineHeight: '26px',
+                              padding: 0,
+                              margin: 0,
+                              fontVariantLigatures: 'none',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word'
+                            }}
+                          />
 
-                    {activeTab === 'edit' ? (
-                      <div className="relative flex-1 w-full h-full min-h-0">
-                        {/* BOTTOM LAYER: Visible editable text */}
-                        <Textarea
-                          id="content"
-                          name="content"
-                          ref={textareaRef}
-                          value={formData.content}
-                          onChange={(e) => updateContent(e.target.value)}
-                          onKeyDown={handleKeyDown}
-                          onScroll={handleScrollSync}
-                          placeholder="Empieza a redactar la diligencia..."
-                          className="absolute inset-0 w-full h-full resize-none bg-transparent border-none focus:ring-0 text-slate-800 caret-blue-600 z-10 overflow-y-auto custom-scrollbar"
-                          style={{ 
-                            fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-                            fontSize: '16px',
-                            lineHeight: '26px',
-                            padding: 0,
-                            margin: 0,
-                            fontVariantLigatures: 'none',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                          }}
-                        />
-
-                        {/* TOP LAYER: Transparent syntax overlay */}
-                        <div 
-                          ref={overlayRef}
-                          className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-20 overflow-y-auto scrollbar-invisible"
-                          aria-hidden="true"
-                          style={{ 
-                            fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-                            fontSize: '16px',
-                            lineHeight: '26px',
-                            padding: 0,
-                            margin: 0,
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                          }}
-                        >
+                          {/* TOP LAYER: Transparent syntax overlay */}
+                          <div 
+                            ref={overlayRef}
+                            className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-20 overflow-y-auto scrollbar-invisible"
+                            aria-hidden="true"
+                            style={{ 
+                              fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                              fontSize: '16px',
+                              lineHeight: '26px',
+                              padding: 0,
+                              margin: 0,
+                              fontVariantLigatures: 'none',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word'
+                            }}
+                          >
                           {formData.content.split('\n').map((line, i) => {
                             let processed = line
                               .replace(/&/g, '&amp;')
@@ -451,7 +490,7 @@ const CrearPlantilla = () => {
                             td: ({ children }) => <td className="px-4 py-2 text-sm border-r border-gray-900 text-gray-800">{children}</td>
                           }}
                         >
-                          {formData.content}
+                          {parseCustomTable(formData.content)}
                         </ReactMarkdown>
                       </div>
                     )}

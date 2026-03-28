@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiService from '../../services/apiService';
 import Swal from 'sweetalert2';
-import { extractVariables, validateTemplate } from '../utils/types';
+import { extractVariables, validateTemplate, parseCustomTable } from '../utils/types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Label } from './ui/Label';
@@ -339,48 +339,61 @@ const EditarPlantilla = () => {
 
   return (
     <div className="p-4 bg-slate-100 min-h-screen">
-      <div className="flex justify-between items-center mb-4 pb-4 border-b">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate('/plantillas')}
-            className="p-2 transition-colors hover:bg-white rounded-full text-slate-500"
-            title="Volver"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-slate-800">Editar Plantilla: {plantilla?.name}</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Gestión de contenido dinámico para diligencias policiales</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <button 
-            onClick={handleDelete}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 border border-red-200 bg-white hover:bg-red-50 rounded shadow-sm transition-all"
-          >
-            <Trash2 className="w-4 h-4" /> Eliminar
-          </button>
-          <button 
-            onClick={handleSubmit} 
-            disabled={saving}
-            className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-[#002856] hover:bg-blue-800 rounded shadow-md hover:shadow-lg transition-all disabled:bg-gray-400"
-          >
-            {saving ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white" /> : <Save className="w-4 h-4" />}
-            {saving ? 'Guardando...' : 'Guardar Plantilla'}
-          </button>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 gap-4 h-[calc(100vh-8rem)]">
-        <Card className="flex flex-col overflow-hidden border-none shadow-xl bg-white">
+      <div className="grid grid-cols-1 gap-4 h-[calc(100vh-2rem)] flex-1 min-h-0">
+        <Card className="flex flex-col overflow-hidden border-none shadow-xl bg-white h-full">
           <CardContent className="flex-1 p-0 flex flex-col min-h-0">
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-              {/* Toolbar Section */}
-              <div className="bg-slate-50 border-b p-3 space-y-3 shadow-sm z-10">
-                {/* Basic Info Inputs */}
-                {/* Header Information Toggleable */}
-                {showMetaFields ? (
-                  <div className="flex flex-wrap gap-4 mb-4 animate-in slide-in-from-top duration-300">
+              {/* Nuevo Toolbar Unificado */}
+              <div className="bg-slate-50 border-b p-3 space-y-3 shadow-sm z-20">
+                {/* Cabecera Principal */}
+                <div className="flex justify-between items-center pb-2">
+                  <div className="flex items-center gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/plantillas')}
+                      className="p-2 transition-colors hover:bg-slate-200 rounded-full text-slate-500"
+                      title="Volver"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h1 className="text-xl font-bold text-slate-800">Plantilla: {plantilla?.name}</h1>
+                        <button 
+                          type="button"
+                          onClick={() => setShowMetaFields(!showMetaFields)}
+                          className={`p-1.5 hover:bg-white rounded-md text-slate-500 hover:text-blue-600 transition-colors shadow-sm bg-slate-200/50 border border-transparent hover:border-slate-300 ${showMetaFields ? 'bg-white border-slate-300 text-blue-600' : ''}`}
+                          title="Editar datos de la plantilla"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">Gestión de contenido dinámico para diligencias policiales</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <button 
+                      type="button"
+                      onClick={handleDelete}
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-red-600 border border-red-200 bg-white hover:bg-red-50 rounded shadow-sm transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" /> Eliminar
+                    </button>
+                    <button 
+                      type="submit"
+                      onClick={handleSubmit} 
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-[#002856] hover:bg-blue-800 rounded shadow-md hover:shadow-lg transition-all disabled:bg-gray-400"
+                    >
+                      {saving ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white" /> : <Save className="w-4 h-4" />}
+                      {saving ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Campos para editar datos de plantilla (condicionales) */}
+                {showMetaFields && (
+                  <div className="flex flex-wrap gap-4 pt-2 pb-1 border-t border-slate-200 animate-in slide-in-from-top duration-300">
                     <div className="flex-1 min-w-[250px]">
                       <div className="flex items-center gap-2 mb-1.5">
                         <Label htmlFor="name" className="text-xs font-bold text-slate-600 uppercase tracking-widest">Nombre de la Plantilla</Label>
@@ -409,22 +422,10 @@ const EditarPlantilla = () => {
                       />
                     </div>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2.5 text-slate-500 mb-4 pb-2 border-b border-slate-50">
-                    <div className="bg-blue-100 p-1.5 rounded-lg text-blue-600">
-                      <FileText className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter block leading-none mb-1">Diligencia que se edita</span>
-                      <span className="text-sm font-bold text-slate-700 uppercase tracking-wider block leading-none">{formData.name}</span>
-                    </div>
-                  </div>
                 )}
 
-
-
                 {/* Rich Tools */}
-                <div className="flex flex-wrap gap-2 items-center border-t pt-3">
+                <div className="flex flex-wrap gap-2 items-center border-t border-slate-200 pt-3">
                   <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm divide-x divide-slate-100">
                     <button type="button" title="Negrita" onClick={() => addFormat('**', '**')} className="p-1.5 hover:bg-slate-50 text-slate-600 rounded" ><Bold className="w-4 h-4" /></button>
                     <button type="button" title="Cursiva" onClick={() => addFormat('*', '*')} className="p-1.5 hover:bg-slate-50 text-slate-600 rounded" ><Italic className="w-4 h-4" /></button>
@@ -466,18 +467,7 @@ const EditarPlantilla = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm ml-auto">
-                    <button 
-                      type="button" 
-                      onClick={() => setShowMetaFields(!showMetaFields)} 
-                      className={`px-3 py-1.5 rounded flex items-center gap-1.5 transition-all ${showMetaFields ? 'bg-blue-600 text-white' : 'hover:bg-slate-50 text-slate-600'}`}
-                    >
-                      <Info className="w-4 h-4" /> <span className="text-xs font-bold uppercase">Datos Plantilla</span>
-                    </button>
-                  </div>
-
-
-                  <div className="flex bg-slate-200/50 p-1 rounded-lg border border-slate-200">
+                  <div className="flex bg-slate-200/50 p-1 rounded-lg border border-slate-200 ml-auto mr-4">
                     <button
                       type="button"
                       onClick={() => setActiveTab('edit')}
@@ -494,88 +484,68 @@ const EditarPlantilla = () => {
                     </button>
                   </div>
 
-
-                  <div className="h-4 w-[1px] bg-slate-200 mx-1" />
-
-                  <div className="flex items-center gap-2">
-                    <select
-                      className="border border-blue-200 rounded bg-blue-50/50 text-blue-700 text-xs font-bold px-2 py-1.5 h-8 outline-none hover:bg-blue-100 transition-colors"
-                      onChange={(e) => {
-                        addFormat(e.target.value);
-                        e.target.value = '';
-                      }}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>📋 INSERTAR BLOQUES POLICIALES...</option>
-                            <optgroup label="--- PROCEDIMIENTO GENERAL ---">
-                        <option value={"[[ DILIGENCIA DE INICIO ]]\n\nEn la localidad de {Poblacion}, siendo las {Hora_Inicio} horas del día {Fecha_Inicio}, el Agente con carné profesional número {Num_Agente}, actuando como Instructor, procede a la apertura del presente atestado por los hechos que se detallarán a continuación.\n"}>📝 Diligencia de Inicio</option>
-                        <option value={"\n[[ DILIGENCIA DE CIERRE Y REMISIÓN ]]\n\nY para que conste, se cierra la presente diligencia a las {Hora_Cierre} horas del día {Fecha_Cierre}, procediendo a su remisión al Juzgado de Instrucción en funciones de Guardia de {Localidad_Juzgado}.\n"}>🏁 Cierre y Remisión</option>
-                      </optgroup>
-
-                      <optgroup label="--- IDENTIFICACIÓN Y DATOS ---">
-                        <option value={"\n--- DATOS PERSONALES ---\nNombre: {Nombre}\nApellidos: {Apellidos}\nDNI/NIE: {Documento_Identidad}\nFecha Nacimiento: {Fecha_Nacimiento}\nNatural de: {Natural_de}\nDomicilio: {Domicilio}\nTeléfono: {Telefono}\n"}>👤 Identificación Persona</option>
-                        <option value={"\n--- DATOS VEHÍCULO ---\nMarca: {Marca}\nModelo: {Modelo}\nMatrícula: {Matricula}\nColor: {Color}\nBastidor: {Num_Bastidor}\n"}>🚗 Datos Vehículo</option>
-                        <option value={"\n--- UBICACIÓN Y TIEMPO ---\nLugar: {Lugar_Hechos}\nCía/Vía: {Calle_o_Punto_Kilometrico}\nLocalidad: {Poblacion}\nFecha: {Fecha_Hechos}\nHora: {Hora_Hechos}\n"}>📍 Perímetro/Ubicación</option>
-                      </optgroup>
-
-                      <optgroup label="--- DECLARACIONES Y DERECHOS ---">
-                        <option value={"\n[[ DILIGENCIA DE DECLARACIÓN DE TESTIGO ]]\n\nInstruido de la obligación legal de decir verdad y de las penas con las que la Ley castiga el delito de falso testimonio en causa judicial, manifiesta:\n\nPREGUNTADO: {Pregunta_1}\nRESPUESTA: {Respuesta_1}\n"}>🗣️ Declaración Testigo</option>
-                        <option value={"\n[[ OFRECIMIENTO DE ACCIONES (Art. 109 LECrim) ]]\n\nSe informa al ofendido/perjudicado de su derecho a mostrarse parte en el proceso, pudiendo nombrar Abogado y Procurador o solicitar la designación de oficio, así como de su derecho a la restitución de la cosa, reparación del daño e indemnización.\n"}>⚖️ Ofrecimiento Acciones</option>
-                        <option value={"\n--- LECTURA DE DERECHOS (Art. 520 LECrim) ---\nSe procede a la lectura de los derechos que le asisten según el Art. 520 de la LECrim:\n1. Derecho a guardar silencio.\n2. Derecho a no declarar contra sí mismo.\n3. Derecho a designar abogado.\n4. Derecho a que se ponga en conocimiento de un familiar el hecho de la detención.\n5. Derecho a ser asistido por intérprete gratuito (si procede).\n"}>🛡️ Lectura Derechos (Detenido)</option>
-                      </optgroup>
-
-                      <optgroup label="--- TRAFICO Y ALCOHOLEMIA ---">
-                        <option value={"\n[[ PRUEBA DE ALCOHOLEMIA ]]\n\nETILÓMETRO: {Modelo_Etilometro}\nEXPIRA: {Fecha_Calibracion}\n\n1ª PRUEBA: {Resultado_1} mg/l a las {Hora_1}\n2ª PRUEBA: {Resultado_2} mg/l a las {Hora_2}\n\nSÍNTOMS QUE PRESENTA: {Sintomatologia_Detectada}\n"}>🍺 Acta Alcoholemia</option>
-                        <option value={"\n[[ DILIGENCIA DE CITACIÓN ]]\n\nPor la presente se cita a D/Dña {Nombre_Citado} para que comparezca el próximo día {Fecha_Cita} a las {Hora_Cita} horas ante {Lugar_Comparecencia} (Juzgado/Dependencia Policial) en relación con las presentes actuaciones.\n"}>📅 Citación Formal</option>
-                      </optgroup>
-                    </select>
-                  </div>
-
                   <div className="flex items-center gap-2 ml-auto">
-                    <select
-                      className="border border-amber-200 rounded bg-amber-50 text-amber-900 text-xs font-bold px-2 py-1.5 h-8 outline-none hover:bg-amber-100 transition-colors"
-                      onChange={(e) => {
-                        addKeywordToEditor(e.target.value);
-                        e.target.value = '';
-                      }}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>🏷️ REUTILIZAR VARIABLE...</option>
-                      {variablesDetectadas.map(v => (
-                        <option key={v} value={v}>{v}</option>
-                      ))}
-                    </select>
-                    <button 
-                      type="button" 
-                      onClick={() => addKeywordToEditor('nueva_palabra')} 
-                      className="flex items-center gap-1.5 text-xs h-8 rounded px-3 bg-slate-800 text-white hover:bg-slate-900 font-bold active:scale-95 transition-all shadow-sm"
-                    >
-                      <Tag className="w-3.5 h-3.5" /> Nueva Variable
+                    <button type="button" onClick={() => addKeywordToEditor('nueva_variable')} className="bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-900 transition-all shadow-sm">
+                      <Tag className="w-3.5 h-3.5" /> + VARIABLE
+                    </button>
+                    
+                    <button type="button" onClick={() => {
+                      Swal.fire({
+                        title: 'Guía de Redacción',
+                        html: `
+                          <div class="text-left text-sm space-y-4 font-serif text-gray-800">
+                            <div class="bg-gray-50 border p-3 rounded-lg">
+                              <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">⌨️</span> 1. Formato Rápido (Negritas y Títulos)</strong>
+                              <p class="leading-relaxed">Selecciona el texto que desees con el ratón y pulsa los botones de <b>Negrita</b> (B) o <b>Título</b> (H). El sistema añadirá los caracteres de formato alrededor por ti, o puedes añadirlos antes de empezar a escribir.</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 border p-3 rounded-lg">
+                              <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">📊</span> 2. Tablas Visibles Policiales</strong>
+                              <p class="leading-relaxed mb-2">Una tabla se dibuja separando columnas con espacios (con darle a la barra espaciadora 4 veces es suficiente) o usando la tecla TAB. Los encabezados no llevan guión inicial, pero las filas de debajo sí:</p>
+                              <div class="bg-white p-2 border border-blue-200 rounded font-mono text-[11px] leading-relaxed">
+                                CONCEPTO    DETALLES<br/>
+                                - Fuego    Extinto<br/>
+                                - Heridos    Ninguno
+                              </div>
+                              <p class="text-[11px] text-gray-500 mt-2">* El Generador de Tablas (botón TABLA) lo armará por ti automáticamente.</p>
+                            </div>
+  
+                            <div class="bg-gray-50 border p-3 rounded-lg">
+                              <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">🏷️</span> 3. Variables Mágicas</strong>
+                              <p class="leading-relaxed">Selecciona una palabra, haz clic en <b>+ VARIABLE</b> y la palabra se rodeará con llaves <code>{ }</code>. El sistema detectará automáticamente eso como un dato a rellenar justo antes de imprimir el atestado final.</p>
+                            </div>
+                          </div>
+                        `,
+                        confirmButtonColor: '#002856',
+                        confirmButtonText: 'Entendido',
+                        width: '600px'
+                      });
+                    }} className="bg-blue-100 text-blue-800 p-1.5 rounded-full hover:bg-blue-200 transition-colors ml-1" title="Ayuda sobre redacción">
+                      <Info className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
               </div>
 
               {/* Smart Live Editor Area */}
-              <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-white border-t">
-                {/* Editor Container Style as a Sheet */}
-                <div className="flex-1 p-4 flex justify-center bg-slate-100/50 min-h-0">
-                  <div className="w-full max-w-4xl h-full bg-white shadow-xl border border-slate-200 relative police-document-sheet p-0 flex flex-col">
-                    
-                    {/* Toolbar Internal */}
-                    <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b px-4 py-2 flex items-center justify-between shadow-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="px-2 py-1 bg-blue-600 text-white text-[10px] font-bold rounded uppercase tracking-widest">Editor Inteligente</div>
-                        <span className="text-[10px] text-slate-400 font-medium">Autodetectando Markdown...</span>
-                      </div>
-                      <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase">
-                        <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> Variables: {variablesDetectadas.length}</span>
-                        <span className="flex items-center gap-1"><FileText className="w-3 h-3" /> Caracteres: {formData.content.length}</span>
-                      </div>
-                    </div>
+              <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-slate-200 border-t">
+                {/* TOOLBAR FIXED */}
+                <div className="z-30 bg-white/95 backdrop-blur-sm border-b px-6 py-2 flex items-center justify-between shadow-sm shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="px-2 py-1 bg-blue-600 text-white text-[10px] font-bold rounded uppercase tracking-widest">Documento (A4)</div>
+                  </div>
+                  <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase">
+                    <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> Variables: {variablesDetectadas.length}</span>
+                    <span className="flex items-center gap-1"><FileText className="w-3 h-3" /> Caracteres: {formData.content.length}</span>
+                  </div>
+                </div>
 
-                    <div className="flex-1 relative bg-white overflow-hidden flex flex-col min-h-0">
-                      <div className={`flex-1 relative p-6 md:p-12 flex flex-col min-h-0 ${activeTab === 'preview' ? 'overflow-y-auto custom-scrollbar' : ''}`}>
+                {/* Editor Container Style as a Sheet */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar flex justify-center py-8">
+                  <div className="w-full max-w-[210mm] min-h-[297mm] bg-white shadow-2xl border border-slate-300 relative flex flex-col shrink-0">
+                    
+                    <div className="flex-1 relative bg-white flex flex-col min-h-0">
+                      <div className={`flex-1 relative px-8 py-10 md:px-[25mm] md:py-[20mm] flex flex-col min-h-0 ${activeTab === 'preview' ? 'overflow-y-auto custom-scrollbar' : ''}`}>
 
                         {activeTab === 'edit' ? (
                           <div className="relative flex-1 w-full h-full min-h-0">
@@ -613,6 +583,7 @@ const EditarPlantilla = () => {
                                 lineHeight: '26px',
                                 padding: 0,
                                 margin: 0,
+                                fontVariantLigatures: 'none',
                                 whiteSpace: 'pre-wrap',
                                 wordBreak: 'break-word'
                               }}
@@ -669,7 +640,7 @@ const EditarPlantilla = () => {
                                 td: ({ children }) => <td className="px-4 py-2 text-sm border-r border-gray-900 text-gray-800">{children}</td>
                               }}
                             >
-                              {formData.content}
+                              {parseCustomTable(formData.content)}
                             </ReactMarkdown>
                           </div>
                         )}

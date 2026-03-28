@@ -309,12 +309,40 @@ const AtestadosList = () => {
                       
                       <div className="text-sm text-gray-600 mb-2">
                         <div className="flex items-center gap-4">
-                          <Link 
-                            to={`/atestados/${atestado.id}`}
-                            className="hover:text-[#002856] transition-colors flex items-center gap-1"
-                          >
-                            📄 {atestado.total_diligencias || 0} diligencia{(atestado.total_diligencias || 0) !== 1 ? 's' : ''}
-                          </Link>
+                          <div className="flex items-center gap-1 group relative">
+                            <Link 
+                              to={`/atestados/${atestado.id}`}
+                              className="hover:text-[#002856] transition-colors flex items-center gap-1"
+                            >
+                              📄 {atestado.total_diligencias || 0} diligencia{(atestado.total_diligencias || 0) !== 1 ? 's' : ''}
+                            </Link>
+                            {(atestado.total_diligencias || 0) > 0 && (
+                              <div
+                                onMouseEnter={() => fetchDiligenciasOnHover(atestado.id)}
+                                className="cursor-help inline-flex text-blue-500 hover:text-blue-700 ml-1"
+                              >
+                                <Eye className="w-4 h-4" />
+                                
+                                <div className="absolute left-0 top-full mt-2 w-64 bg-slate-800 text-white text-xs rounded shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-3 pointer-events-none">
+                                  <div className="font-bold mb-2 text-slate-300 border-b border-slate-600 pb-1">Desglose de diligencias:</div>
+                                  {!atestado.fetched ? (
+                                    <div className="animate-pulse flex gap-2"><div className="w-2 h-2 bg-slate-500 rounded-full"></div> Cargando...</div>
+                                  ) : (atestado.diligencias && atestado.diligencias.length > 0) ? (
+                                    <ul className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+                                      {atestado.diligencias.map((d, i) => (
+                                        <li key={i} className="flex gap-2 items-start">
+                                          <span className="text-slate-500">{i+1}.</span>
+                                          <span className="line-clamp-2 leading-tight">{d.plantilla_nombre || d.plantilla_name || d.name || 'Diligencia general'}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    <div className="text-slate-400 italic">No se pudieron cargar los detalles</div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                           <span>
                             📅 Creado: {formatDate(atestado.created_at)}
                           </span>

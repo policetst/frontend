@@ -5,7 +5,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
  import DraggableDiligencia from './DraggableDiligencia';
  import AtestadoPrintView from './AtestadoPrintView';
  import AtestadoTicketView from './AtestadoTicketView';
- import { extractVariables, replaceVariables } from '../utils/types';
+ import { extractVariables, replaceVariables, parseCustomTable } from '../utils/types';
  import Swal from 'sweetalert2';
  import './AtestadosDetail.css';
 import ReactMarkdown from 'react-markdown';
@@ -825,7 +825,7 @@ import remarkBreaks from 'remark-breaks';
                         li: ({node, ...props}) => <li className="pl-1" {...props} />,
                       }}
                     >
-                      {diligencia.texto_final || 'Sin contenido'}
+                      {parseCustomTable(diligencia.texto_final || 'Sin contenido')}
                     </ReactMarkdown>
 
                     {diligencia.croquis && (
@@ -1055,7 +1055,7 @@ import remarkBreaks from 'remark-breaks';
                                   h3: ({node, ...props}) => <h3 className="text-sm font-black text-gray-900 border-b border-gray-800 pb-1 mt-6 mb-4 uppercase tracking-tight" {...props} />
                                 }}
                               >
-                                {liveFinalContent}
+                                {parseCustomTable(liveFinalContent)}
                               </ReactMarkdown>
                             </div>
                           </div>
@@ -1158,7 +1158,7 @@ import remarkBreaks from 'remark-breaks';
                           li: ({node, ...props}) => <li className="pl-2" {...props} />,
                         }}
                       >
-                        {d.texto_final}
+                        {parseCustomTable(d.texto_final)}
                       </ReactMarkdown>
                     </div>
 

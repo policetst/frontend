@@ -2,6 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
+import { parseCustomTable } from '../utils/types';
 
 const AtestadoPrintView = ({ atestado, diligencias, onClose }) => {
   const formatDate = (dateString) => {
@@ -140,7 +141,7 @@ const AtestadoPrintView = ({ atestado, diligencias, onClose }) => {
                         li: ({node, ...props}) => <li className="text-gray-800" {...props} />,
                       }}
                     >
-                      {diligencia.texto_final || diligencia.content || 'Sin contenido'}
+                      {parseCustomTable(diligencia.texto_final || diligencia.content || 'Sin contenido')}
                     </ReactMarkdown>
                   </div>
                   
