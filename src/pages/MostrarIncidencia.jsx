@@ -82,12 +82,18 @@ const incidenciasFiltradas = incidencias.filter(incidencia => {
       <div className="flex justify-center">
         <div className="w-full sm:w-3/4 md:w-[750px] lg:w-[960px] xl:w-[960px] space-y-8 text-gray-800">
           {/* Titulo */}
-          <div className="hidden xl:block">
-            <h2 className="text-2xl font-bold">Incidencias</h2>
+          <div className="hidden xl:block mt-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Incidencias</h2>
+              <span className="text-gray-500 font-medium text-md">{incidenciasFiltradas.length} {incidenciasFiltradas.length === 1 ? 'incidencia listada' : 'incidencias listadas'}</span>
+            </div>
             <hr className="border-t border-gray-300 my-4"/>
           </div>
-          <div className="block xl:hidden">
+          <div className="block xl:hidden mt-6">
             <h2 className="text-2xl font-bold flex justify-center">Incidencias</h2>
+            <div className="flex justify-center mt-2">
+              <span className="text-gray-500 font-medium text-sm">{incidenciasFiltradas.length} {incidenciasFiltradas.length === 1 ? 'incidencia listada' : 'incidencias listadas'}</span>
+            </div>
             <hr className="border-t border-gray-300 my-4"/>
           </div>
           {/* Filtros */}
