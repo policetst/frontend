@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useState, useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Rectangle, Tooltip } from 'react-leaflet';
 import { getIncidents } from '../funcs/Incidents';
 import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { getIconByType } from '../utils/iconByType';
 import L from 'leaflet';
 
@@ -10,8 +11,59 @@ function Mapa() {
   document.title = 'SIL Tauste - Mapa';
   const [search, setSearch] = useState('');
   const [incidents, setIncidents] = useState([]);
-
   const [selectedType, setSelectedType] = useState('');
+
+  const [topZonas, setTopZonas] = useState([]);
+  const [loadingTop, setLoadingTop] = useState(false);
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
+
+  const [addressSearch, setAddressSearch] = useState("");
+  const [addressResults, setAddressResults] = useState([]);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+  const searchTimeoutRef = useRef(null);
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+
+    if (addressSearch.trim().length < 3) {
+      setAddressResults([]);
+      return;
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      setIsSearchingAddress(true);
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            addressSearch
+          )}&limit=5&countrycodes=es`
+        );
+        const data = await response.json();
+        setAddressResults(data);
+      } catch (error) {
+        console.error("Error searching location:", error);
+        setAddressResults([]);
+      } finally {
+        setIsSearchingAddress(false);
+      }
+    }, 500);
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [addressSearch]);
+
+  const handleAddressSelect = (result) => {
+    const lat = parseFloat(result.lat);
+    const lng = parseFloat(result.lon);
+    if (mapRef.current) {
+      mapRef.current.flyTo([lat, lng], 17);
+    }
+    setAddressSearch("");
+    setAddressResults([]);
+  };
+
 
 
   useEffect(() => {
@@ -31,6 +83,80 @@ function Mapa() {
   (selectedType === '' || i.type === selectedType)
   );
 
+  const calculateTopZonas = async (currentIncidents) => {
+    setLoadingTop(true);
+    setHasAnalyzed(true);
+    
+    const groups = {};
+    currentIncidents.forEach(inc => {
+      const parts = inc.location.split(',');
+      if (parts.length !== 2) return;
+      const lat = parseFloat(parts[0]);
+      const lng = parseFloat(parts[1]);
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      // Agrupamos inteligentemente por proximidad geográfica (aprox 300-400 metros)
+      // para crear "Zonas" grandes (ej: zona este, zona centro).
+      let addedToCluster = false;
+      const mergeDist = 0.004; // Aprox 400m radius para englobar grupos de calles ("cubriendo 35 34 15")
+
+      for (const [key, cluster] of Object.entries(groups)) {
+        // Compute distance to cluster center
+        const latDiff = Math.abs(cluster.lat - lat);
+        const lngDiff = Math.abs(cluster.lng - lng);
+        
+        if (latDiff < mergeDist && lngDiff < mergeDist) {
+          cluster.count++;
+          cluster.points.push([lat, lng]);
+          cluster.types[inc.type] = (cluster.types[inc.type] || 0) + 1;
+          
+          // Mover el centro de gravedad del cluster ligeramente
+          cluster.lat = (cluster.lat * (cluster.count - 1) + lat) / cluster.count;
+          cluster.lng = (cluster.lng * (cluster.count - 1) + lng) / cluster.count;
+          
+          addedToCluster = true;
+          break;
+        }
+      }
+
+      if (!addedToCluster) {
+        const newKey = `cluster-${lat}-${lng}`;
+        groups[newKey] = { lat, lng, count: 1, types: { [inc.type]: 1 }, points: [[lat, lng]] };
+      }
+    });
+
+    const sortedGroups = Object.values(groups).sort((a, b) => b.count - a.count).slice(0, 25);
+
+    const finalResults = [];
+    for (const group of sortedGroups) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${group.lat}&lon=${group.lng}`);
+        const data = await res.json();
+        const street = data.address?.road || data.address?.pedestrian || data.address?.neighbourhood || data.address?.suburb || "Zona con alta actividad";
+        finalResults.push({ name: street, count: group.count, types: group.types, lat: group.lat, lng: group.lng, points: group.points });
+        await new Promise(resolve => setTimeout(resolve, 1100)); // Rate limit 1 req/sec
+      } catch (e) {
+        finalResults.push({ name: "Error obteniendo calle", count: group.count, types: group.types, lat: group.lat, lng: group.lng, points: group.points });
+      }
+    }
+
+    setTopZonas(finalResults);
+    setLoadingTop(false);
+  };
+
+  useEffect(() => {
+    if (incidents.length > 0 && !hasAnalyzed) {
+      calculateTopZonas(filteredIncidents);
+    }
+  }, [incidents, hasAnalyzed]);
+
+  const getRecommendation = (count) => {
+    if (count >= 50) return { label: "🔴 CÓDIGO NEGRO - Prioridad Máxima. Aumentar efectivos", color: "bg-red-900 text-white border-red-500", mapColor: "#ef4444" };
+    if (count >= 20) return { label: "🟠 RIESGO ALTO - Reforzar vigilancia recurrente", color: "bg-orange-900 text-white border-orange-500", mapColor: "#f97316" };
+    if (count >= 5) return { label: "🟡 RIESGO MEDIO - Mantener presencia habitual", color: "bg-yellow-900 text-yellow-100 border-yellow-500", mapColor: "#eab308" };
+    return { label: "🔵 RIESGO BAJO - Monitorizar de forma rutinaria", color: "bg-blue-900 text-blue-100 border-blue-500", mapColor: "#3b82f6" };
+  };
+
   return (
     <div>
       <div className="flex justify-center">
@@ -47,17 +173,70 @@ function Mapa() {
               <hr className="border-t border-gray-300 my-4"/>
           </div>
 
-        <input
-          type="text"
-          placeholder="Buscar por número de incidencia"
-          value={search}
-          onChange={handleSearchChange}
-          className="w-full p-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
-        />
+        <div className="flex flex-col md:flex-row gap-3 w-full mt-4">
+          <input
+            type="text"
+            placeholder="Buscar por número de incidencia"
+            value={search}
+            onChange={handleSearchChange}
+            className="flex-1 p-3 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+          />
+
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Buscar calle o dirección en el mapa..."
+              value={addressSearch}
+              onChange={(e) => setAddressSearch(e.target.value)}
+              className="w-full p-3 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-base h-full"
+            />
+            {addressSearch && (
+              <button
+                type="button"
+                onClick={() => { setAddressSearch(""); setAddressResults([]); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold hover:text-gray-800"
+              >
+                ✕
+              </button>
+            )}
+            
+            {(addressResults.length > 0 || isSearchingAddress) && (
+              <div className="absolute top-[100%] left-0 right-0 z-[1000] mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto w-full">
+                {isSearchingAddress ? (
+                  <div className="p-3 text-sm text-gray-500">Buscando...</div>
+                ) : (
+                  addressResults.map((res, i) => (
+                    <div 
+                      key={i} 
+                      onClick={() => handleAddressSelect(res)}
+                      className="p-3 hover:bg-gray-100 cursor-pointer text-sm border-b last:border-b-0 border-gray-200"
+                    >
+                      {res.display_name}
+                    </div>
+                  ))
+                )}
+                {!isSearchingAddress && addressResults.length === 0 && addressSearch.trim().length >= 3 && (
+                  <div className="p-3 text-sm text-gray-500">No se encontraron calles.</div>
+                )}
+              </div>
+            )}
+          </div>
+          <button 
+            type="button" 
+            onClick={() => calculateTopZonas(filteredIncidents)}
+            className="w-full md:w-auto px-6 py-3 bg-slate-100 text-slate-700 border border-slate-300 font-semibold text-base rounded-md hover:bg-slate-200 shadow-sm transition-all flex items-center justify-center whitespace-nowrap"
+          >
+            {'Recalcular Análisis'}
+          </button>
+        </div>
+        
         <select
           value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value)}
-          className="w-full p-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+          onChange={(e) => {
+             setSelectedType(e.target.value);
+             // When filter changes we might want to let them click btn to recalculate manually
+          }}
+          className="w-full p-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2 bg-white"
           >
           <option value="">Filtrar por tipo</option>
             {[...new Set(incidents.map(i => i.type))].map(type => (
@@ -66,9 +245,12 @@ function Mapa() {
         </select>
 
 
-        <div className="mt-6 h-[600px] w-full border border-gray-400 rounded">
-          <MapContainer
-            center={[41.98, -1.27]}
+        <div className="flex flex-col lg:flex-row gap-6 mt-6 w-full h-[800px] lg:h-[750px]">
+          {/* Mapa a la izquierda */}
+          <div className="lg:w-3/4 h-full border border-gray-400 rounded relative z-0">
+            <MapContainer
+              ref={mapRef}
+              center={[41.98, -1.27]}
             zoom={13}
             scrollWheelZoom={true}
             style={{
@@ -80,33 +262,145 @@ function Mapa() {
             }}
           >
           <TileLayer
-            attribution='&copy; Arbadev | SIL Tauste'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://carto.com/">CARTO</a> | SIL Tauste'
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           />
-          {filteredIncidents.map((incident) => {
-            const [lat, lng] = incident.location.split(',').map(Number);
-            if (isNaN(lat) || isNaN(lng)) return null;
 
-            const icon = getIconByType(incident.type);            
+          {/* Cuadrantes perimetrales PRECISOS basados en bounding box de esa zona */}
+          {topZonas.map((zona, idx) => {
+            const rec = getRecommendation(zona.count);
+            
+            // Calculamos la caja delimitadora (bounding box) exacta de todos los incidentes del cluster
+            const lats = zona.points.map(p => p[0]);
+            const lngs = zona.points.map(p => p[1]);
+            const minLat = Math.min(...lats);
+            const maxLat = Math.max(...lats);
+            const minLng = Math.min(...lngs);
+            const maxLng = Math.max(...lngs);
+            
+            // Añadimos un minúsculo padding (unos 15 metros) para que no sea un borde asfixiante sobre los pines
+            const pad = 0.00015;
+            const preciseBounds = [
+              [minLat - pad, minLng - pad],
+              [maxLat + pad, maxLng + pad]
+            ];
 
             return (
-              <Marker key={incident.id} position={[lat, lng]} icon={icon}>
-                <Popup>
-                  <strong>
-                    Incidencia{' '}
-                    <Link to={`/editincident/${incident.code}`}>
-                      {incident.code}
-                    </Link>
-                  </strong>
-                  <br />
-                  <span className="font-semibold">{incident.type}</span>
-                  <br />
-                  {incident.description}
-                </Popup>
-              </Marker>
-          );
+              <Rectangle 
+                key={`quadrant-${idx}`}
+                bounds={preciseBounds} 
+                pathOptions={{ 
+                  color: rec.mapColor, 
+                  fillColor: rec.mapColor, 
+                  fillOpacity: 0.15, 
+                  weight: 2, 
+                  dashArray: '8, 6',
+                  className: 'animate-pulse' 
+                }}
+              >
+              </Rectangle>
+            );
           })}
+
+          <MarkerClusterGroup
+            chunkedLoading
+            maxClusterRadius={60}
+          >
+            {filteredIncidents.map((incident) => {
+              const [lat, lng] = incident.location.split(',').map(Number);
+              if (isNaN(lat) || isNaN(lng)) return null;
+
+              const icon = getIconByType(incident.type);            
+
+              return (
+                <Marker key={incident.id} position={[lat, lng]} icon={icon} alt={incident.type}>
+                  <Popup>
+                    <strong>
+                      Incidencia{' '}
+                      <Link to={`/editincident/${incident.code}`}>
+                        {incident.code}
+                      </Link>
+                    </strong>
+                    <br />
+                    <span className="font-semibold">{incident.type}</span>
+                    <br />
+                    {incident.description}
+                  </Popup>
+                </Marker>
+            );
+            })}
+          </MarkerClusterGroup>
           </MapContainer>
+        </div>
+
+          {/* Panel Lateral de Análisis Detallado (CompStat) */}
+          <div className="lg:w-1/4 h-full overflow-y-auto bg-[#0a192f] border border-slate-800 rounded-lg shadow-xl p-4 flex flex-col text-slate-300">
+            <h3 className="text-xl font-bold mb-4 text-white border-b border-slate-700 pb-3 flex items-center gap-2 tracking-wide uppercase">
+              <span className="text-red-500 text-2xl">⌖</span> CompStat Táctico
+            </h3>
+
+            {loadingTop ? (
+              <div className="text-sm text-slate-400 animate-pulse text-center mt-6">Computando densidad geoespacial...</div>
+            ) : topZonas.length > 0 ? (
+              <div className="flex flex-col gap-4">
+                {topZonas.map((zona, idx) => {
+                  const rec = getRecommendation(zona.count);
+                  return (
+                    <div 
+                      key={idx} 
+                      onClick={() => {
+                        if (mapRef.current) {
+                          mapRef.current.flyTo([zona.lat, zona.lng], 16);
+                        }
+                      }}
+                      className="group flex flex-col gap-2 p-3.5 rounded-md bg-[#112240] border border-slate-700 hover:border-blue-400 cursor-pointer transition-all shadow-md relative overflow-hidden"
+                    >
+                      {/* Borde superior de color indicador */}
+                      <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: rec.mapColor }}></div>
+
+                      <div className="flex items-start gap-3 border-b border-slate-700 pb-2">
+                        <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0 text-slate-900 font-bold text-sm shadow-inner" style={{ backgroundColor: rec.mapColor }}>
+                           {idx + 1}
+                        </div>
+                        <div className="flex flex-col flex-1">
+                          <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Sector Hotspot</div>
+                          <div className="text-sm font-bold text-white leading-tight">
+                            {zona.name}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                           <div className="text-[20px] font-black text-white leading-none">{zona.count}</div>
+                           <div className="text-[9px] text-slate-400 uppercase">Incidentes</div>
+                        </div>
+                      </div>
+                      
+                      {(() => {
+                        const sortedTypes = Object.entries(zona.types).sort((a,b) => b[1] - a[1]);
+                        if (sortedTypes.length === 0) return null;
+                        const [topTipo, topQty] = sortedTypes[0];
+                        return (
+                          <div className="flex flex-col gap-1 mt-1">
+                            <span className="text-[10px] uppercase font-bold text-slate-500">M.O. Predominante (Modus Operandi):</span>
+                            <div className="flex justify-between items-center bg-[#0a192f] p-1.5 rounded border border-slate-800">
+                              <span className="text-xs font-semibold text-slate-300 truncate" title={topTipo}>{topTipo}</span>
+                              <span className="text-[10px] font-bold text-white bg-slate-700 px-2 py-0.5 rounded">{topQty}</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      <div className="mt-2 p-2 rounded text-[10px] font-bold text-center uppercase tracking-wide border border-transparent" style={{ backgroundColor: `${rec.mapColor}15`, color: rec.mapColor, borderColor: `${rec.mapColor}40` }}>
+                        Despliegue: {rec.label.split(' - ')[1] || rec.label}
+                      </div>
+
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+               <div className="text-sm text-slate-500 text-center mt-6">Sin actividad detectada en el sector.</div>
+            )}
+          </div>
         </div>
         </div>
       </div>

@@ -26,6 +26,7 @@
     "react-cookie": "^8.0.1",
     "react-dom": "^19.0.0",
     "react-leaflet": "^5.0.0",
+    "react-leaflet-cluster": "^4.0.0",
     "react-markdown": "^10.1.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.5.3",
