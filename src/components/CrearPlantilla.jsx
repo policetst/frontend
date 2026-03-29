@@ -1,6 +1,7 @@
 // pages/CrearPlantilla.jsx
-import React, { useState, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
+import { useNavigate, useBlocker } from 'react-router-dom';
+
 import apiService from '../../services/apiService';
 import Swal from 'sweetalert2';
 import { extractVariables, validateTemplate, parseCustomTable } from '../utils/types';
@@ -12,7 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
-import { Tag, FileText, X, ArrowLeft, Save, Bold, Heading, List, ListOrdered, Table, PenTool, Square, Minus, Info, Edit3, Eye, CheckSquare } from 'lucide-react';
+import { Tag, FileText, X, ArrowLeft, Save, Bold, Heading, List, ListOrdered, Table, PenTool, Square, Minus, Info, Edit3, Eye, CheckSquare, AlignJustify } from 'lucide-react';
+
 
 import TableGeneratorModal from './TableGeneratorModal';
 
@@ -222,6 +224,7 @@ const CrearPlantilla = () => {
       const variables = extractVariables(formData.content);
       const plantillaData = { ...formData, variables: variables };
       await apiService.createPlantilla(plantillaData);
+      skipBlockRef.current = true;
       await Swal.fire({
         title: '¡Éxito!',
         text: 'Plantilla creada correctamente',
@@ -246,12 +249,79 @@ const CrearPlantilla = () => {
 
   const variablesDetectadas = useMemo(() => extractVariables(formData.content), [formData.content]);
 
+  const skipBlockRef = useRef(false);
+  const hasChanges = formData.name !== '' || formData.description !== '' || formData.content !== '';
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasChanges && !skipBlockRef.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges]);
+
+  let blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasChanges && !skipBlockRef.current && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      Swal.fire({
+        title: '¿Salir sin guardar?',
+        text: 'Tienes una plantilla en progreso. Si sales ahora, perderás los cambios.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, salir sin guardar',
+        cancelButtonText: 'No, quedarme',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          blocker.proceed();
+        } else {
+          blocker.reset();
+        }
+      });
+    }
+  }, [blocker]);
+
+  const handleBack = () => {
+    if (hasChanges) {
+
+      Swal.fire({
+        title: '¿Guardar cambios?',
+        text: 'Tienes una plantilla en progreso. ¿Deseas guardarla antes de salir?',
+        icon: 'warning',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Sí, guardar',
+        denyButtonText: 'Salir sin guardar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#002856',
+        denyButtonColor: '#d33'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          handleSubmit({ preventDefault: () => {} });
+        } else if (result.isDenied) {
+          navigate('/plantillas');
+        }
+      });
+    } else {
+      navigate('/plantillas');
+    }
+  };
+
   return (
     <div className="p-4 bg-slate-100 min-h-screen">
       <div className="flex justify-between items-center mb-4 pb-4 border-b">
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => navigate('/plantillas')}
+            type="button"
+            onClick={handleBack}
             className="p-2 transition-colors hover:bg-white rounded-full text-slate-500"
           >
             <ArrowLeft className="w-6 h-6" />
@@ -310,6 +380,25 @@ const CrearPlantilla = () => {
                 <button type="button" onClick={() => setIsTableModalOpen(true)} className="bg-white border px-2 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"><Table className="w-4 h-4" /> TABLA</button>
                 <button type="button" onClick={() => addFormat('\n[[ {Texto_del_recuadro} ]]\n')} className="bg-white border px-2 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"><Square className="w-4 h-4" /> RECUADRO</button>
                 <button type="button" onClick={() => addFormat('\n[ ] SI    [ ] NO\n')} className="bg-white border px-2 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"><CheckSquare className="w-4 h-4" /> SI/NO</button>
+                <button type="button" onClick={() => {
+                  Swal.fire({
+                    title: 'Líneas de escritura',
+                    text: '¿Qué tamaño de líneas necesitas?',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'Frase/Párrafo',
+                    denyButtonText: 'Palabra (Corta)',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#002856',
+                    denyButtonColor: '#475569'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      addFormat('\n.......................................................................\n.......................................................................\n.......................................................................\n');
+                    } else if (result.isDenied) {
+                      addFormat(' ......................... ');
+                    }
+                  });
+                }} className="bg-white border px-2 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"><AlignJustify className="w-4 h-4" /> LÍNEAS ESCRITURA</button>
 
 
                 <div className="ml-4 flex bg-slate-200/50 p-1 rounded-lg border border-slate-200">

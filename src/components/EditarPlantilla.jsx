@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useBlocker } from 'react-router-dom';
+
 import apiService from '../../services/apiService';
 import Swal from 'sweetalert2';
 import { extractVariables, validateTemplate, parseCustomTable } from '../utils/types';
@@ -15,8 +16,9 @@ import {
   Bold, Italic, Heading, List, ListOrdered, Table, 
   PenTool, Square, Minus, User, Car, Scale, MapPin, 
   Eye, Edit3, Save, X, Trash2, ArrowLeft, Info, HelpCircle,
-  Tag, FileText, CheckSquare
+  Tag, FileText, CheckSquare, AlignJustify
 } from 'lucide-react';
+
 
 import TableGeneratorModal from './TableGeneratorModal';
 
@@ -259,6 +261,7 @@ const EditarPlantilla = () => {
       };
 
       await apiService.updatePlantilla(id, plantillaData);
+      skipBlockRef.current = true;
       await Swal.fire({
         title: '¡Éxito!',
         text: 'Plantilla actualizada correctamente',
@@ -308,6 +311,7 @@ const EditarPlantilla = () => {
     if (result.isConfirmed) {
       try {
         await apiService.deletePlantilla(id);
+        skipBlockRef.current = true;
         Swal.fire({
           title: 'Eliminada',
           text: 'Plantilla eliminada correctamente',
@@ -329,13 +333,81 @@ const EditarPlantilla = () => {
     }
   };
 
+  const variablesDetectadas = extractVariables(formData.content);
+
+  const skipBlockRef = useRef(false);
+  const hasChanges = 
+    formData.name !== (plantilla?.name || '') || 
+    formData.description !== (plantilla?.description || '') || 
+    formData.content !== (plantilla?.content || '');
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasChanges && !skipBlockRef.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges]);
+
+  let blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasChanges && !skipBlockRef.current && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      Swal.fire({
+        title: '¿Salir sin guardar?',
+        text: 'Has modificado la plantilla. Si sales ahora, perderás los cambios.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, salir sin guardar',
+        cancelButtonText: 'No, quedarme',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          blocker.proceed();
+        } else {
+          blocker.reset();
+        }
+      });
+    }
+  }, [blocker]);
+
   if (loading) {
     return (
       <div className="p-6 text-center">Cargando plantilla...</div>
     );
   }
 
-  const variablesDetectadas = extractVariables(formData.content);
+  const handleBack = () => {
+    if (hasChanges) {
+      Swal.fire({
+        title: '¿Guardar cambios?',
+        text: 'Has modificado la plantilla. ¿Deseas guardar los cambios antes de salir?',
+        icon: 'warning',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Sí, guardar',
+        denyButtonText: 'Salir sin guardar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#002856',
+        denyButtonColor: '#d33'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          handleSubmit({ preventDefault: () => {} });
+        } else if (result.isDenied) {
+          navigate('/plantillas');
+        }
+      });
+    } else {
+      navigate('/plantillas');
+    }
+  };
 
   return (
     <div className="p-4 bg-slate-100 min-h-screen">
@@ -350,7 +422,7 @@ const EditarPlantilla = () => {
                   <div className="flex items-center gap-3">
                     <button 
                       type="button"
-                      onClick={() => navigate('/plantillas')}
+                      onClick={handleBack}
                       className="p-2 transition-colors hover:bg-slate-200 rounded-full text-slate-500"
                       title="Volver"
                     >
@@ -457,6 +529,30 @@ const EditarPlantilla = () => {
                   <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm">
                     <button type="button" title="Insertar Selector SI/NO" onClick={() => addFormat('\n[ ] SI    [ ] NO\n')} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
                       <CheckSquare className="w-4 h-4" /> <span className="text-xs font-bold uppercase">SI/NO</span>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm">
+                    <button type="button" title="Líneas de escritura" onClick={() => {
+                      Swal.fire({
+                        title: 'Líneas de escritura',
+                        text: '¿Qué tamaño de líneas necesitas?',
+                        showDenyButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: 'Frase/Párrafo',
+                        denyButtonText: 'Palabra (Corta)',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#002856',
+                        denyButtonColor: '#475569'
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          addFormat('\n.......................................................................\n.......................................................................\n.......................................................................\n');
+                        } else if (result.isDenied) {
+                          addFormat(' ......................... ');
+                        }
+                      });
+                    }} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
+                      <AlignJustify className="w-4 h-4" /> <span className="text-xs font-bold uppercase">LÍNEAS ESCRITURA</span>
                     </button>
                   </div>
 
