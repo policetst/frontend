@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, Rectangle, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Rectangle, Polygon, Tooltip } from 'react-leaflet';
 import { getIncidents } from '../funcs/Incidents';
 import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
@@ -9,6 +9,29 @@ import L from 'leaflet';
 
 function Mapa() {
   document.title = 'SIL Tauste - Mapa';
+
+  const cross = (o, a, b) => {
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  };
+
+  const convexHull = (points) => {
+    if (points.length < 3) return points;
+    const sorted = [...points].sort((a, b) => a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1]);
+    const lower = [];
+    for (let i = 0; i < sorted.length; i++) {
+        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], sorted[i]) <= 0) lower.pop();
+        lower.push(sorted[i]);
+    }
+    const upper = [];
+    for (let i = sorted.length - 1; i >= 0; i--) {
+        while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], sorted[i]) <= 0) upper.pop();
+        upper.push(sorted[i]);
+    }
+    upper.pop();
+    lower.pop();
+    return lower.concat(upper);
+  };
+
   const [search, setSearch] = useState('');
   const [incidents, setIncidents] = useState([]);
   const [selectedType, setSelectedType] = useState('');
@@ -16,12 +39,14 @@ function Mapa() {
   const [topZonas, setTopZonas] = useState([]);
   const [loadingTop, setLoadingTop] = useState(false);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
+  const [showHotspots, setShowHotspots] = useState(true);
 
   const [addressSearch, setAddressSearch] = useState("");
   const [addressResults, setAddressResults] = useState([]);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   const searchTimeoutRef = useRef(null);
   const mapRef = useRef(null);
+  const flyingTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
@@ -78,10 +103,71 @@ function Mapa() {
     setSearch(e.target.value);
   };
 
-  const filteredIncidents = incidents.filter(i =>
-    i.code.toString().includes(search) &&
-  (selectedType === '' || i.type === selectedType)
-  );
+  const lowerSearch = search.toLowerCase();
+  const filteredIncidents = incidents.filter(i => {
+    const matchType = (selectedType === '' || i.type === selectedType);
+    if (!matchType) return false;
+
+    if (search.trim() === '') return true;
+
+    const inCode = i.code?.toString().toLowerCase().includes(lowerSearch);
+    const inDesc = i.description?.toLowerCase().includes(lowerSearch);
+    const inJSON = JSON.stringify(i).toLowerCase().includes(lowerSearch);
+
+    return inCode || inDesc || inJSON;
+  });
+
+  useEffect(() => {
+    if (flyingTimeoutRef.current) clearTimeout(flyingTimeoutRef.current);
+    
+    if (search.trim().length > 0 && filteredIncidents.length > 0 && mapRef.current) {
+      flyingTimeoutRef.current = setTimeout(() => {
+        const lats = [];
+        const lngs = [];
+        filteredIncidents.forEach(inc => {
+          const parts = inc.location.split(',');
+          if (parts.length === 2) {
+            const lat = parseFloat(parts[0]);
+            const lng = parseFloat(parts[1]);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              lats.push(lat);
+              lngs.push(lng);
+            }
+          }
+        });
+
+        if (lats.length === 1) {
+           mapRef.current.flyTo([lats[0], lngs[0]], 17);
+        } else if (lats.length > 1 && lats.length <= 15) {
+          const minLat = Math.min(...lats);
+          const maxLat = Math.max(...lats);
+          const minLng = Math.min(...lngs);
+          const maxLng = Math.max(...lngs);
+          
+          if (minLat === maxLat && minLng === maxLng) {
+            mapRef.current.flyTo([minLat, minLng], 17);
+          } else {
+            const latDiff = maxLat - minLat;
+            const lngDiff = maxLng - minLng;
+            
+            // Solo hacemos auto-ajuste si los puntos no están extremadamente separados en la ciudad.
+            // Esto evita que al buscar de forma generalizada haga un "zoom out" gigante.
+            if (latDiff < 0.04 && lngDiff < 0.04) {
+              const pad = 0.002;
+              mapRef.current.flyToBounds([
+                [minLat - pad, minLng - pad],
+                [maxLat + pad, maxLng + pad]
+              ]);
+            }
+          }
+        }
+      }, 600); // 600ms de retardo para no marear al usuario mientras teclea
+    }
+    
+    return () => {
+      if (flyingTimeoutRef.current) clearTimeout(flyingTimeoutRef.current);
+    };
+  }, [search, filteredIncidents]);
 
   const calculateTopZonas = async (currentIncidents) => {
     setLoadingTop(true);
@@ -96,15 +182,16 @@ function Mapa() {
       if (isNaN(lat) || isNaN(lng)) return;
 
       // Agrupamos inteligentemente por proximidad geográfica (aprox 300-400 metros)
-      // para crear "Zonas" grandes (ej: zona este, zona centro).
+      // Y POR TIPO DE INCIDENCIA para identificar concentraciones específicas de un mismo M.O.
       let addedToCluster = false;
-      const mergeDist = 0.004; // Aprox 400m radius para englobar grupos de calles ("cubriendo 35 34 15")
+      const mergeDist = 0.004; // Aprox 400m radius
 
       for (const [key, cluster] of Object.entries(groups)) {
         // Compute distance to cluster center
         const latDiff = Math.abs(cluster.lat - lat);
         const lngDiff = Math.abs(cluster.lng - lng);
         
+        // Agrupamos únicamente por cercanía para evitar cuadrantes solapados
         if (latDiff < mergeDist && lngDiff < mergeDist) {
           cluster.count++;
           cluster.points.push([lat, lng]);
@@ -125,20 +212,23 @@ function Mapa() {
       }
     });
 
-    const sortedGroups = Object.values(groups).sort((a, b) => b.count - a.count).slice(0, 25);
+    const sortedGroups = Object.values(groups)
+      .filter(group => group.count > 1)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 25);
 
-    const finalResults = [];
-    for (const group of sortedGroups) {
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${group.lat}&lon=${group.lng}`);
-        const data = await res.json();
-        const street = data.address?.road || data.address?.pedestrian || data.address?.neighbourhood || data.address?.suburb || "Zona con alta actividad";
-        finalResults.push({ name: street, count: group.count, types: group.types, lat: group.lat, lng: group.lng, points: group.points });
-        await new Promise(resolve => setTimeout(resolve, 1100)); // Rate limit 1 req/sec
-      } catch (e) {
-        finalResults.push({ name: "Error obteniendo calle", count: group.count, types: group.types, lat: group.lat, lng: group.lng, points: group.points });
-      }
-    }
+    const finalResults = sortedGroups.map((group, idx) => {
+      const sortedTypes = Object.entries(group.types).sort((a,b) => b[1] - a[1]);
+      const mainTypes = sortedTypes.slice(0, 2).map(t => t[0]).join(' y ');
+      return { 
+        name: `Sector de ${mainTypes}`, 
+        count: group.count, 
+        types: group.types, 
+        lat: group.lat, 
+        lng: group.lng, 
+        points: group.points 
+      };
+    });
 
     setTopZonas(finalResults);
     setLoadingTop(false);
@@ -155,6 +245,21 @@ function Mapa() {
     if (count >= 20) return { label: "🟠 RIESGO ALTO - Reforzar vigilancia recurrente", color: "bg-orange-900 text-white border-orange-500", mapColor: "#f97316" };
     if (count >= 5) return { label: "🟡 RIESGO MEDIO - Mantener presencia habitual", color: "bg-yellow-900 text-yellow-100 border-yellow-500", mapColor: "#eab308" };
     return { label: "🔵 RIESGO BAJO - Monitorizar de forma rutinaria", color: "bg-blue-900 text-blue-100 border-blue-500", mapColor: "#3b82f6" };
+  };
+
+  const getColorByType = (type) => {
+    const colors = {
+      'Trafico': '#3b82f6', // blue
+      'Animales': '#10b981', // green
+      'Ruidos': '#eab308', // yellow
+      'Seguridad Ciudadana': '#ef4444', // red
+      'Asistencia Colaboración Ciudadana': '#f97316', // orange
+      'Ilícito penal': '#8b5cf6', // purple
+      'Incidencias Urbanísticas': '#ec4899', // pink
+      'Otras incidencias no clasificadas': '#64748b', // slate
+      'Juzgados': '#14b8a6', // teal
+    };
+    return colors[type] || '#94a3b8';
   };
 
   return (
@@ -176,7 +281,7 @@ function Mapa() {
         <div className="flex flex-col md:flex-row gap-3 w-full mt-4">
           <input
             type="text"
-            placeholder="Buscar por número de incidencia"
+            placeholder="Buscar por ID, descripcion, persona o vehiculo..."
             value={search}
             onChange={handleSearchChange}
             className="flex-1 p-3 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
@@ -228,6 +333,13 @@ function Mapa() {
           >
             {'Recalcular Análisis'}
           </button>
+          <button 
+            type="button" 
+            onClick={() => setShowHotspots(!showHotspots)}
+            className={`w-full md:w-auto px-6 py-3 font-semibold text-base rounded-md shadow-sm transition-all flex items-center justify-center whitespace-nowrap border ${showHotspots ? 'bg-red-50 text-red-700 border-red-300 hover:bg-red-100' : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'}`}
+          >
+            {showHotspots ? 'Ocultar Cuadrantes' : 'Mostrar Cuadrantes'}
+          </button>
         </div>
         
         <select
@@ -266,45 +378,78 @@ function Mapa() {
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           />
 
-          {/* Cuadrantes perimetrales PRECISOS basados en bounding box de esa zona */}
-          {topZonas.map((zona, idx) => {
+          {/* Cuadrantes perimetrales y Áreas calientes por tipo */}
+          {showHotspots && topZonas.map((zona, idx) => {
             const rec = getRecommendation(zona.count);
             
-            // Calculamos la caja delimitadora (bounding box) exacta de todos los incidentes del cluster
-            const lats = zona.points.map(p => p[0]);
-            const lngs = zona.points.map(p => p[1]);
-            const minLat = Math.min(...lats);
-            const maxLat = Math.max(...lats);
-            const minLng = Math.min(...lngs);
-            const maxLng = Math.max(...lngs);
-            
-            // Añadimos un minúsculo padding (unos 15 metros) para que no sea un borde asfixiante sobre los pines
             const pad = 0.00015;
-            const preciseBounds = [
-              [minLat - pad, minLng - pad],
-              [maxLat + pad, maxLng + pad]
-            ];
+            let polyPoints = [];
+            if (zona.points.length < 3) {
+              const boundsLat = zona.points[0] ? zona.points[0][0] : zona.lat;
+              const boundsLng = zona.points[0] ? zona.points[0][1] : zona.lng;
+              polyPoints = [
+                [boundsLat - pad, boundsLng - pad],
+                [boundsLat + pad, boundsLng - pad],
+                [boundsLat + pad, boundsLng + pad],
+                [boundsLat - pad, boundsLng + pad]
+              ];
+            } else {
+              const hull = convexHull(zona.points);
+              const centerLat = hull.reduce((sum, p) => sum + p[0], 0) / hull.length;
+              const centerLng = hull.reduce((sum, p) => sum + p[1], 0) / hull.length;
+              
+              polyPoints = hull.map(p => {
+                const latDiff = p[0] - centerLat;
+                const lngDiff = p[1] - centerLng;
+                return [p[0] + latDiff * 0.1, p[1] + lngDiff * 0.1]; // 10% outward expansion para que abrace los puntos holgadamente
+              });
+            }
+
+            // Identificar el tipo principal
+            const sortedTypes = Object.entries(zona.types).sort((a,b) => b[1] - a[1]);
+            const topType = sortedTypes.length > 0 ? sortedTypes[0][0] : null;
 
             return (
-              <Rectangle 
+              <Polygon 
                 key={`quadrant-${idx}`}
-                bounds={preciseBounds} 
+                positions={polyPoints} 
                 pathOptions={{ 
                   color: rec.mapColor, 
                   fillColor: rec.mapColor, 
-                  fillOpacity: 0.15, 
-                  weight: 2, 
-                  dashArray: '8, 6',
-                  className: 'animate-pulse' 
+                  fillOpacity: 0.1, 
+                  weight: 3, 
+                  className: 'animate-pulse'
                 }}
               >
-              </Rectangle>
+                <Tooltip direction="top" opacity={0.9}>
+                  <div className="min-w-[150px] max-w-[200px]">
+                    <div className="font-bold text-sm text-center mb-1 pb-1 border-b border-gray-200">
+                      {zona.name}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      {sortedTypes.map(([tipo, qty]) => (
+                        <div key={tipo} className="flex justify-between items-center text-xs font-semibold">
+                          <div className="flex items-center gap-1.5 overflow-hidden">
+                            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getColorByType(tipo) }}></span>
+                            <span className="truncate" style={{ color: getColorByType(tipo) }}>{tipo}</span>
+                          </div>
+                          <span className="bg-gray-100 text-gray-800 px-1.5 rounded">{qty}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-center text-gray-400 text-[10px] mt-2 border-t border-gray-100 pt-1">
+                      Total: {zona.count} incidencias
+                    </div>
+                  </div>
+                </Tooltip>
+              </Polygon>
             );
           })}
 
           <MarkerClusterGroup
             chunkedLoading
             maxClusterRadius={60}
+            showCoverageOnHover={false}
           >
             {filteredIncidents.map((incident) => {
               const [lat, lng] = incident.location.split(',').map(Number);
@@ -377,13 +522,20 @@ function Mapa() {
                       {(() => {
                         const sortedTypes = Object.entries(zona.types).sort((a,b) => b[1] - a[1]);
                         if (sortedTypes.length === 0) return null;
-                        const [topTipo, topQty] = sortedTypes[0];
+                        
                         return (
                           <div className="flex flex-col gap-1 mt-1">
-                            <span className="text-[10px] uppercase font-bold text-slate-500">M.O. Predominante (Modus Operandi):</span>
-                            <div className="flex justify-between items-center bg-[#0a192f] p-1.5 rounded border border-slate-800">
-                              <span className="text-xs font-semibold text-slate-300 truncate" title={topTipo}>{topTipo}</span>
-                              <span className="text-[10px] font-bold text-white bg-slate-700 px-2 py-0.5 rounded">{topQty}</span>
+                            <span className="text-[10px] uppercase font-bold text-slate-500">Desglose de tipologías:</span>
+                            <div className="flex flex-col gap-1 max-h-32 overflow-y-auto pr-1">
+                              {sortedTypes.map(([tipo, qty]) => (
+                                <div key={tipo} className="flex justify-between items-center bg-[#0a192f] p-1.5 rounded border border-slate-800">
+                                  <div className="flex items-center gap-2 overflow-hidden">
+                                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getColorByType(tipo) }}></span>
+                                    <span className="text-xs font-semibold text-slate-300 truncate" title={tipo}>{tipo}</span>
+                                  </div>
+                                  <span className="text-[10px] font-bold text-white bg-slate-700 px-2 py-0.5 rounded ml-2">{qty}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         );
