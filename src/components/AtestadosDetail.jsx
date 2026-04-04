@@ -39,6 +39,8 @@ import remarkBreaks from 'remark-breaks';
     const [showUsedPreview, setShowUsedPreview] = useState(false);
     const [isFinalizing, setIsFinalizing] = useState(false);
     const [finalPreviewDiligencias, setFinalPreviewDiligencias] = useState([]);
+    const [showEditAtestadoModal, setShowEditAtestadoModal] = useState(false);
+    const [editAtestadoValues, setEditAtestadoValues] = useState({ numero: '', descripcion: '', fecha: '', tipo: '' });
 
   // Funciones de utilidad
   const formatDateTime = (dateString) => {
@@ -474,6 +476,29 @@ import remarkBreaks from 'remark-breaks';
       setReplicateLoading(false);
     }
   };
+  const handleSaveAtestadoInfo = async (e) => {
+    e.preventDefault();
+    if (!editAtestadoValues.numero?.trim() || !editAtestadoValues.fecha) {
+      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'El número y la fecha son obligatorios' });
+      return;
+    }
+    try {
+      await apiService.updateAtestado(id, editAtestadoValues);
+      setAtestado(prev => ({ ...prev, ...editAtestadoValues }));
+      setShowEditAtestadoModal(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: 'Atestado actualizado correctamente',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Error al actualizar atestado:', error);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el atestado' });
+    }
+  };
+
   const plantillasFiltradas = plantillas.filter(plantilla =>
     plantilla.name?.toLowerCase().includes(searchPlantillas.toLowerCase()) ||
     plantilla.description?.toLowerCase().includes(searchPlantillas.toLowerCase())
@@ -534,18 +559,34 @@ import remarkBreaks from 'remark-breaks';
               {formatDate(atestado.fecha)} • {diligencias.length} diligencias
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            {!(atestado?.is_final || atestado?.numero?.includes('-U-')) && diligencias.length > 0 && (
+              <button
+                onClick={() => setShowUnifiedVariablesModal(true)}
+                className="px-4 py-2 text-sm font-bold bg-[#002856] text-white border border-[#002856] rounded hover:bg-blue-800 transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
+              >
+                USAR ESTE ATESTADO
+              </button>
+            )}
             {!(atestado?.is_final || atestado?.numero?.includes('-U-')) && (
-              <Link
-                to={`/atestados/${id}/editar`}
-                className="bg-white text-green-600 px-4 py-2 rounded border border-green-600 hover:bg-green-600 hover:text-white transition-all font-bold"
+              <button
+                onClick={() => {
+                  setEditAtestadoValues({
+                    numero: atestado.numero || '',
+                    descripcion: atestado.descripcion || '',
+                    fecha: atestado.fecha ? atestado.fecha.split('T')[0] : '',
+                    tipo: atestado.tipo || ''
+                  });
+                  setShowEditAtestadoModal(true);
+                }}
+                className="px-4 py-2 text-sm font-bold bg-white text-[#002856] border border-[#002856] rounded hover:bg-[#002856] hover:text-white transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
               >
                 Editar Información
-              </Link>
+              </button>
             )}
             <Link
               to="/atestados"
-              className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-black transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-sm font-bold bg-white text-[#002856] border border-[#002856] rounded hover:bg-[#002856] hover:text-white transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -569,6 +610,21 @@ import remarkBreaks from 'remark-breaks';
             </div>
             
             <div className="flex flex-col gap-3 mb-3">
+              {!(atestado?.is_final || atestado?.numero?.includes('-U-')) && diligencias.length > 1 && (
+                <div className="flex flex-col gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                  <h4 className="text-[10px] font-bold text-blue-800 uppercase tracking-wider">Organización</h4>
+                  <button
+                    onClick={handleReorderToggle}
+                    disabled={reorderLoading}
+                    className={`w-full px-3 py-2 rounded text-sm font-medium transition-colors ${
+                      isReordering ? 'bg-yellow-600 text-white' : 'bg-white text-blue-700 border border-blue-200'
+                    }`}
+                  >
+                    {isReordering ? 'Finalizar Reordenamiento' : '🔃 Reordenar Diligencias'}
+                  </button>
+                </div>
+              )}
+
               {!atestado?.is_final && (
                 <div className="flex gap-2 mb-1">
                   <button
@@ -589,29 +645,6 @@ import remarkBreaks from 'remark-breaks';
                     </svg>
                     Croquis
                   </button>
-                </div>
-              )}
-
-              {!(atestado?.is_final || atestado?.numero?.includes('-U-')) && diligencias.length > 0 && (
-                <div className="flex flex-col gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                  <h4 className="text-[10px] font-bold text-blue-800 uppercase tracking-wider">Acciones de plantilla</h4>
-                  <button
-                    onClick={() => setShowUnifiedVariablesModal(true)}
-                    className="w-full bg-indigo-600 text-white px-3 py-3 rounded text-sm font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95"
-                  >
-                    🚀 USAR ESTE ATESTADO
-                  </button>
-                  {diligencias.length > 1 && (
-                    <button
-                      onClick={handleReorderToggle}
-                      disabled={reorderLoading}
-                      className={`w-full px-3 py-2 rounded text-sm font-medium transition-colors ${
-                        isReordering ? 'bg-yellow-600 text-white' : 'bg-white text-blue-700 border border-blue-200'
-                      }`}
-                    >
-                      {isReordering ? 'Finalizar' : '🔃 Reordenar'}
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -641,21 +674,11 @@ import remarkBreaks from 'remark-breaks';
               </div>
             )}
 
-            {Object.keys(allVariables).length > 0 && (
-              <button
-                onClick={handleShowUnifiedVariables}
-                className="w-full bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700 flex items-center justify-center gap-2 mt-2 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-                Palabras Clave ({Object.keys(allVariables).length})
-              </button>
-            )}
+
           </div>
           
           <div className="flex-1 overflow-y-auto custom-scrollbar">
-            {/* Hoja de información básica del atestado */}
+            {/* Hoja de página principal del atestado */}
             <div className="p-3">
               <div className="police-document-sheet bg-white border border-gray-300 rounded p-4 mb-3 shadow-sm">
                 <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
@@ -664,7 +687,7 @@ import remarkBreaks from 'remark-breaks';
                       📋
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 text-sm">INFORMACIÓN BÁSICA</h3>
+                      <h3 className="font-bold text-gray-900 text-sm">PÁGINA PRINCIPAL</h3>
                       <p className="text-xs text-gray-600">Datos del atestado</p>
                     </div>
                   </div>
@@ -721,6 +744,10 @@ import remarkBreaks from 'remark-breaks';
                     isReordering={isReordering}
                     isFinal={atestado?.is_final}
                     compact={true}
+                    onNavigate={(id) => {
+                      const el = document.getElementById(`diligencia-view-${id}`);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
                   />
                 ))}
               </div>
@@ -732,7 +759,7 @@ import remarkBreaks from 'remark-breaks';
         <div className="flex-1 flex flex-col bg-gray-200 overflow-y-auto custom-scrollbar">
           <div className="py-8 px-4 flex flex-col items-center">
             
-            {/* HOJA 1: INFORMACIÓN BÁSICA DEL ATESTADO */}
+            {/* HOJA 1: PÁGINA PRINCIPAL DEL ATESTADO */}
             <div className="atestado-page shadow-2xl">
               <div className="atestado-page-header">
                 <div className="flex flex-col">
@@ -792,7 +819,7 @@ import remarkBreaks from 'remark-breaks';
 
             {/* DILIGENCIAS: CADA UNA EN SU HOJA */}
             {diligencias.map((diligencia, index) => (
-              <div key={diligencia.id} className="atestado-page shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div key={diligencia.id} id={`diligencia-view-${diligencia.id}`} className="atestado-page shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="atestado-page-header">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Atestado #{atestado?.numero}</span>
@@ -1283,6 +1310,61 @@ import remarkBreaks from 'remark-breaks';
                 Guardar Cambios
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para editar página principal del atestado */}
+      {showEditAtestadoModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 overflow-hidden">
+            <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-800">Editar Atestado</h3>
+              <button onClick={() => setShowEditAtestadoModal(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveAtestadoInfo} className="p-6">
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-2">Título / Número *</label>
+                <input
+                  type="text"
+                  required
+                  value={editAtestadoValues.numero}
+                  onChange={(e) => setEditAtestadoValues({ ...editAtestadoValues, numero: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-2">Descripción</label>
+                <textarea
+                  rows={4}
+                  value={editAtestadoValues.descripcion}
+                  onChange={(e) => setEditAtestadoValues({ ...editAtestadoValues, descripcion: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setShowEditAtestadoModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

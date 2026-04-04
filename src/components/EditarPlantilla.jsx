@@ -532,29 +532,7 @@ const EditarPlantilla = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm">
-                    <button type="button" title="Líneas de escritura" onClick={() => {
-                      Swal.fire({
-                        title: 'Líneas de escritura',
-                        text: '¿Qué tamaño de líneas necesitas?',
-                        showDenyButton: true,
-                        showCancelButton: true,
-                        confirmButtonText: 'Frase/Párrafo',
-                        denyButtonText: 'Palabra (Corta)',
-                        cancelButtonText: 'Cancelar',
-                        confirmButtonColor: '#002856',
-                        denyButtonColor: '#475569'
-                      }).then((result) => {
-                        if (result.isConfirmed) {
-                          addFormat('\n.......................................................................\n.......................................................................\n.......................................................................\n');
-                        } else if (result.isDenied) {
-                          addFormat(' ......................... ');
-                        }
-                      });
-                    }} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
-                      <AlignJustify className="w-4 h-4" /> <span className="text-xs font-bold uppercase">LÍNEAS ESCRITURA</span>
-                    </button>
-                  </div>
+
 
                   <div className="flex items-center bg-white border border-slate-200 rounded p-0.5 shadow-sm">
                     <button type="button" title="Firmas" onClick={() => addFormat('\n\nEL AGENTE (Número {Num}):\t\t\tEL INTERESADO:\n\n\n\n[Firma]\t\t\t\t\t\t[Firma]\n')} className="px-2 py-1.5 hover:bg-slate-50 text-slate-600 rounded flex items-center gap-1.5" >
@@ -581,22 +559,18 @@ const EditarPlantilla = () => {
                   </div>
 
                   <div className="flex items-center gap-2 ml-auto">
-                    <button type="button" onClick={() => addKeywordToEditor('nueva_variable')} className="bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-900 transition-all shadow-sm">
-                      <Tag className="w-3.5 h-3.5" /> + VARIABLE
-                    </button>
-                    
                     <button type="button" onClick={() => {
                       Swal.fire({
                         title: 'Guía de Redacción',
                         html: `
                           <div class="text-left text-sm space-y-4 font-serif text-gray-800">
                             <div class="bg-gray-50 border p-3 rounded-lg">
-                              <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">⌨️</span> 1. Formato Rápido (Negritas y Títulos)</strong>
+                              <strong class="text-blue-900 flex items-center gap-2 mb-2">1. Formato Rápido (Negritas y Títulos)</strong>
                               <p class="leading-relaxed">Selecciona el texto que desees con el ratón y pulsa los botones de <b>Negrita</b> (B) o <b>Título</b> (H). El sistema añadirá los caracteres de formato alrededor por ti, o puedes añadirlos antes de empezar a escribir.</p>
                             </div>
                             
                             <div class="bg-gray-50 border p-3 rounded-lg">
-                              <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">📊</span> 2. Tablas Visibles Policiales</strong>
+                              <strong class="text-blue-900 flex items-center gap-2 mb-2">2. Tablas Visibles Policiales</strong>
                               <p class="leading-relaxed mb-2">Una tabla se dibuja separando columnas con espacios (con darle a la barra espaciadora 4 veces es suficiente) o usando la tecla TAB. Los encabezados no llevan guión inicial, pero las filas de debajo sí:</p>
                               <div class="bg-white p-2 border border-blue-200 rounded font-mono text-[11px] leading-relaxed">
                                 CONCEPTO    DETALLES<br/>
@@ -607,7 +581,7 @@ const EditarPlantilla = () => {
                             </div>
   
                             <div class="bg-gray-50 border p-3 rounded-lg">
-                              <strong class="text-blue-900 flex items-center gap-2 mb-2"><span class="text-lg">🏷️</span> 3. Variables Mágicas</strong>
+                              <strong class="text-blue-900 flex items-center gap-2 mb-2">3. Variables Mágicas</strong>
                               <p class="leading-relaxed">Selecciona una palabra, haz clic en <b>+ VARIABLE</b> y la palabra se rodeará con llaves <code>{ }</code>. El sistema detectará automáticamente eso como un dato a rellenar justo antes de imprimir el atestado final.</p>
                             </div>
                           </div>
@@ -616,8 +590,12 @@ const EditarPlantilla = () => {
                         confirmButtonText: 'Entendido',
                         width: '600px'
                       });
-                    }} className="bg-blue-100 text-blue-800 p-1.5 rounded-full hover:bg-blue-200 transition-colors ml-1" title="Ayuda sobre redacción">
+                    }} className="bg-blue-100 text-blue-800 p-1.5 rounded-full hover:bg-blue-200 transition-colors" title="Ayuda sobre redacción">
                       <Info className="w-5 h-5" />
+                    </button>
+
+                    <button type="button" onClick={() => addKeywordToEditor('nueva_variable')} className="bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 hover:bg-slate-900 transition-all shadow-sm">
+                      <Tag className="w-3.5 h-3.5" /> + VARIABLE
                     </button>
                   </div>
                 </div>

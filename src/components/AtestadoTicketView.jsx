@@ -72,7 +72,7 @@ const AtestadoTicketView = ({ atestado, diligencias, onClose }) => {
             </div>
           </div>
 
-          {/* Información básica */}
+          {/* Página principal */}
           <div className="ticket-section">
             <h3>INFORMACIÓN GENERAL</h3>
             <div className="ticket-field">

@@ -166,12 +166,12 @@ const EditarAtestado = () => {
       <div className="max-w-4xl mx-auto p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Editar Atestado #{atestado.numero}</h1>
-          <p className="text-gray-600 mt-1">Modifica la información básica del atestado</p>
+          <p className="text-gray-600 mt-1">Modifica la página principal del atestado</p>
         </div>
         
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-6 border-b">
-            <h2 className="text-xl font-semibold text-gray-800">Información Básica</h2>
+            <h2 className="text-xl font-semibold text-gray-800">Página Principal</h2>
           </div>
           
           <form onSubmit={handleSubmit} className="p-6">
@@ -258,7 +258,7 @@ const EditarAtestado = () => {
             <div>
               <h3 className="text-sm font-semibold text-yellow-800 mb-1">Advertencia</h3>
               <p className="text-sm text-yellow-700">
-                Los cambios en la información básica del atestado no afectan a sus diligencias. Al eliminar un atestado se eliminan todas las diligencias que este contenga.
+                Los cambios en la página principal del atestado no afectan a sus diligencias. Al eliminar un atestado se eliminan todas las diligencias que este contenga.
               </p>
             </div>
           </div>

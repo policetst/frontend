@@ -1,9 +1,9 @@
 // pages/AtestadosList.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import apiService from '../../services/apiService';
 import Swal from 'sweetalert2';
-import { ArrowLeft, FileText, Eye } from 'lucide-react';
+import { ArrowLeft, FileText, Eye, Search } from 'lucide-react';
 
 const AtestadosList = () => {
   const [atestados, setAtestados] = useState([]);
@@ -11,6 +11,10 @@ const AtestadosList = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtroFecha, setFiltroFecha] = useState('');
   const [activeTab, setActiveTab] = useState(localStorage.getItem('atestados_active_tab') || 'templates');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
+
+  const navigate = useNavigate();
   
   useEffect(() => {
     localStorage.setItem('atestados_active_tab', activeTab);
@@ -161,6 +165,16 @@ const AtestadosList = () => {
     return matchBusqueda && matchFecha && matchTab;
   });
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [busqueda, filtroFecha, activeTab]);
+
+  const totalPages = Math.ceil(atestadosFiltrados.length / ITEMS_PER_PAGE);
+  const currentAtestados = atestadosFiltrados.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   if (loading) return (
     <div className="p-6">
       <div className="text-center">Cargando atestados...</div>
@@ -171,43 +185,30 @@ const AtestadosList = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-6">
         
-        {/* Cabecera */}
-        <div className='mb-4'>
-          <div className='flex items-center'>
-            <button
-            onClick={() => window.history.back()}
-            className='bg-gray-100 p-1 border border-gray-500 rounded '
-            >
-            <ArrowLeft/>
-            </button>
-            <p className='ml-3 text-lg'>Atrás</p>
-          </div>
-        </div>
+
         <div className="mb-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">Gestión de Atestados</h1>
           <div className="flex gap-3">
-            {activeTab === 'templates' && (
-              <>
-                <Link 
-                  to="/plantillas" 
-                  className="mt-2 px-4 py-2 
-                    bg-white text-[#002856] rounded border border-[#002856]
-                    hover:bg-[#002856] hover:text-white
-                    transition-all duration-200 shadow-sm"
-                >
-                  Gestión de Diligencias
-                </Link>
-                <button 
-                  onClick={() => setIsModalOpen(true)}
-                  className="mt-2 px-4 py-2 
-                    bg-[#002856] text-white rounded border border-[#002856]
-                    hover:bg-blue-700
-                    transition-all duration-200 shadow-md transform hover:scale-[1.02] active:scale-95"
-                >
-                  + Crear Atestado
-                </button>
-              </>
-            )}
+            <>
+              <Link 
+                to="/plantillas" 
+                className="mt-2 px-4 py-2 text-sm font-bold
+                  bg-white text-[#002856] rounded border border-[#002856]
+                  hover:bg-[#002856] hover:text-white
+                  transition-all duration-200 shadow-sm"
+              >
+                Gestión de Diligencias
+              </Link>
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="mt-2 px-4 py-2 text-sm font-bold
+                  bg-[#002856] text-white rounded border border-[#002856]
+                  hover:bg-blue-700
+                  transition-all duration-200 shadow-md transform hover:scale-[1.02] active:scale-95 flex items-center"
+              >
+                + Crear Atestado
+              </button>
+            </>
           </div>
         </div>
 
@@ -215,47 +216,50 @@ const AtestadosList = () => {
         <div className="flex mb-6 border-b border-gray-200">
           <button
             onClick={() => setActiveTab('templates')}
-            className={`px-6 py-3 text-sm font-bold transition-all ${
+            className={`px-6 py-3 text-sm font-bold transition-all border-b-4 ${
               activeTab === 'templates'
-                ? 'border-b-4 border-blue-600 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-[#002856] text-[#002856]'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            📋 ATESTADOS (Diligencias)
+            ATESTADOS
           </button>
           <button
             onClick={() => setActiveTab('used')}
-            className={`px-6 py-3 text-sm font-bold transition-all ${
+            className={`px-6 py-3 text-sm font-bold transition-all border-b-4 ${
               activeTab === 'used'
-                ? 'border-b-4 border-[#002856] text-[#002856]'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-[#002856] text-[#002856]'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            ATESTADOS USADOS (Finalizados)
+            ATESTADOS USADOS
           </button>
         </div>
 
-        {/* Filtros de búsqueda */}
+        {/* Filtros de búsqueda estilo Diligencias */}
         <div className="bg-white rounded shadow-sm border mb-6 p-6">
-          <h2 className="text-lg font-semibold mb-4">Filtros de búsqueda</h2>
+          <div className="flex items-center gap-2 mb-4 border-b pb-2">
+            <Search className="w-4 h-4 text-gray-400" />
+            <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Filtros de búsqueda</h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Buscar</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Buscar</label>
               <input
                 type="text"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Buscar por número o descripción..."
-                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border-gray-200 bg-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Fecha</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Fecha</label>
               <input
                 type="date"
                 value={filtroFecha}
                 onChange={(e) => setFiltroFecha(e.target.value)}
-                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border-gray-200 bg-white"
               />
             </div>
           </div>
@@ -279,7 +283,7 @@ const AtestadosList = () => {
               {!busqueda && !filtroFecha && activeTab === 'templates' && (
                 <button 
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors inline-block"
                 >
                   Crear primer atestado
                 </button>
@@ -287,14 +291,14 @@ const AtestadosList = () => {
             </div>
           ) : (
             <div className="divide-y">
-              {atestadosFiltrados.map(atestado => (
+              {currentAtestados.map(atestado => (
                 <div key={atestado.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-bold text-gray-900 hover:text-[#002856] transition-colors">
                           <Link to={`/atestados/${atestado.id}`}>
-                            Atestado #{atestado.numero || atestado.id}
+                            {atestado.numero ? atestado.numero.replace(/-U-\d+/, '') : atestado.id}
                           </Link>
                         </h3>
                         {atestado.is_final ? (
@@ -373,6 +377,28 @@ const AtestadosList = () => {
               ))}
             </div>
           )}
+          
+          {totalPages > 1 && atestadosFiltrados.length > 0 && (
+            <div className="flex justify-center items-center py-4 border-t bg-gray-50 rounded-b">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 mx-1 border rounded disabled:opacity-50 hover:bg-gray-100 font-medium text-sm transition-colors"
+              >
+                Anterior
+              </button>
+              <span className="px-4 py-2 text-sm text-gray-600 font-medium">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 mx-1 border rounded disabled:opacity-50 hover:bg-gray-100 font-medium text-sm transition-colors"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Resumen */}
@@ -380,6 +406,77 @@ const AtestadosList = () => {
           Mostrando {atestadosFiltrados.length} de {atestados.length} atestados
         </div> */}
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 overflow-hidden">
+            <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-800">Crear Nuevo Atestado</h3>
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateSubmit} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Nombre del atestado *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newAtestado.numero}
+                    onChange={(e) => setNewAtestado({ ...newAtestado, numero: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Fecha *</label>
+                  <input
+                    type="date"
+                    required
+                    value={newAtestado.fecha}
+                    onChange={(e) => setNewAtestado({ ...newAtestado, fecha: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-2">Descripción</label>
+                <textarea
+                  rows={4}
+                  value={newAtestado.descripcion}
+                  onChange={(e) => setNewAtestado({ ...newAtestado, descripcion: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  disabled={creating}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {creating ? 'Creando...' : 'Crear Atestado'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -13,7 +13,8 @@ const DraggableDiligencia = ({
   onDelete,
   isReordering = false,
   compact = false,
-  isFinal = false
+  isFinal = false,
+  onNavigate
 }) => {
   const handleDragStart = (e) => {
     if (!isReordering) return;
@@ -49,8 +50,14 @@ const DraggableDiligencia = ({
           ${isReordering ? 'hover:shadow-md' : ''}
         `}
       >
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer group" onClick={() => !isReordering && !isFinal && onEdit(diligencia)}>
+        <div className="flex items-start justify-between">
+          <div 
+            className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer group" 
+            onClick={() => {
+              if (isReordering) return;
+              if (onNavigate) onNavigate(diligencia.id);
+            }}
+          >
             {isReordering && (
               <div className="flex flex-col items-center text-gray-400 flex-shrink-0">
                 <div className="w-1 h-1 bg-gray-500 rounded-full mb-1"></div>
@@ -62,7 +69,7 @@ const DraggableDiligencia = ({
               {index + 1}
             </div>
             <div className="min-w-0 flex-1">
-              <h4 className="font-bold text-sm text-gray-900">
+              <h4 className="font-bold text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
                 DILIGENCIA {index + 1}
                 {diligencia.plantilla_nombre && (
                   <span className="text-xs text-gray-600 ml-1 font-normal">
@@ -70,13 +77,24 @@ const DraggableDiligencia = ({
                   </span>
                 )}
               </h4>
-              <p className="text-xs text-gray-600 mt-1">
-                {formatDateTime(diligencia.created_at)}
-              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
+            {!isReordering && !isFinal && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(diligencia);
+                }}
+                className="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50 transition-colors"
+                title="Editar diligencia"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+            )}
             {!isFinal && (
               <button
                 onClick={(e) => {
@@ -93,31 +111,6 @@ const DraggableDiligencia = ({
             )}
           </div>
         </div>
-
-        <div 
-          onClick={() => !isReordering && !isFinal && onEdit(diligencia)}
-          className={`text-xs text-gray-800 line-clamp-2 leading-relaxed font-mono mb-2 ${(!isReordering && !isFinal) ? 'cursor-pointer hover:text-blue-600' : ''}`}
-        >
-          {diligencia.texto_final || 'Sin contenido'}
-        </div>
-
-        {diligencia.valores && diligencia.valores.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-gray-300">
-            <p className="text-xs text-gray-600 font-bold mb-1">Palabras clave:</p>
-            <div className="flex flex-wrap gap-1">
-              {diligencia.valores.slice(0, 3).map((valor, idx) => (
-                <span key={idx} className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs font-medium">
-                  {valor.variable}: {valor.valor || '(vacío)'}
-                </span>
-              ))}
-              {diligencia.valores.length > 3 && (
-                <span className="text-xs text-gray-600 font-medium">
-                  +{diligencia.valores.length - 3} más
-                </span>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     );
   }

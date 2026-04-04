@@ -11,10 +11,14 @@ const PlantillasList = () => {
   const [plantillas, setPlantillas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState('');
+  const [filtroFecha, setFiltroFecha] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newTemplate, setNewTemplate] = useState({ name: '', description: '' });
   const navigate = useNavigate();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
 
   useEffect(() => {
     loadPlantillas();
@@ -86,14 +90,26 @@ const PlantillasList = () => {
 
   // Filtrar plantillas
   const plantillasFiltradas = plantillas.filter(plantilla => {
-    if (!busqueda) return true;
-    const searchLower = busqueda.toLowerCase();
-    return (
-      plantilla.name?.toLowerCase().includes(searchLower) ||
-      plantilla.description?.toLowerCase().includes(searchLower) ||
-      plantilla.content?.toLowerCase().includes(searchLower)
+    const matchBusqueda = !busqueda || (
+      plantilla.name?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      plantilla.description?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      plantilla.content?.toLowerCase().includes(busqueda.toLowerCase())
     );
+    
+    const matchFecha = !filtroFecha || (plantilla.created_at && plantilla.created_at.includes(filtroFecha));
+
+    return matchBusqueda && matchFecha;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [busqueda, filtroFecha]);
+
+  const totalPages = Math.ceil(plantillasFiltradas.length / ITEMS_PER_PAGE);
+  const currentPlantillas = plantillasFiltradas.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   if (loading) return (
     <div className="p-6">
@@ -153,10 +169,13 @@ const PlantillasList = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Estado / Categoría</label>
-              <div className="w-full bg-gray-50 border rounded px-3 py-2 text-sm text-gray-400 italic">
-                Próximamente filtrado por etiquetas...
-              </div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Fecha</label>
+              <input
+                type="date"
+                value={filtroFecha}
+                onChange={(e) => setFiltroFecha(e.target.value)}
+                className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border-gray-200 bg-white"
+              />
             </div>
           </div>
         </div>
@@ -189,7 +208,7 @@ const PlantillasList = () => {
         </div>
       ) : (
         <div className="divide-y divide-gray-100">
-          {plantillasFiltradas.map(plantilla => {
+          {currentPlantillas.map(plantilla => {
             const variables = extractVariables(plantilla.content || '');
             
             return (
@@ -251,10 +270,30 @@ const PlantillasList = () => {
             );
           })}
         </div>
-
       )}
 
+      {totalPages > 1 && plantillasFiltradas.length > 0 && (
+        <div className="flex justify-center items-center py-4 border-t bg-gray-50 rounded-b">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 mx-1 border rounded disabled:opacity-50 hover:bg-gray-100 font-medium text-sm transition-colors"
+          >
+            Anterior
+          </button>
+          <span className="px-4 py-2 text-sm text-gray-600 font-medium">
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 mx-1 border rounded disabled:opacity-50 hover:bg-gray-100 font-medium text-sm transition-colors"
+          >
+            Siguiente
+          </button>
         </div>
+      )}
+    </div>
 
       {/* Resumen final */}
 

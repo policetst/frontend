@@ -31,30 +31,17 @@ function Login() {
       });
 
       const token = response.data.token;
-      setCookie('token', token, { path: '/', maxAge: 3600 });
+      setCookie('token', token, { path: '/', maxAge: 86400 });
 
       const setUserWithExpiry = (username) => {
         Swal.fire({
           title: '¡Acceso concedido!',
-          text: `Bienvenido, ${username}. La sesión expirará en 1 hora.`,
+          text: `Bienvenido, ${username}.`,
           icon: 'success',
           confirmButtonText: 'Aceptar',
         });
 
-        const expiry = Date.now() + 3600 * 1000;
         localStorage.setItem('username', username);
-
-        setTimeout(() => {
-          localStorage.removeItem('username');
-          setCookie('token', '', { path: '/' });
-          Swal.fire({
-            title: 'Sesión expirada',
-            text: 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.',
-            icon: 'warning',
-            confirmButtonText: 'Aceptar',
-          });
-          navigate('/login');
-        }, 3600 * 1000);
       };
 
       setUserWithExpiry(username);
