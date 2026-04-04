@@ -356,32 +356,41 @@ import remarkBreaks from 'remark-breaks';
   };
 
 
-  const handleApplyUnifiedVariables = () => {
+  const handleApplyUnifiedVariables = async () => {
     const processed = diligencias.map(d => {
       const content = d.plantilla_content || d.content || d.texto_final || '';
       const finalContent = replaceVariables(content, unifiedVariables);
       return { ...d, texto_final: finalContent };
     });
-    setFinalPreviewDiligencias(processed);
     setShowUnifiedVariablesModal(false);
-    setShowUsedPreview(true);
+    await handleConfirmFinalAtestado(processed);
   };
 
-  const handleConfirmFinalAtestado = async () => {
+  const handleConfirmFinalAtestado = async (diligenciasToProcess = finalPreviewDiligencias) => {
     if (!atestado) return;
     setIsFinalizing(true);
     try {
+      const relevantKeywords = Object.entries(unifiedVariables)
+        .filter(([k, v]) => v && v.trim() !== '')
+        .slice(0, 5)
+        .map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`)
+        .join(' | ');
+
+      const finalDesc = relevantKeywords.length > 0 
+        ? (atestado.descripcion ? `${atestado.descripcion}\n@KW@${relevantKeywords}` : `@KW@${relevantKeywords}`)
+        : atestado.descripcion || '';
+
       const newAtestado = {
         numero: `${atestado.numero || 'AT'}-U-${Date.now().toString().slice(-6)}`,
         tipo: atestado.tipo || '',
-        descripcion: atestado.descripcion || '',
+        descripcion: finalDesc,
         fecha: new Date().toISOString().split('T')[0],
         is_final: true,
         id_template_original: atestado.id
       };
       const created = await apiService.createAtestado(newAtestado);
       const newAtestadoId = created.atestado?.id || created.id;
-      for (const d of finalPreviewDiligencias) {
+      for (const d of diligenciasToProcess) {
         const payload = {
           templateId: d.plantilla_id || d.templateId || null,
           values: Object.entries(unifiedVariables).filter(([k]) => (d.plantilla_content || '').includes(`{${k}}`)).map(([variable, value]) => ({ variable, value })),
@@ -711,7 +720,9 @@ import remarkBreaks from 'remark-breaks';
                 {atestado?.descripcion && (
                   <div className="mt-3 pt-2 border-t border-gray-200">
                     <p className="text-xs text-gray-600 font-medium mb-1">Descripción:</p>
-                    <p className="text-xs text-gray-800 line-clamp-2">{atestado.descripcion}</p>
+                    <p className="text-xs text-gray-800 line-clamp-2">
+                       {atestado.descripcion.includes('@KW@') ? atestado.descripcion.split('@KW@')[0] : atestado.descripcion}
+                    </p>
                   </div>
                 )}
               </div>
@@ -1107,148 +1118,14 @@ import remarkBreaks from 'remark-breaks';
                 </button>
                 <button
                   onClick={handleApplyUnifiedVariables}
-                  className="bg-indigo-600 text-white px-10 py-3 rounded-lg hover:bg-indigo-700 transition-all font-bold shadow-xl shadow-indigo-100 flex items-center gap-2 active:scale-95"
-                >
-                  Continuar a Finalización
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Vista Previa Final */}
-      {showUsedPreview && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col h-[95vh] animate-in zoom-in-95 duration-300">
-            <div className="bg-[#002856] p-5 text-white flex justify-between items-center shrink-0 shadow-lg">
-              <div className="flex items-center gap-3">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold">Vista Previa del Documento</h3>
-                  <p className="text-blue-100 text-xs">Revisa que toda la información es correcta antes de finalizar</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => { setShowUsedPreview(false); setShowUnifiedVariablesModal(true); }} 
-                  className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-white/20 flex items-center gap-2"
-                >
-                  🔙 Corregir valores
-                </button>
-                <button onClick={() => setShowUsedPreview(false)} className="text-white/60 hover:text-white text-2xl px-2">✕</button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-8 md:p-14 bg-gray-100 custom-scrollbar">
-              <div className="max-w-4xl mx-auto space-y-12">
-                <div className="bg-white shadow-2xl border border-gray-300 p-16 text-center relative document-preview-page">
-
-                   <h1 className="text-3xl font-black text-gray-900 mb-2 font-serif uppercase tracking-widest">Atestado Policial</h1>
-                   <div className="w-24 h-1 bg-gray-800 mx-auto mb-6"></div>
-                   <p className="text-2xl font-bold text-gray-800">Nº {atestado?.numero}</p>
-                   <p className="mt-4 text-gray-500 font-medium">{atestado?.tipo} • {formatDate(new Date())}</p>
-                </div>
-
-                {finalPreviewDiligencias.map((d, idx) => (
-                  <div key={idx} className="bg-white shadow-2xl border border-gray-300 p-16 relative document-preview-page min-h-[500px]">
-                    <div className="mb-10 flex justify-between items-center text-[10px] font-black text-gray-300 uppercase tracking-[0.3em] border-b border-gray-50 pb-4">
-                      <span>Diligencia {idx + 1} de {finalPreviewDiligencias.length}</span>
-                      <span>{d.plantilla_nombre || 'General'}</span>
-                    </div>
-                    
-                    <div className="prose prose-sm max-w-none text-gray-800 font-serif leading-relaxed">
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkGfm, remarkBreaks]}
-                        components={{
-                          table: ({node, ...props}) => (
-                            <div className="overflow-x-auto my-6 border-2 border-gray-100 rounded-lg">
-                              <table className="min-w-full divide-y-2 divide-gray-100 border-collapse" {...props} />
-                            </div>
-                          ),
-                          th: ({node, ...props}) => <th className="bg-gray-50 px-4 py-3 text-left text-xs font-black text-gray-600 border uppercase tracking-wider" {...props} />,
-                          td: ({node, ...props}) => <td className="px-4 py-3 text-sm text-gray-700 border border-gray-50" {...props} />,
-                          p: ({node, ...props}) => <p className="mb-6 whitespace-pre-wrap leading-[1.8]" {...props} />,
-                          strong: ({node, ...props}) => <strong className="font-bold text-gray-950" style={{ fontWeight: 'bold' }} {...props} />,
-                          em: ({node, ...props}) => <em className="italic text-gray-900 bg-yellow-50/50" style={{ fontStyle: 'italic' }} {...props} />,
-                          h3: ({node, ...props}) => <h3 className="text-xl font-black text-gray-900 border-b-2 border-gray-800 pb-2 mt-10 mb-6 uppercase tracking-tight" {...props} />,
-                          ul: ({node, ...props}) => <ul className="list-disc ml-10 mb-6 space-y-3" {...props} />,
-                          ol: ({node, ...props}) => <ol className="list-decimal ml-10 mb-6 space-y-3" {...props} />,
-                          li: ({node, ...props}) => <li className="pl-2" {...props} />,
-                        }}
-                      >
-                        {parseCustomTable(d.texto_final)}
-                      </ReactMarkdown>
-                    </div>
-
-                    {d.croquis && (
-                      <div className="mt-10 border-4 border-gray-50 p-4 rounded-xl bg-white shadow-inner">
-                        <img src={d.croquis} alt="Croquis" className="max-w-full h-auto mx-auto rounded-lg" />
-                        <p className="text-center text-[10px] font-bold text-gray-400 mt-3 uppercase tracking-widest text-balance italic">Croquis policial adjunto a la diligencia</p>
-                      </div>
-                    )}
-                    
-                    <div className="mt-20 pt-10 border-t border-dashed border-gray-200 flex justify-between items-end grayscale opacity-50">
-                      <div className="text-center">
-                        <div className="w-48 h-px bg-gray-300 mb-2"></div>
-                        <p className="text-[9px] font-bold uppercase">Sello de la Dependencia</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] font-serif italic mb-1">Diligenciada por el Agente {atestado?.usuario_nombre || ''}</p>
-                        <p className="text-[9px] font-black uppercase tracking-tighter">Página {idx + 2}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-6 bg-white border-t flex flex-col md:flex-row items-center gap-6 shrink-0 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.1)]">
-              <div className="flex-1 flex items-start gap-4 text-amber-800 bg-amber-50 p-4 rounded-xl border border-amber-100/50 max-w-2xl">
-                <div className="bg-amber-100 p-2 rounded-full mt-0.5">
-                  <svg className="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-                <div className="text-xs font-medium leading-relaxed">
-                  <p className="font-bold mb-1">Nota importante:</p>
-                  Al confirmar, se generará una <span className="underline decoration-amber-300 underline-offset-2">copia inmutable</span> de este documento. La plantilla original permanecerá intacta para futuros usos, pero el atestado resultante aparecerá en la sección de <strong>Atestados Usados</strong> listo para su impresión oficial.
-                </div>
-              </div>
-              
-              <div className="flex gap-3 w-full md:w-auto shrink-0">
-                <button
-                  onClick={() => setShowUsedPreview(false)}
-                  className="flex-1 md:flex-none px-8 py-3 text-gray-500 hover:bg-gray-100 rounded-xl transition-all font-bold border border-gray-200"
                   disabled={isFinalizing}
+                  className="bg-indigo-600 text-white px-10 py-3 rounded-lg hover:bg-indigo-700 transition-all font-bold shadow-xl shadow-indigo-100 flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleConfirmFinalAtestado}
-                  disabled={isFinalizing}
-                  className="flex-1 md:flex-none px-12 py-4 bg-[#002856] text-white rounded-xl hover:bg-black transition-all font-black shadow-xl shadow-blue-900/10 flex items-center justify-center gap-3 disabled:bg-gray-400 active:scale-[0.98]"
-                >
-                  {isFinalizing ? (
-                    <>
-                      <div className="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin"></div>
-                      PROCESANDO...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      CREAR DOCUMENTO FINAL
-                    </>
+                  {isFinalizing ? 'Procesando...' : 'Finalizar'}
+                  {!isFinalizing && (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                   )}
                 </button>
               </div>
@@ -1256,6 +1133,7 @@ import remarkBreaks from 'remark-breaks';
           </div>
         </div>
       )}
+
 
       {/* Modal para editar diligencia */}
       {showEditModal && editingDiligencia && (

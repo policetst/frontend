@@ -354,9 +354,26 @@ const AtestadosList = () => {
                       </div>
                       
                       {atestado.descripcion && (
-                        <p className="text-gray-700 text-sm line-clamp-2 mb-3">
-                          {atestado.descripcion}
-                        </p>
+                        <div>
+                          {atestado.descripcion.includes('@KW@') ? (
+                            <>
+                              <p className="text-gray-700 text-sm line-clamp-2 mb-2">
+                                {atestado.descripcion.split('@KW@')[0]}
+                              </p>
+                              <div className="flex flex-wrap gap-1 mb-3">
+                                {atestado.descripcion.split('@KW@')[1].split(' | ').filter(k => k.trim()).map((kw, i) => (
+                                  <span key={i} className="bg-blue-50 border border-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded font-bold uppercase shadow-sm truncate max-w-xs">
+                                    {kw.length > 40 ? kw.substring(0, 40) + '...' : kw}
+                                  </span>
+                                ))}
+                              </div>
+                            </>
+                          ) : (
+                            <p className="text-gray-700 text-sm line-clamp-2 mb-3">
+                              {atestado.descripcion}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
                     
