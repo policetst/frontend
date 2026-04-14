@@ -50,7 +50,7 @@ const AtestadoTicketView = ({ atestado, diligencias, onClose }) => {
               onClick={handlePrint}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
             >
-              🖨️ Imprimir Ticket
+              Imprimir Ticket
             </button>
             <button
               onClick={onClose}

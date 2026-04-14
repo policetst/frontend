@@ -141,13 +141,13 @@ const PlantillasList = () => {
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 
+            className="mt-2 px-4 py-2 text-sm font-bold
               bg-[#002856] text-white rounded border border-[#002856]
               hover:bg-blue-700
               transition-all duration-200 shadow-md transform hover:scale-[1.02] active:scale-95 flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            Nueva Diligencia
+            Crear Diligencia
           </button>
         </div>
 

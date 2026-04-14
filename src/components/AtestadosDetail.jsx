@@ -574,7 +574,7 @@ import remarkBreaks from 'remark-breaks';
                 onClick={() => setShowUnifiedVariablesModal(true)}
                 className="px-4 py-2 text-sm font-bold bg-[#002856] text-white border border-[#002856] rounded hover:bg-blue-800 transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
               >
-                USAR ESTE ATESTADO
+                USAR ATESTADO
               </button>
             )}
             {!(atestado?.is_final || atestado?.numero?.includes('-U-')) && (
@@ -664,13 +664,13 @@ import remarkBreaks from 'remark-breaks';
                     onClick={() => setShowPrintView(true)}
                     className="w-full bg-[#002856] text-white px-3 py-3 rounded text-sm font-bold hover:bg-[#002856]/90 flex items-center justify-center gap-2 transition-colors"
                   >
-                    🖨️ Imprimir Atestado
+                    Imprimir Atestado
                   </button>
                   <button
                     onClick={() => setShowTicketView(true)}
                     className="w-full bg-gray-800 text-white px-3 py-2 rounded text-sm font-bold hover:bg-gray-900 flex items-center justify-center gap-2 transition-colors"
                   >
-                    🎫 Ticket Rápido
+                    Ticket Rápido
                   </button>
                 </div>
               )}

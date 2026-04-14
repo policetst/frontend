@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiService from '../../services/apiService';
 import Swal from 'sweetalert2';
-import { ArrowLeft, FileText, Eye, Search } from 'lucide-react';
+import { ArrowLeft, FileText, Eye, Search, Plus } from 'lucide-react';
 
 const AtestadosList = () => {
   const [atestados, setAtestados] = useState([]);
@@ -204,9 +204,10 @@ const AtestadosList = () => {
                 className="mt-2 px-4 py-2 text-sm font-bold
                   bg-[#002856] text-white rounded border border-[#002856]
                   hover:bg-blue-700
-                  transition-all duration-200 shadow-md transform hover:scale-[1.02] active:scale-95 flex items-center"
+                  transition-all duration-200 shadow-md transform hover:scale-[1.02] active:scale-95 flex items-center gap-2"
               >
-                + Crear Atestado
+                <Plus className="w-4 h-4" />
+                Crear Atestado
               </button>
             </>
           </div>
@@ -425,13 +426,13 @@ const AtestadosList = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 overflow-hidden">
-            <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-800">Crear Nuevo Atestado</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-200">
+            <div className="bg-[#002856] p-4 text-white flex justify-between items-center">
+              <h3 className="text-xl font-bold">Crear Nuevo Atestado</h3>
               <button 
                 onClick={() => setIsModalOpen(false)} 
-                className="text-gray-400 hover:text-gray-600"
+                className="text-white/70 hover:text-white transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -439,37 +440,36 @@ const AtestadosList = () => {
               </button>
             </div>
             
-            <form onSubmit={handleCreateSubmit} className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <form onSubmit={handleCreateSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Nombre del atestado *</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1.5">Nombre del atestado <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     required
                     value={newAtestado.numero}
                     onChange={(e) => setNewAtestado({ ...newAtestado, numero: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-[#002856] focus:border-transparent outline-none transition-all shadow-sm"
+                    placeholder="Ej: Atestado por robo con fuerza"
+                    autoFocus
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Fecha *</label>
-                  <input
-                    type="date"
-                    required
-                    value={newAtestado.fecha}
-                    onChange={(e) => setNewAtestado({ ...newAtestado, fecha: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <label className="block text-sm font-bold text-gray-700 mb-1.5">Fecha</label>
+                  <div className="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed">
+                    {newAtestado.fecha.split('-').reverse().join('/')}
+                  </div>
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-gray-700 mb-2">Descripción</label>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1.5">Descripción</label>
                 <textarea
                   rows={4}
                   value={newAtestado.descripcion}
                   onChange={(e) => setNewAtestado({ ...newAtestado, descripcion: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-[#002856] focus:border-transparent outline-none transition-all shadow-sm"
+                  placeholder="Breve descripción de los hechos..."
                 />
               </div>
 
@@ -477,7 +477,7 @@ const AtestadosList = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded transition-colors font-medium border border-transparent"
                   disabled={creating}
                 >
                   Cancelar
@@ -485,7 +485,7 @@ const AtestadosList = () => {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-[#002856] text-white rounded hover:bg-[#003d82] transition-colors font-bold shadow-md hover:shadow-lg active:scale-95 transition-all disabled:bg-gray-400"
                 >
                   {creating ? 'Creando...' : 'Crear Atestado'}
                 </button>

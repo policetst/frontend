@@ -105,7 +105,7 @@ const CrearAtestado = () => {
           </div>
           
           <form onSubmit={handleSubmit} className="">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Nombre del atestado
@@ -144,7 +144,14 @@ const CrearAtestado = () => {
                 </select>
               </div>
 
-              
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Fecha de creación
+                </label>
+                <div className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-700 cursor-not-allowed">
+                  {formData.fecha.split('-').reverse().join('/')}
+                </div>
+              </div>
             </div>
 
             <div className="mb-6">
